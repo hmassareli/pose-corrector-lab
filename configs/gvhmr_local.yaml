@@ -1,0 +1,10 @@
+# Auto-updated by scripts/setup_gvhmr.py
+gvhmr_root: external/GVHMR
+python: python
+checkpoint: null
+static_camera_default: true
+device: cuda
+input_dir: data/input
+output_dir: data/teacher
+video_extensions: [".mp4", ".mov", ".avi", ".mkv", ".webm"]
+extra_args: []

@@ -1,0 +1,51 @@
+seed: 42
+dataset_config: configs/dataset.yaml
+model:
+  name: gru
+  hidden: 256
+  layers: 2
+  dropout: 0.1
+  kernel_size: 3
+  aux_motion: true
+  max_params_m: 2.0
+optim:
+  name: adamw
+  lr: 0.0003
+  weight_decay: 0.01
+  epochs: 80
+  batch_size: 256
+  grad_clip: 1.0
+  warmup_epochs: 3
+  hard_warmup_epochs: 5
+  amp: true
+loss:
+  huber_delta: 0.05
+  w_delta: 1.0
+  w_passthrough: 0.5
+  w_bone: 0.1
+  w_smooth: 0.0
+  w_aux: 0.0
+  w_reach: 0.0
+  w_angle: 0.0
+  reach_mode: hinge
+  reach_thr: 0.85
+  elbow_thr_deg: 160.0
+  geometry_warmup_epochs: 0
+  label_smoothing: 0.1
+  shoulder_weight: 1.0
+  elbow_weight: 1.0
+  wrist_weight: 1.4
+eval:
+  every_epochs: 1
+  early_stop_metric: val/mpjpe_hard_mm
+  early_stop_mode: min
+  patience: 15
+  easy_max_regression: 0.03
+logging:
+  dir: runs
+  run_name: gru_noaux_v1
+  tensorboard: true
+  jsonl: true
+inference_gate:
+  conf_high: 0.85
+  delta_eps: 0.02

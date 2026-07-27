@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pose Lab — Live</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --panel: #161b22;
+      --line: #2a3340;
+      --text: #e7ecf3;
+      --muted: #8b98a8;
+      --accent: #3ddea5;
+      --accent2: #6ea8fe;
+      --warn: #ffb454;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "IBM Plex Sans", system-ui, sans-serif;
+    }
+    header {
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #141a22, #0e1116);
+    }
+    header h1 {
+      font-size: 0.95rem; font-weight: 600; margin: 0;
+      letter-spacing: 0.02em;
+    }
+    header .meta { color: var(--muted); font-size: 0.8rem; }
+    header .control-label {
+      color: var(--muted); font-size: 0.7rem; text-transform: uppercase;
+    }
+    header select, header button, header label.toggle {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.82rem;
+    }
+    header button { cursor: pointer; }
+    header button:hover { border-color: var(--accent); }
+    header button.active, header button.on {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(61, 222, 165, 0.08);
+    }
+    header button.danger.on {
+      border-color: #ff8e8e;
+      color: #ff8e8e;
+      background: rgba(255, 142, 142, 0.08);
+    }
+    header .nav-tabs { display: inline-flex; gap: 0.35rem; }
+    header .nav-tabs a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+    header .nav-tabs a:hover { color: var(--text); border-color: var(--line); }
+    header .nav-tabs a.on {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(61, 222, 165, 0.08);
+    }
+    header label.toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      cursor: pointer; user-select: none;
+    }
+    header label.toggle input { accent-color: var(--accent); }
+    #ckptSelect { max-width: 280px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: calc(100% - 52px);
+      gap: 1px;
+      background: var(--line);
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: 42% 58%; }
+    }
+    .pane {
+      background: var(--panel);
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .pane-label {
+      position: absolute; top: 10px; left: 12px; z-index: 2;
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); pointer-events: none;
+    }
+    #camWrap {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background:
+        radial-gradient(ellipse at 30% 20%, #1a2433 0%, transparent 50%),
+        var(--bg);
+      position: relative;
+    }
+    #camVideo {
+      max-width: 100%; max-height: 100%;
+      background: #000;
+      transform: scaleX(-1);
+    }
+    #camCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform: scaleX(-1);
+      object-fit: contain;
+    }
+    #viewport3d {
+      position: absolute;
+      inset: 0;
+      touch-action: none;
+      cursor: grab;
+      background: var(--bg);
+    }
+    #viewport3d:active { cursor: grabbing; }
+    #canvas3d {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+    .hint {
+      position: absolute; top: 10px; right: 12px; z-index: 2;
+      font-size: 0.72rem; color: var(--muted);
+      pointer-events: none;
+      max-width: 48%;
+      text-align: right;
+    }
+    .status-chip {
+      position: absolute; top: 36px; right: 12px; z-index: 3;
+      display: inline-flex;
+      align-items: center; gap: 0.4rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(14,17,22,0.82);
+      backdrop-filter: blur(8px);
+      font-size: 0.72rem;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+    .status-chip .dot {
+      width: 0.55rem; height: 0.55rem; border-radius: 50%;
+      background: var(--muted);
+    }
+    .status-chip.live .dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(61, 222, 165, 0.65);
+    }
+    .status-chip.warn .dot { background: var(--warn); }
+    .controls {
+      position: absolute; bottom: 12px; left: 12px; right: 12px;
+      display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;
+      z-index: 3;
+      background: rgba(14,17,22,0.72);
+      backdrop-filter: blur(8px);
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .controls label {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    .controls input { accent-color: var(--accent); }
+    .err {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      padding: 2rem; text-align: center; color: #ff8e8e;
+      z-index: 4;
+      pointer-events: none;
+      background: rgba(14,17,22,0.55);
+    }
+    .note {
+      position: absolute; bottom: 56px; left: 12px; right: 12px; z-index: 2;
+      font-size: 0.7rem; color: var(--muted);
+      pointer-events: none;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pose Corrector Lab</h1>
+    <nav class="nav-tabs" aria-label="Modo">
+      <a href="/">Offline</a>
+      <a class="on" href="/live">Live</a>
+    </nav>
+    <button type="button" id="btnCam">Iniciar webcam</button>
+    <span class="control-label">Exibição</span>
+    <button type="button" id="btnModeRaw">Raw MP</button>
+    <button type="button" id="btnModeCorr" class="active">Corretor</button>
+    <label class="toggle" title="Sobrepor skeleton MediaPipe raw enquanto mostra corrigido">
+      <input type="checkbox" id="chkShadow" />
+      Sombra MP
+    </label>
+    <label class="toggle" title="Gate de confiança / delta pequeno → pass-through">
+      <input type="checkbox" id="chkGate" checked />
+      Gate
+    </label>
+    <span class="control-label">Modelo corretor</span>
+    <select id="ckptSelect" title="Modelo corretor"></select>
+    <button type="button" id="btnWarmup">Carregar modelo</button>
+    <button type="button" id="btnResetCam">Reset camera</button>
+    <span class="meta" id="statusMeta">aguardando webcam…</span>
+  </header>
+  <div class="layout">
+    <div class="pane">
+      <div class="pane-label">Webcam + MediaPipe</div>
+      <div id="camWrap">
+        <video id="camVideo" playsinline muted></video>
+      </div>
+      <div class="note">
+        MediaPipe Pose Landmarker no browser (WASM). 3D world landmarks são aproximados —
+        útil para demo live; profundidade Z é a parte mais fraca.
+      </div>
+    </div>
+    <div class="pane" id="pane3d">
+      <div class="pane-label">Skeleton 3D</div>
+      <div class="hint">arrastar = orbit · scroll = zoom · botão direito = pan</div>
+      <div class="status-chip" id="liveChip">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="liveChipText">idle</span>
+      </div>
+      <div id="viewport3d">
+        <canvas id="canvas3d"></canvas>
+      </div>
+      <div class="controls">
+        <span id="fpsLabel">MP — · Corr —</span>
+        <span id="deltaLabel">Δ —</span>
+        <span id="shadowLabel">Sombra Raw —</span>
+        <span id="ckptLabel">ckpt —</span>
+      </div>
+      <div class="err" id="err" hidden></div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
+
+    // ---- Lab skeleton (mirrors pose_lab.skeleton) ----
+    const LAB_JOINTS = [
+      "pelvis", "left_hip", "right_hip", "left_knee", "right_knee",
+      "left_ankle", "right_ankle", "spine", "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow", "left_wrist", "right_wrist", "neck", "head",
+    ];
+    const JOINT_TO_IDX = Object.fromEntries(LAB_JOINTS.map((n, i) => [n, i]));
+    const LAB_BONES = [
+      ["pelvis", "left_hip"], ["pelvis", "right_hip"],
+      ["left_hip", "left_knee"], ["right_hip", "right_knee"],
+      ["left_knee", "left_ankle"], ["right_knee", "right_ankle"],
+      ["pelvis", "spine"], ["spine", "neck"], ["neck", "head"],
+      ["spine", "left_shoulder"], ["spine", "right_shoulder"],
+      ["left_shoulder", "left_elbow"], ["right_shoulder", "right_elbow"],
+      ["left_elbow", "left_wrist"], ["right_elbow", "right_wrist"],
+    ];
+    const MEDIAPIPE_TO_LAB = {
+      23: "left_hip", 24: "right_hip",
+      25: "left_knee", 26: "right_knee",
+      27: "left_ankle", 28: "right_ankle",
+      11: "left_shoulder", 12: "right_shoulder",
+      13: "left_elbow", 14: "right_elbow",
+      15: "left_wrist", 16: "right_wrist",
+      0: "head",
+    };
+    const TARGETS = new Set([
+      "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow",
+      "left_wrist", "right_wrist",
+    ]);
+    const TRAINING_FPS = 30;
+    const CORRECTION_TIMEOUT_MS = 2000;
+    const MODEL_URL =
+      "https://storage.googleapis.com/mediapipe-models/pose_landmarker/" +
+      "pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+
+    const camVideo = document.getElementById("camVideo");
+    const btnCam = document.getElementById("btnCam");
+    const btnModeRaw = document.getElementById("btnModeRaw");
+    const btnModeCorr = document.getElementById("btnModeCorr");
+    const chkShadow = document.getElementById("chkShadow");
+    const chkGate = document.getElementById("chkGate");
+    const ckptSelect = document.getElementById("ckptSelect");
+    const btnWarmup = document.getElementById("btnWarmup");
+    const statusMeta = document.getElementById("statusMeta");
+    const errBox = document.getElementById("err");
+    const liveChip = document.getElementById("liveChip");
+    const liveChipText = document.getElementById("liveChipText");
+    const fpsLabel = document.getElementById("fpsLabel");
+    const deltaLabel = document.getElementById("deltaLabel");
+    const shadowLabel = document.getElementById("shadowLabel");
+    const ckptLabel = document.getElementById("ckptLabel");
+
+    let poseLandmarker = null;
+    let camStream = null;
+    let running = false;
+    let lastVideoTime = -1;
+    let mode = "corrected"; // raw | corrected
+    let checkpointId = "";
+    let checkpointOptions = new Map();
+    let checkpointReadyId = "";
+    let checkpointGeneration = 0;
+    let cameraGeneration = 0;
+    let requiredWindowT = 15;
+    let correctBusy = false;
+    let lastCorrMs = 0;
+    let mpFpsEma = 0;
+    let corrFpsEma = 0;
+    let lastMpTs = 0;
+    let lastCorrTs = 0;
+    let groundY = null;
+    let poseSequence = 0;
+    let lastCorrectedCheckpoint = "";
+    let lastRawView = null;
+    let lastCorrectedView = null;
+
+    /** Timestamped raw MP history; server regrids it to the training 30 Hz clock. */
+    const histJoints = [];
+    const histConf = [];
+    const hist2d = [];
+    const histTimes = [];
+
+    let jointMeshes = [];
+    let boneLines = null;
+    let nameToIndex = {};
+    let shadowMeshes = [];
+    let shadowBones = null;
+
+    // ---- Three.js ----
+    const viewport = document.getElementById("viewport3d");
+    const canvas = document.getElementById("canvas3d");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x0e1116, 1);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+    const DEFAULT_CAM_POS = new THREE.Vector3(2.2, 1.6, 2.8);
+    const DEFAULT_TARGET = new THREE.Vector3(0, 0.9, 0);
+    camera.position.copy(DEFAULT_CAM_POS);
+
+    const controls = new OrbitControls(camera, viewport);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = true;
+    controls.minDistance = 0.35;
+    controls.maxDistance = 12;
+    controls.maxPolarAngle = Math.PI * 0.95;
+    controls.target.copy(DEFAULT_TARGET);
+    controls.update();
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.85);
+    key.position.set(2, 3, 2);
+    scene.add(key);
+    scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+    scene.add(new THREE.AxesHelper(0.35));
+
+    function resize() {
+      const w = viewport.clientWidth, h = viewport.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", resize);
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(resize).observe(viewport);
+    }
+
+    function buildSkeleton() {
+      for (const m of jointMeshes) scene.remove(m);
+      jointMeshes = [];
+      if (boneLines) scene.remove(boneLines);
+      nameToIndex = Object.fromEntries(LAB_JOINTS.map((n, i) => [n, i]));
+      const geo = new THREE.SphereGeometry(0.028, 16, 16);
+      const mat = new THREE.MeshStandardMaterial({ color: 0x3ddea5, roughness: 0.35, metalness: 0.1 });
+      const matT = new THREE.MeshStandardMaterial({ color: 0x6ea8fe, roughness: 0.35, metalness: 0.1 });
+      for (const name of LAB_JOINTS) {
+        const mesh = new THREE.Mesh(geo, TARGETS.has(name) ? matT : mat);
+        scene.add(mesh);
+        jointMeshes.push(mesh);
+      }
+      const positions = new Float32Array(LAB_BONES.length * 2 * 3);
+      const bgeo = new THREE.BufferGeometry();
+      bgeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      boneLines = new THREE.LineSegments(
+        bgeo,
+        new THREE.LineBasicMaterial({ color: 0xc5d0de }),
+      );
+      scene.add(boneLines);
+
+      // Shadow (raw MP while showing corrected)
+      for (const m of shadowMeshes) scene.remove(m);
+      shadowMeshes = [];
+      if (shadowBones) scene.remove(shadowBones);
+      const sgeo = new THREE.SphereGeometry(0.038, 14, 14);
+      const smat = new THREE.MeshStandardMaterial({
+        color: 0xff8c42, roughness: 0.55, metalness: 0.05,
+        transparent: true, opacity: 0.9, depthWrite: false, depthTest: false,
+      });
+      for (const _ of LAB_JOINTS) {
+        const mesh = new THREE.Mesh(sgeo, smat);
+        mesh.renderOrder = 3;
+        mesh.visible = false;
+        scene.add(mesh);
+        shadowMeshes.push(mesh);
+      }
+      const spos = new Float32Array(LAB_BONES.length * 2 * 3);
+      const sbgeo = new THREE.BufferGeometry();
+      sbgeo.setAttribute("position", new THREE.BufferAttribute(spos, 3));
+      shadowBones = new THREE.LineSegments(
+        sbgeo,
+        new THREE.LineBasicMaterial({
+          color: 0xff8c42, transparent: true, opacity: 0.85,
+          depthWrite: false, depthTest: false,
+        }),
+      );
+      shadowBones.renderOrder = 3;
+      shadowBones.visible = false;
+      scene.add(shadowBones);
+    }
+
+    function setPose(meshes, lines, poseView) {
+      for (let i = 0; i < meshes.length; i++) {
+        const p = poseView[i];
+        meshes[i].position.set(p[0], p[1], p[2]);
+      }
+      const arr = lines.geometry.attributes.position.array;
+      let o = 0;
+      for (const [a, b] of LAB_BONES) {
+        const ia = JOINT_TO_IDX[a], ib = JOINT_TO_IDX[b];
+        const A = poseView[ia], B = poseView[ib];
+        arr[o++] = A[0]; arr[o++] = A[1]; arr[o++] = A[2];
+        arr[o++] = B[0]; arr[o++] = B[1]; arr[o++] = B[2];
+      }
+      lines.geometry.attributes.position.needsUpdate = true;
+    }
+
+    /** Disk MP (OpenCV-ish) → viewer Y-up (same flip as run_mediapipe / io.py). */
+    function toViewerSpace(pose) {
+      return pose.map((p) => [p[0], -p[1], -p[2]]);
+    }
+
+    function plantFeet(poseView) {
+      const la = poseView[JOINT_TO_IDX.left_ankle][1];
+      const ra = poseView[JOINT_TO_IDX.right_ankle][1];
+      const g = Math.min(la, ra);
+      if (groundY == null) groundY = g;
+      else groundY = groundY * 0.95 + g * 0.05;
+      return poseView.map((p) => [p[0], p[1] - groundY, p[2]]);
+    }
+
+    function mediapipeToLab(worldLms, imgLms) {
+      const out = Array.from({ length: LAB_JOINTS.length }, () => [0, 0, 0]);
+      const conf = new Array(LAB_JOINTS.length).fill(0);
+      const j2d = Array.from({ length: LAB_JOINTS.length }, () => [0, 0]);
+
+      for (const [mpiStr, name] of Object.entries(MEDIAPIPE_TO_LAB)) {
+        const mpi = Number(mpiStr);
+        const li = JOINT_TO_IDX[name];
+        const w = worldLms[mpi];
+        out[li] = [w.x, w.y, w.z];
+        const vis = (imgLms[mpi].visibility ?? imgLms[mpi].presence ?? 1);
+        conf[li] = Number(vis);
+        j2d[li] = [imgLms[mpi].x, imgLms[mpi].y];
+      }
+      const ls = out[JOINT_TO_IDX.left_shoulder];
+      const rs = out[JOINT_TO_IDX.right_shoulder];
+      const lh = out[JOINT_TO_IDX.left_hip];
+      const rh = out[JOINT_TO_IDX.right_hip];
+      out[JOINT_TO_IDX.pelvis] = [
+        0.5 * (lh[0] + rh[0]), 0.5 * (lh[1] + rh[1]), 0.5 * (lh[2] + rh[2]),
+      ];
+      out[JOINT_TO_IDX.neck] = [
+        0.5 * (ls[0] + rs[0]), 0.5 * (ls[1] + rs[1]), 0.5 * (ls[2] + rs[2]),
+      ];
+      const neck = out[JOINT_TO_IDX.neck];
+      const pelvis = out[JOINT_TO_IDX.pelvis];
+      out[JOINT_TO_IDX.spine] = [
+        0.5 * (neck[0] + pelvis[0]),
+        0.5 * (neck[1] + pelvis[1]),
+        0.5 * (neck[2] + pelvis[2]),
+      ];
+      conf[JOINT_TO_IDX.pelvis] = 0.5 * (conf[JOINT_TO_IDX.left_hip] + conf[JOINT_TO_IDX.right_hip]);
+      conf[JOINT_TO_IDX.neck] = 0.5 * (conf[JOINT_TO_IDX.left_shoulder] + conf[JOINT_TO_IDX.right_shoulder]);
+      conf[JOINT_TO_IDX.spine] = 0.5 * (conf[JOINT_TO_IDX.neck] + conf[JOINT_TO_IDX.pelvis]);
+      j2d[JOINT_TO_IDX.pelvis] = [
+        0.5 * (j2d[JOINT_TO_IDX.left_hip][0] + j2d[JOINT_TO_IDX.right_hip][0]),
+        0.5 * (j2d[JOINT_TO_IDX.left_hip][1] + j2d[JOINT_TO_IDX.right_hip][1]),
+      ];
+      j2d[JOINT_TO_IDX.neck] = [
+        0.5 * (j2d[JOINT_TO_IDX.left_shoulder][0] + j2d[JOINT_TO_IDX.right_shoulder][0]),
+        0.5 * (j2d[JOINT_TO_IDX.left_shoulder][1] + j2d[JOINT_TO_IDX.right_shoulder][1]),
+      ];
+      j2d[JOINT_TO_IDX.spine] = [
+        0.5 * (j2d[JOINT_TO_IDX.neck][0] + j2d[JOINT_TO_IDX.pelvis][0]),
+        0.5 * (j2d[JOINT_TO_IDX.neck][1] + j2d[JOINT_TO_IDX.pelvis][1]),
+      ];
+      return { joints: out, conf, joints2d: j2d };
+    }
+
+    function showError(msg) {
+      if (!msg) {
+        errBox.hidden = true;
+        errBox.textContent = "";
+        return;
+      }
+      errBox.hidden = false;
+      errBox.textContent = msg;
+    }
+
+    function requiredHistorySeconds() {
+      return Math.max(0, requiredWindowT - 1) / TRAINING_FPS;
+    }
+
+    function hasCanonicalWindow() {
+      if (histTimes.length < 2) return false;
+      return histTimes[0] <= histTimes[histTimes.length - 1] - requiredHistorySeconds() + 1e-6;
+    }
+
+    function canonicalFramesReady() {
+      if (!histTimes.length) return 0;
+      const covered = histTimes[histTimes.length - 1] - histTimes[0];
+      return Math.min(requiredWindowT, Math.floor(covered * TRAINING_FPS + 1 + 1e-6));
+    }
+
+    function canonicalHistoryStartIndex() {
+      if (!histTimes.length) return 0;
+      const targetStart = histTimes[histTimes.length - 1] - requiredHistorySeconds();
+      let index = 0;
+      while (index + 1 < histTimes.length && histTimes[index + 1] <= targetStart) {
+        index += 1;
+      }
+      return index;
+    }
+
+    function setMode(next) {
+      if (mode !== next) cameraGeneration += 1;
+      mode = next;
+      btnModeRaw.classList.toggle("active", mode === "raw");
+      btnModeCorr.classList.toggle("active", mode === "corrected");
+      if (mode === "raw") {
+        liveChip.classList.remove("warn");
+        liveChipText.textContent = running ? "principal: Raw MP" : "idle";
+        for (const mesh of shadowMeshes) mesh.visible = false;
+        if (shadowBones) shadowBones.visible = false;
+        if (lastRawView) setPose(jointMeshes, boneLines, lastRawView);
+        return;
+      }
+      if (!checkpointId) {
+        liveChipText.textContent = "sem modelo";
+        statusMeta.textContent = "nenhum modelo corretor disponível";
+        return;
+      }
+      if (lastCorrectedView && lastCorrectedCheckpoint === checkpointId) {
+        setPose(jointMeshes, boneLines, lastCorrectedView);
+        liveChipText.textContent = "principal: corrigido";
+      } else if (running) {
+        const readyFrames = canonicalFramesReady();
+        liveChipText.textContent = !hasCanonicalWindow()
+          ? `aquecendo ${readyFrames}/${requiredWindowT}`
+          : "aguardando corretor";
+        liveChip.classList.add("warn");
+      }
+      if (checkpointReadyId !== checkpointId) warmup();
+      else if (hasCanonicalWindow()) requestCorrection();
+    }
+    btnModeRaw.onclick = () => setMode("raw");
+    btnModeCorr.onclick = () => setMode("corrected");
+    chkShadow.addEventListener("change", () => {
+      const show = mode === "corrected" && chkShadow.checked && lastRawView;
+      for (const mesh of shadowMeshes) mesh.visible = !!show;
+      if (shadowBones) shadowBones.visible = !!show;
+      if (show) setPose(shadowMeshes, shadowBones, lastRawView);
+      shadowLabel.textContent = chkShadow.checked
+        ? (lastRawView ? `Sombra Raw ligada · frame ${poseSequence}` : "Sombra Raw aguardando pose")
+        : "Sombra Raw desligada";
+    });
+    chkGate.addEventListener("change", () => {
+      cameraGeneration += 1;
+      if (running && mode === "corrected") requestCorrection();
+    });
+    ckptSelect.addEventListener("change", () => {
+      checkpointId = ckptSelect.value;
+      requiredWindowT = Number(checkpointOptions.get(checkpointId)?.T) || 15;
+      checkpointReadyId = "";
+      checkpointGeneration += 1;
+      lastCorrectedView = null;
+      lastCorrectedCheckpoint = "";
+      btnWarmup.textContent = "Carregar modelo";
+      btnWarmup.disabled = false;
+      liveChipText.textContent = "modelo não carregado";
+      liveChip.classList.add("warn");
+      ckptLabel.textContent = `ckpt ${checkpointId.split("/").slice(-2).join("/")}`;
+      statusMeta.textContent = "modelo selecionado · clique Carregar modelo";
+      histJoints.length = 0;
+      histConf.length = 0;
+      hist2d.length = 0;
+      histTimes.length = 0;
+      if (running && mode === "corrected") warmup();
+    });
+
+    async function warmup() {
+      if (!checkpointId) return false;
+      const requestedCheckpoint = checkpointId;
+      const generation = checkpointGeneration;
+      statusMeta.textContent = "carregando modelo corretor…";
+      liveChipText.textContent = "carregando modelo";
+      liveChip.classList.add("warn");
+      btnWarmup.disabled = true;
+      try {
+        const res = await fetch("/api/warmup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ checkpoint: requestedCheckpoint }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        if (generation !== checkpointGeneration || requestedCheckpoint !== checkpointId) return false;
+        checkpointReadyId = requestedCheckpoint;
+        requiredWindowT = Number(data.T) || requiredWindowT;
+        btnWarmup.textContent = "Modelo carregado";
+        statusMeta.textContent = `modelo pronto · janela ${requiredWindowT} frames · ${data.device}`;
+        const readyFrames = canonicalFramesReady();
+        liveChipText.textContent = running
+          ? `aquecendo ${readyFrames}/${requiredWindowT}`
+          : "modelo pronto";
+        showError(null);
+        return true;
+      } catch (e) {
+        if (generation !== checkpointGeneration) return false;
+        checkpointReadyId = "";
+        btnWarmup.textContent = "Tentar novamente";
+        statusMeta.textContent = "falha ao carregar ckpt";
+        liveChipText.textContent = "erro no modelo";
+        showError(String(e.message || e));
+        return false;
+      } finally {
+        if (generation === checkpointGeneration) {
+          btnWarmup.disabled = checkpointReadyId === checkpointId;
+        }
+      }
+    }
+    btnWarmup.onclick = warmup;
+
+    async function ensureLandmarker() {
+      if (poseLandmarker) return poseLandmarker;
+      statusMeta.textContent = "baixando MediaPipe WASM…";
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm",
+      );
+      poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: MODEL_URL,
+          delegate: "GPU",
+        },
+        runningMode: "VIDEO",
+        numPoses: 1,
+      });
+      return poseLandmarker;
+    }
+
+    async function startCamera() {
+      showError(null);
+      try {
+        if (mode === "corrected" && checkpointReadyId !== checkpointId) {
+          const ready = await warmup();
+          if (!ready) return;
+        }
+        await ensureLandmarker();
+        camStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false,
+        });
+        camVideo.srcObject = camStream;
+        await camVideo.play();
+        cameraGeneration += 1;
+        running = true;
+        btnCam.textContent = "Parar webcam";
+        btnCam.classList.add("danger", "on");
+        statusMeta.textContent = "live";
+        liveChip.classList.add("live");
+        liveChipText.textContent = "live";
+        histJoints.length = 0;
+        histConf.length = 0;
+        hist2d.length = 0;
+        histTimes.length = 0;
+        poseSequence = 0;
+        lastRawView = null;
+        lastCorrectedView = null;
+        lastCorrectedCheckpoint = "";
+        groundY = null;
+        lastVideoTime = -1;
+        requestAnimationFrame(loop);
+      } catch (e) {
+        showError(`Webcam / MediaPipe: ${e.message || e}`);
+        statusMeta.textContent = "erro";
+      }
+    }
+
+    function stopCamera() {
+      cameraGeneration += 1;
+      running = false;
+      if (camStream) {
+        for (const t of camStream.getTracks()) t.stop();
+        camStream = null;
+      }
+      camVideo.srcObject = null;
+      btnCam.textContent = "Iniciar webcam";
+      btnCam.classList.remove("danger", "on");
+      liveChip.classList.remove("live");
+      liveChipText.textContent = "idle";
+      statusMeta.textContent = "parado";
+    }
+
+    btnCam.onclick = () => {
+      if (running) stopCamera();
+      else startCamera();
+    };
+
+    document.getElementById("btnResetCam").onclick = () => {
+      camera.position.copy(DEFAULT_CAM_POS);
+      controls.target.copy(DEFAULT_TARGET);
+      controls.update();
+      groundY = null;
+    };
+
+    async function requestCorrection() {
+      if (
+        correctBusy || !hasCanonicalWindow() || !checkpointId
+        || checkpointReadyId !== checkpointId
+      ) return;
+      correctBusy = true;
+      const requestedCheckpoint = checkpointId;
+      const generation = checkpointGeneration;
+      const requestedCameraGeneration = cameraGeneration;
+      const requestedSequence = poseSequence;
+      const historyStart = canonicalHistoryStartIndex();
+      const requestedJoints = histJoints.slice(historyStart);
+      const requestedConf = histConf.slice(historyStart);
+      const requested2d = hist2d.slice(historyStart);
+      const sampleTimes = histTimes.slice(historyStart);
+      const elapsed = sampleTimes[sampleTimes.length - 1] - sampleTimes[0];
+      const measuredFps = elapsed > 0
+        ? (sampleTimes.length - 1) / elapsed
+        : (mpFpsEma || TRAINING_FPS);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CORRECTION_TIMEOUT_MS);
+      const t0 = performance.now();
+      liveChipText.textContent = "corrigindo…";
+      try {
+        const res = await fetch("/api/correct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            checkpoint: requestedCheckpoint,
+            frame_id: requestedSequence,
+            timestamps: sampleTimes,
+            joints: requestedJoints,
+            conf: requestedConf,
+            joints_2d: requested2d,
+            fps: measuredFps,
+            apply_gate: chkGate.checked,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        if (
+          generation !== checkpointGeneration || requestedCheckpoint !== checkpointId
+          || requestedCameraGeneration !== cameraGeneration || !running
+          || data.checkpoint !== requestedCheckpoint || data.frame_id !== requestedSequence
+        ) return;
+
+        const roundTripMs = performance.now() - t0;
+        lastCorrMs = roundTripMs;
+        const lagFrames = Math.max(0, poseSequence - requestedSequence);
+        const now = performance.now();
+        if (lastCorrTs) {
+          const inst = 1000 / Math.max(1, now - lastCorrTs);
+          corrFpsEma = corrFpsEma ? corrFpsEma * 0.85 + inst * 0.15 : inst;
+        }
+        lastCorrTs = now;
+
+        const corrJoints = data.joints;
+        if (!Array.isArray(corrJoints) || corrJoints.length !== LAB_JOINTS.length) {
+          throw new Error(`joints inválidos (${corrJoints?.length ?? 0})`);
+        }
+        const corrView = plantFeet(toViewerSpace(corrJoints));
+        lastCorrectedView = corrView;
+        lastCorrectedCheckpoint = requestedCheckpoint;
+
+        if (mode === "corrected") {
+          setPose(jointMeshes, boneLines, corrView);
+          const showShadow = chkShadow.checked;
+          for (const m of shadowMeshes) m.visible = showShadow;
+          if (shadowBones) shadowBones.visible = showShadow;
+        }
+
+        const displacementMm = 1000 * Number(data.mean_displacement || 0);
+        deltaLabel.textContent = data.gated
+          ? `pass-through · Δ ${displacementMm.toFixed(0)} mm · atraso ${lagFrames}f`
+          : `correção ${displacementMm.toFixed(0)} mm · ${roundTripMs.toFixed(0)}ms · atraso ${lagFrames}f`;
+        liveChipText.textContent = data.gated
+          ? "principal: pass-through"
+          : "principal: corrigido";
+        liveChip.classList.toggle("warn", !!data.gated);
+        statusMeta.textContent = `modelo em uso · ${requestedCheckpoint.split("/").slice(-2).join("/")}`;
+        showError(null);
+      } catch (e) {
+        deltaLabel.textContent = "corr erro";
+        statusMeta.textContent = e.name === "AbortError"
+          ? `corretor excedeu ${CORRECTION_TIMEOUT_MS} ms`
+          : `corr: ${e.message || e}`;
+        liveChipText.textContent = "erro no corretor";
+        liveChip.classList.add("warn");
+      } finally {
+        clearTimeout(timeoutId);
+        correctBusy = false;
+      }
+    }
+
+    function onPoseFrame(joints, conf, joints2d, videoTime) {
+      poseSequence += 1;
+      histJoints.push(joints);
+      histConf.push(conf);
+      hist2d.push(joints2d);
+      histTimes.push(videoTime);
+      const keepSeconds = Math.max(1, requiredHistorySeconds() + 0.25);
+      const cutoff = videoTime - keepSeconds;
+      while (histTimes.length > 2 && histTimes[1] < cutoff) {
+        histJoints.shift();
+        histConf.shift();
+        hist2d.shift();
+        histTimes.shift();
+      }
+
+      const view = plantFeet(toViewerSpace(joints));
+      lastRawView = view;
+      const showLiveShadow = mode === "corrected" && chkShadow.checked;
+      setPose(shadowMeshes, shadowBones, view);
+      for (const mesh of shadowMeshes) mesh.visible = showLiveShadow;
+      if (shadowBones) shadowBones.visible = showLiveShadow;
+      shadowLabel.textContent = chkShadow.checked
+        ? `Sombra Raw ligada · frame ${poseSequence}`
+        : "Sombra Raw desligada";
+      if (mode === "raw") {
+        setPose(jointMeshes, boneLines, view);
+        for (const m of shadowMeshes) m.visible = false;
+        if (shadowBones) shadowBones.visible = false;
+        liveChipText.textContent = "principal: Raw MP";
+        liveChip.classList.remove("warn");
+      } else {
+        if (!lastCorrectedView || lastCorrectedCheckpoint !== checkpointId) {
+          setPose(jointMeshes, boneLines, view);
+          const readyFrames = canonicalFramesReady();
+          liveChipText.textContent = correctBusy
+            ? "corrigindo…"
+            : (!hasCanonicalWindow()
+              ? `aquecendo ${readyFrames}/${requiredWindowT}`
+              : "aguardando corretor");
+          liveChip.classList.add("warn");
+        }
+        requestCorrection();
+      }
+
+      const now = performance.now();
+      if (lastMpTs) {
+        const inst = 1000 / Math.max(1, now - lastMpTs);
+        mpFpsEma = mpFpsEma ? mpFpsEma * 0.85 + inst * 0.15 : inst;
+      }
+      lastMpTs = now;
+      const fpsState = mpFpsEma >= 20 ? "reamostrado" : "amostragem baixa";
+      fpsLabel.textContent =
+        `MP ${mpFpsEma.toFixed(0)} fps (${fpsState} → ${TRAINING_FPS} Hz) · `
+        + `Corr ${corrFpsEma ? corrFpsEma.toFixed(0) : "—"} fps`;
+    }
+
+    function loop() {
+      if (!running) return;
+      const lm = poseLandmarker;
+      if (lm && camVideo.readyState >= 2) {
+        if (camVideo.currentTime !== lastVideoTime) {
+          lastVideoTime = camVideo.currentTime;
+          const ts = performance.now();
+          const result = lm.detectForVideo(camVideo, ts);
+          if (result.worldLandmarks?.[0] && result.landmarks?.[0]) {
+            const mapped = mediapipeToLab(result.worldLandmarks[0], result.landmarks[0]);
+            onPoseFrame(mapped.joints, mapped.conf, mapped.joints2d, ts / 1000);
+          }
+        }
+      }
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    }
+
+    // Also render when idle (orbit).
+    function idleRender() {
+      if (!running) {
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(idleRender);
+    }
+
+    buildSkeleton();
+    const ckptData = await (await fetch("/api/checkpoints")).json();
+    checkpointOptions = new Map(
+      (ckptData.checkpoints || []).map((checkpoint) => [checkpoint.id, checkpoint]),
+    );
+    ckptSelect.innerHTML = "";
+    for (const c of ckptData.checkpoints || []) {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.label + (c.preferred ? " ★" : "");
+      ckptSelect.appendChild(opt);
+    }
+    checkpointId = ckptData.default || (ckptData.checkpoints?.[0]?.id) || "";
+    if (checkpointId) {
+      ckptSelect.value = checkpointId;
+      requiredWindowT = Number(checkpointOptions.get(checkpointId)?.T) || 15;
+    }
+    ckptLabel.textContent = checkpointId
+      ? `ckpt ${checkpointId.split("/").slice(-2).join("/")}`
+      : "ckpt —";
+    const nCkpt = (ckptData.checkpoints || []).length;
+    statusMeta.textContent = nCkpt
+      ? `modelo selecionado · será carregado ao iniciar webcam`
+      : "sem checkpoints em runs/";
+    liveChipText.textContent = nCkpt ? "modelo não carregado" : "sem modelo";
+    globalThis.poseLabDebug = () => ({
+      running,
+      mode,
+      poseSequence,
+      correctBusy,
+      checkpointId,
+      checkpointReadyId,
+      hasCanonicalWindow: hasCanonicalWindow(),
+      rawAvailable: !!lastRawView,
+      correctedAvailable: !!lastCorrectedView,
+      shadowChecked: chkShadow.checked,
+      shadowVisible: shadowMeshes.some((mesh) => mesh.visible),
+      shadowPosition: shadowMeshes[0]
+        ? shadowMeshes[0].position.toArray()
+        : null,
+      mainPosition: jointMeshes[0]
+        ? jointMeshes[0].position.toArray()
+        : null,
+      status: statusMeta.textContent,
+      chip: liveChipText.textContent,
+    });
+    resize();
+    idleRender();
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Lab (leve) — NÃO substitui o env dedicado do GVHMR
+numpy>=1.24
+pyyaml>=6.0
+opencv-python-headless>=4.8
+# Inferência Live e treino:
+torch>=2.1
+# tensorboard>=2.14
+# mediapipe>=0.10  # para scripts/run_mediapipe.py
+
+# Dev
+rich>=13.0

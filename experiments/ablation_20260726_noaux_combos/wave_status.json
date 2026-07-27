@@ -1,0 +1,36 @@
+{
+  "n_rows": 12,
+  "top": [
+    {
+      "name": "noaux_dropaccel_best",
+      "hand_prox_mae_C": "0.0772",
+      "val_hard_impr_pct": "59.8766",
+      "test_hard_impr_pct": "62.5352"
+    },
+    {
+      "name": "noaux_gru384_best",
+      "hand_prox_mae_C": "0.0827",
+      "val_hard_impr_pct": "55.9061",
+      "test_hard_impr_pct": "57.661"
+    },
+    {
+      "name": "noaux_long_best",
+      "hand_prox_mae_C": "0.0827",
+      "val_hard_impr_pct": "56.594",
+      "test_hard_impr_pct": "59.252"
+    },
+    {
+      "name": "noaux_wrist2_best",
+      "hand_prox_mae_C": "0.0842",
+      "val_hard_impr_pct": "55.5794",
+      "test_hard_impr_pct": "57.9672"
+    },
+    {
+      "name": "noaux_best",
+      "hand_prox_mae_C": "0.0852",
+      "val_hard_impr_pct": "55.9849",
+      "test_hard_impr_pct": "57.8951"
+    }
+  ],
+  "leaderboard": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\experiments\\ablation_20260726_noaux_combos\\leaderboard.tsv"
+}

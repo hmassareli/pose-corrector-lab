@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pose-lab"
+version = "0.1.0"
+description = "Boxing MediaPipe pose corrector lab (GVHMR teacher)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "pyyaml>=6.0",
+  "opencv-python-headless>=4.8",
+]
+
+[project.optional-dependencies]
+train = ["torch>=2.1", "tensorboard>=2.14"]
+mediapipe = ["mediapipe>=0.10"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

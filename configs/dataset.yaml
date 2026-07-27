@@ -1,0 +1,64 @@
+#fps_canonical: 30
+window_T: 15
+window_stride_train: 2
+window_stride_eval: 1
+
+joints_context:
+  - pelvis
+  - left_hip
+  - right_hip
+  - left_shoulder
+  - right_shoulder
+  - left_elbow
+  - right_elbow
+  - left_wrist
+  - right_wrist
+  - neck
+  - head
+
+target_joints:
+  - left_shoulder
+  - right_shoulder
+  - left_elbow
+  - right_elbow
+  - left_wrist
+  - right_wrist
+
+paths:
+  raw_videos: data/raw_videos
+  input: data/input
+  teacher: data/teacher
+  mediapipe: data/mediapipe
+  paired: data/paired
+  splits: data/splits/manifest.json
+
+resample:
+  method: linear  # joint-wise linear interp in time
+  target_fps: 30
+
+alignment:
+  # translate+scale only — full Procrustes kills boxing torso yaw / punch depth
+  method: trunk_translate_scale_per_frame
+  trunk_joints: [left_shoulder, right_shoulder, left_hip, right_hip]
+  scale_from: shoulder_width
+
+features:
+  include_velocity: true
+  include_acceleration: true
+  include_bone_ratios: true
+  include_2d: true
+  include_confidence: true
+
+motion_labels:
+  - idle_guard
+  - extend_L
+  - extend_R
+  - hookish
+  - uppercutish
+  - retract
+  - other
+
+hard_criteria:
+  residual_percentile: 80
+  conf_below: 0.5
+  extension_high_quantile: 0.85

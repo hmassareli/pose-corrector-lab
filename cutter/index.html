@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pose Lab — Shot Cutter</title>
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --panel: #141a22;
+      --panel2: #1a222d;
+      --line: #2a3442;
+      --text: #e8eef6;
+      --muted: #8b98a8;
+      --accent: #3ddea5;
+      --accent-dim: rgba(61, 222, 165, 0.18);
+      --danger: #ff6b6b;
+      --danger-dim: rgba(255, 107, 107, 0.15);
+      --sel: #6ea8fe;
+      --playhead: #ffcc66;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "IBM Plex Sans", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 52px 1fr 168px;
+      height: 100%;
+    }
+    header {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 1rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #151b24, #0c0f14);
+    }
+    header h1 {
+      margin: 0; font-size: 0.95rem; font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    header .spacer { flex: 1; }
+    header .hint {
+      font-size: 0.75rem; color: var(--muted);
+      white-space: nowrap;
+    }
+    kbd {
+      display: inline-block;
+      padding: 0.05rem 0.35rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel2);
+      font-size: 0.7rem;
+      color: var(--text);
+    }
+    button {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    button:hover { border-color: var(--accent); }
+    button.primary {
+      background: var(--accent);
+      color: #062218;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    button.primary:hover { filter: brightness(1.05); }
+    button.primary:disabled {
+      opacity: 0.45; cursor: not-allowed; filter: none;
+    }
+    button.danger {
+      border-color: #5a3030;
+      color: var(--danger);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      display: flex; flex-direction: column;
+      min-height: 0;
+    }
+    .sidebar .side-head {
+      padding: 0.7rem 0.85rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .video-list {
+      overflow: auto; flex: 1; padding: 0.4rem;
+    }
+    .video-item {
+      width: 100%;
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      margin-bottom: 0.25rem;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      display: flex; flex-direction: column; gap: 0.15rem;
+    }
+    .video-item:hover { background: var(--panel2); border-color: var(--line); }
+    .video-item.active {
+      background: var(--accent-dim);
+      border-color: rgba(61, 222, 165, 0.45);
+    }
+    .video-item .name {
+      font-size: 0.82rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .video-item .meta {
+      font-size: 0.7rem; color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .stage {
+      display: flex; flex-direction: column;
+      min-width: 0; min-height: 0;
+      background:
+        radial-gradient(ellipse at 50% 30%, #15202c 0%, transparent 55%),
+        var(--bg);
+    }
+    .stage-top {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .stage-top .title {
+      font-size: 0.85rem;
+      color: var(--muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .status {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-left: auto;
+    }
+    .status.err { color: var(--danger); }
+    .player-wrap {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0.75rem;
+    }
+    video {
+      max-width: 100%; max-height: 100%;
+      background: #000;
+      border-radius: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    }
+
+    .timeline-panel {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+      display: grid;
+      grid-template-rows: 36px 1fr;
+      min-height: 0;
+    }
+    .transport {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0 0.85rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .transport .time {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-width: 110px;
+    }
+    .speed-wrap {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.75rem; color: var(--muted);
+    }
+    .speed-wrap select {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.25rem 0.4rem;
+      font-size: 0.8rem;
+    }
+    .timeline {
+      position: relative;
+      margin: 0.55rem 0.85rem 0.7rem;
+      height: 88px;
+      border-radius: 10px;
+      background: #0a0d12;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      cursor: crosshair;
+      user-select: none;
+      touch-action: none;
+    }
+    .timeline .ruler {
+      position: absolute; left: 0; right: 0; top: 0; height: 18px;
+      background: var(--panel2);
+      border-bottom: 1px solid var(--line);
+      pointer-events: none;
+    }
+    .timeline .tick {
+      position: absolute; top: 0; bottom: 0;
+      border-left: 1px solid #2e3948;
+      font-size: 0.62rem; color: var(--muted);
+      padding-left: 3px; padding-top: 2px;
+    }
+    .timeline .track {
+      position: absolute; left: 0; right: 0; top: 18px; bottom: 0;
+    }
+    .timeline .gap {
+      position: absolute; top: 8px; bottom: 8px;
+      background: repeating-linear-gradient(
+        -45deg,
+        #12161c,
+        #12161c 4px,
+        #181e26 4px,
+        #181e26 8px
+      );
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    .timeline .seg {
+      position: absolute; top: 8px; bottom: 8px;
+      background: linear-gradient(180deg, #2a9b74, #1f7a5a);
+      border: 1px solid rgba(61, 222, 165, 0.55);
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+    .timeline .seg:hover { filter: brightness(1.08); }
+    .timeline .seg.selected {
+      background: linear-gradient(180deg, #4aa0ff, #2f6fbf);
+      border-color: rgba(110, 168, 254, 0.85);
+      outline: 1px solid rgba(110, 168, 254, 0.5);
+    }
+    .timeline .seg .label {
+      position: absolute; left: 6px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.9);
+      pointer-events: none;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    .timeline .playhead {
+      position: absolute; top: 0; bottom: 0; width: 2px;
+      background: var(--playhead);
+      pointer-events: none;
+      z-index: 5;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+    }
+    .timeline .playhead::before {
+      content: "";
+      position: absolute;
+      left: 50%; top: 0;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--playhead);
+    }
+    .empty {
+      padding: 2rem; color: var(--muted); text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Shot Cutter</h1>
+      <span class="hint">
+        <kbd>Space</kbd> play/pause ·
+        <kbd>C</kbd> cortar ·
+        <kbd>Del</kbd> apagar ·
+        <kbd>←</kbd><kbd>→</kbd> ±0.1s ·
+        <kbd>Shift</kbd>+setas ±1s
+      </span>
+      <div class="spacer"></div>
+      <button type="button" id="btnReload">Atualizar lista</button>
+      <button type="button" class="danger" id="btnDelete" title="Delete">Apagar trecho</button>
+      <button type="button" class="primary" id="btnExport" disabled>Gerar recortes</button>
+    </header>
+
+    <aside class="sidebar">
+      <div class="side-head">
+        <span>data/input</span>
+        <span id="videoCount">0</span>
+      </div>
+      <div class="video-list" id="videoList">
+        <div class="empty">Carregando…</div>
+      </div>
+    </aside>
+
+    <main class="stage">
+      <div class="stage-top">
+        <span class="title" id="currentTitle">Selecione um vídeo</span>
+        <span class="status" id="status"></span>
+      </div>
+      <div class="player-wrap">
+        <video id="video" playsinline></video>
+      </div>
+    </main>
+
+    <section class="timeline-panel">
+      <div class="transport">
+        <button type="button" id="btnPlay">Play</button>
+        <button type="button" id="btnCut" title="C">Cortar aqui</button>
+        <label class="speed-wrap" title="Velocidade de playback">
+          <span>Vel</span>
+          <select id="speedSelect" aria-label="Velocidade">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <span class="time" id="timeLabel">0:00.0 / 0:00.0</span>
+        <span class="hint" id="segInfo" style="margin-left:auto"></span>
+      </div>
+      <div class="timeline" id="timeline" title="Clique para seek">
+        <div class="ruler" id="ruler"></div>
+        <div class="track" id="track"></div>
+        <div class="playhead" id="playhead" style="left:0"></div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    const video = document.getElementById("video");
+    const videoList = document.getElementById("videoList");
+    const videoCount = document.getElementById("videoCount");
+    const currentTitle = document.getElementById("currentTitle");
+    const statusEl = document.getElementById("status");
+    const timeLabel = document.getElementById("timeLabel");
+    const segInfo = document.getElementById("segInfo");
+    const timeline = document.getElementById("timeline");
+    const track = document.getElementById("track");
+    const ruler = document.getElementById("ruler");
+    const playhead = document.getElementById("playhead");
+    const btnPlay = document.getElementById("btnPlay");
+    const btnCut = document.getElementById("btnCut");
+    const btnDelete = document.getElementById("btnDelete");
+    const btnExport = document.getElementById("btnExport");
+    const btnReload = document.getElementById("btnReload");
+    const speedSelect = document.getElementById("speedSelect");
+
+    /** @type {{id:string,name:string,rel:string,url:string}[]} */
+    let videos = [];
+    /** @type {string|null} */
+    let currentRel = null;
+    /** @type {{id:number,start:number,end:number}[]} */
+    let segments = [];
+    let selectedId = null;
+    let nextSegId = 1;
+    const EPS = 0.05;
+    const NUDGE_SMALL = 0.1;
+    const NUDGE_LARGE = 1.0;
+
+    function setStatus(msg, isErr = false) {
+      statusEl.textContent = msg || "";
+      statusEl.classList.toggle("err", !!isErr);
+    }
+
+    function fmt(t) {
+      if (!Number.isFinite(t) || t < 0) t = 0;
+      const m = Math.floor(t / 60);
+      const s = t - m * 60;
+      return `${m}:${s.toFixed(1).padStart(4, "0")}`;
+    }
+
+    function duration() {
+      return Number.isFinite(video.duration) ? video.duration : 0;
+    }
+
+    function resetSegments() {
+      const d = duration();
+      segments = d > 0 ? [{ id: nextSegId++, start: 0, end: d }] : [];
+      selectedId = segments[0]?.id ?? null;
+      renderTimeline();
+      updateExportBtn();
+    }
+
+    function updateExportBtn() {
+      btnExport.disabled = !currentRel || segments.length === 0;
+      segInfo.textContent = currentRel
+        ? `${segments.length} trecho(s) · ${segments.reduce((a, s) => a + (s.end - s.start), 0).toFixed(1)}s mantidos`
+        : "";
+    }
+
+    function renderVideoList() {
+      videoCount.textContent = String(videos.length);
+      if (!videos.length) {
+        videoList.innerHTML = `<div class="empty">Nenhum vídeo em data/input</div>`;
+        return;
+      }
+      videoList.innerHTML = "";
+      for (const v of videos) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "video-item" + (v.rel === currentRel ? " active" : "");
+        btn.innerHTML = `<span class="name">${escapeHtml(v.name)}</span><span class="meta">${escapeHtml(v.rel)}</span>`;
+        btn.onclick = () => selectVideo(v);
+        videoList.appendChild(btn);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    async function loadVideos() {
+      setStatus("Carregando lista…");
+      const res = await fetch("/api/videos");
+      const data = await res.json();
+      videos = data.videos || [];
+      renderVideoList();
+      setStatus(`${videos.length} vídeo(s)`);
+      if (!currentRel && videos.length) {
+        // prefer shadow_clip_45s if present
+        const pref = videos.find((v) => v.name.includes("shadow_clip_45s")) || videos[0];
+        selectVideo(pref);
+      }
+    }
+
+    function selectVideo(v) {
+      currentRel = v.rel;
+      currentTitle.textContent = v.rel;
+      renderVideoList();
+      segments = [];
+      selectedId = null;
+      video.src = v.url;
+      video.load();
+      setStatus("Carregando vídeo…");
+      btnExport.disabled = true;
+    }
+
+    video.addEventListener("loadedmetadata", () => {
+      resetSegments();
+      applySpeed();
+      setStatus("Pronto");
+      drawRuler();
+      updateTimeUi();
+    });
+
+    video.addEventListener("play", () => { btnPlay.textContent = "Pause"; });
+    video.addEventListener("pause", () => { btnPlay.textContent = "Play"; });
+
+    function togglePlay() {
+      if (!currentRel) return;
+      if (video.paused) video.play();
+      else video.pause();
+    }
+
+    function cutAtPlayhead() {
+      const t = video.currentTime;
+      const d = duration();
+      if (!d) return;
+      const seg = segments.find((s) => t > s.start + EPS && t < s.end - EPS);
+      if (!seg) {
+        setStatus("Playhead na borda do trecho — nada a cortar");
+        return;
+      }
+      const left = { id: nextSegId++, start: seg.start, end: t };
+      const right = { id: nextSegId++, start: t, end: seg.end };
+      const idx = segments.findIndex((s) => s.id === seg.id);
+      segments.splice(idx, 1, left, right);
+      selectedId = right.id;
+      renderTimeline();
+      updateExportBtn();
+      setStatus(`Corte em ${fmt(t)}`);
+    }
+
+    function deleteSelected() {
+      if (selectedId == null) {
+        setStatus("Selecione um trecho na timeline", true);
+        return;
+      }
+      if (segments.length <= 1) {
+        // deleting the only segment → empty keep list
+      }
+      segments = segments.filter((s) => s.id !== selectedId);
+      selectedId = segments[0]?.id ?? null;
+      renderTimeline();
+      updateExportBtn();
+      setStatus(segments.length ? "Trecho apagado" : "Nenhum trecho restante");
+    }
+
+    function drawRuler() {
+      const d = duration();
+      ruler.innerHTML = "";
+      if (!d) return;
+      const w = timeline.clientWidth;
+      // ~8 labels
+      const step = niceStep(d / 8);
+      for (let t = 0; t <= d + 1e-6; t += step) {
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = `${(t / d) * 100}%`;
+        tick.textContent = fmt(t).replace(/\.\d$/, "");
+        ruler.appendChild(tick);
+      }
+    }
+
+    function niceStep(raw) {
+      const powers = [0.5, 1, 2, 5, 10, 15, 30, 60];
+      for (const p of powers) if (p >= raw) return p;
+      return 60;
+    }
+
+    function renderTimeline() {
+      const d = duration();
+      track.innerHTML = "";
+      if (!d) return;
+
+      // gaps (deleted)
+      const kept = [...segments].sort((a, b) => a.start - b.start);
+      let cursor = 0;
+      for (const s of kept) {
+        if (s.start > cursor + 0.01) {
+          const gap = document.createElement("div");
+          gap.className = "gap";
+          gap.style.left = `${(cursor / d) * 100}%`;
+          gap.style.width = `${((s.start - cursor) / d) * 100}%`;
+          track.appendChild(gap);
+        }
+        cursor = s.end;
+      }
+      if (cursor < d - 0.01) {
+        const gap = document.createElement("div");
+        gap.className = "gap";
+        gap.style.left = `${(cursor / d) * 100}%`;
+        gap.style.width = `${((d - cursor) / d) * 100}%`;
+        track.appendChild(gap);
+      }
+
+      kept.forEach((s, i) => {
+        const el = document.createElement("div");
+        el.className = "seg" + (s.id === selectedId ? " selected" : "");
+        el.style.left = `${(s.start / d) * 100}%`;
+        el.style.width = `${((s.end - s.start) / d) * 100}%`;
+        el.innerHTML = `<span class="label">T${i + 1} · ${fmt(s.end - s.start)}</span>`;
+        el.addEventListener("pointerdown", (e) => {
+          e.stopPropagation();
+          selectedId = s.id;
+          renderTimeline();
+          // seek to click inside segment
+          const rect = timeline.getBoundingClientRect();
+          const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+          video.currentTime = ratio * d;
+          updateTimeUi();
+        });
+        track.appendChild(el);
+      });
+      updateExportBtn();
+    }
+
+    function seekFromEvent(e) {
+      const d = duration();
+      if (!d) return;
+      const rect = timeline.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+      video.currentTime = ratio * d;
+      updateTimeUi();
+    }
+
+    let dragging = false;
+    timeline.addEventListener("pointerdown", (e) => {
+      if (e.target.closest(".seg")) return;
+      dragging = true;
+      timeline.setPointerCapture(e.pointerId);
+      seekFromEvent(e);
+      selectedId = null;
+      renderTimeline();
+    });
+    timeline.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      seekFromEvent(e);
+    });
+    timeline.addEventListener("pointerup", () => { dragging = false; });
+    timeline.addEventListener("pointercancel", () => { dragging = false; });
+
+    function updateTimeUi() {
+      const d = duration();
+      const t = video.currentTime || 0;
+      timeLabel.textContent = `${fmt(t)} / ${fmt(d)}`;
+      playhead.style.left = d ? `${(t / d) * 100}%` : "0%";
+    }
+
+    // Skip deleted regions while playing (CapCut-like keep-only)
+    function maybeSkipGaps() {
+      if (video.paused || !segments.length) return;
+      const t = video.currentTime;
+      const sorted = [...segments].sort((a, b) => a.start - b.start);
+      const inside = sorted.find((s) => t >= s.start - 1e-3 && t < s.end - 1e-3);
+      if (inside) return;
+      const next = sorted.find((s) => s.start > t);
+      if (next) video.currentTime = next.start;
+      else {
+        video.pause();
+        video.currentTime = sorted[sorted.length - 1].end - 0.01;
+      }
+    }
+
+    function tick() {
+      updateTimeUi();
+      maybeSkipGaps();
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    async function exportCuts() {
+      if (!currentRel || !segments.length) return;
+      const payload = {
+        video: currentRel,
+        segments: [...segments]
+          .sort((a, b) => a.start - b.start)
+          .map((s) => ({ start: s.start, end: s.end })),
+      };
+      btnExport.disabled = true;
+      setStatus("Gerando recortes com ffmpeg…");
+      try {
+        const res = await fetch("/api/export", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "Falha no export");
+        setStatus(`OK — ${data.manifest.n_shots} shot(s) em ${data.out_dir}`);
+      } catch (err) {
+        setStatus(String(err.message || err), true);
+      } finally {
+        updateExportBtn();
+      }
+    }
+
+    function nudge(dt) {
+      const d = duration();
+      if (!d) return;
+      video.currentTime = Math.min(d, Math.max(0, video.currentTime + dt));
+      updateTimeUi();
+    }
+
+    function applySpeed() {
+      const rate = Number(speedSelect.value) || 1;
+      video.playbackRate = rate;
+    }
+
+    btnPlay.onclick = togglePlay;
+    btnCut.onclick = cutAtPlayhead;
+    btnDelete.onclick = deleteSelected;
+    btnExport.onclick = exportCuts;
+    btnReload.onclick = () => loadVideos();
+    speedSelect.addEventListener("change", applySpeed);
+
+    window.addEventListener("keydown", (e) => {
+      const tag = (e.target && e.target.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        cutAtPlayhead();
+      } else if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        deleteSelected();
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        nudge(-(e.shiftKey ? NUDGE_LARGE : NUDGE_SMALL));
+      } else if (e.code === "ArrowRight") {
+        e.preventDefault();
+        nudge(e.shiftKey ? NUDGE_LARGE : NUDGE_SMALL);
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      drawRuler();
+      renderTimeline();
+    });
+
+    await loadVideos();
+  </script>
+</body>
+</html>

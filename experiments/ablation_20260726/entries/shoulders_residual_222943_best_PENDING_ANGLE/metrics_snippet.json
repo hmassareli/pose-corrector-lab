@@ -1,0 +1,16 @@
+{
+  "name": "shoulders_residual_222943_best_PENDING_ANGLE",
+  "config_hash": "6e8f920e3f",
+  "best_epoch": 14,
+  "val_hard_mm": 441.5782,
+  "val_hard_impr_pct": 18.5429,
+  "elbow_mae_C_T": "",
+  "elbow_mae_MP_T": "",
+  "pct_closer_than_mp": "",
+  "notes": "PENDING export+arm bench after GPU free; old shoulders residual w_smooth=0.05",
+  "run_dir": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\runs\\20260725_222943_gru_v1",
+  "ckpt_used": "best",
+  "easy_ok": true,
+  "ext_reach_impr_pct": null,
+  "measured_unix": 1785038146.8059452
+}

@@ -1,0 +1,66 @@
+# Python
+.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Data (vídeos e poses são grandes)
+data/raw_videos/*
+!data/raw_videos/.gitkeep
+!data/raw_videos/README.md
+data/input/*
+!data/input/.gitkeep
+!data/input/README.md
+data/teacher/*
+!data/teacher/.gitkeep
+!data/teacher/README.md
+data/mediapipe/*
+!data/mediapipe/.gitkeep
+data/paired/*
+!data/paired/.gitkeep
+data/corrected/
+data/dataset/
+data/evals/
+data/models/
+data/splits/
+data/teacher_aligned/
+data/overnight_mocap_status.json
+runs/*
+!runs/.gitkeep
+!runs/20260726_092251_gru_noaux_dropaccel_v1/
+runs/20260726_092251_gru_noaux_dropaccel_v1/*
+!runs/20260726_092251_gru_noaux_dropaccel_v1/checkpoints/
+runs/20260726_092251_gru_noaux_dropaccel_v1/checkpoints/*
+!runs/20260726_092251_gru_noaux_dropaccel_v1/checkpoints/best_hard.pt
+!runs/20260727_134842_gru_noaux_dropaccel_win_ft/
+runs/20260727_134842_gru_noaux_dropaccel_win_ft/*
+!runs/20260727_134842_gru_noaux_dropaccel_win_ft/checkpoints/
+runs/20260727_134842_gru_noaux_dropaccel_win_ft/checkpoints/*
+!runs/20260727_134842_gru_noaux_dropaccel_win_ft/checkpoints/best_hard.pt
+
+# Downloaded model weights
+*.pt
+*.pth
+*.ckpt
+!runs/20260726_092251_gru_noaux_dropaccel_v1/checkpoints/best_hard.pt
+!runs/20260727_134842_gru_noaux_dropaccel_win_ft/checkpoints/best_hard.pt
+
+# External teacher
+external/GVHMR/
+external/**/checkpoints/
+external/**/inputs/
+external/**/*.pth
+external/**/*.pt
+external/**/*.ckpt
+external/**/*.tar
+external/**/*.npz
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+_viewer_*.err
+_viewer_*.out
+*.log
