@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Avatar pose bake</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; background: #222a31; overflow: hidden; }
+    #viewport { width: 720px; height: 960px; }
+    canvas { display: block; width: 100%; height: 100%; }
+    #status {
+      position: fixed; left: 8px; top: 8px; z-index: 2;
+      color: #c5d0de; font: 12px/1.4 Consolas, monospace;
+      background: rgba(0,0,0,0.45); padding: 4px 8px; border-radius: 4px;
+    }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="status">loading…</div>
+  <div id="viewport"><canvas id="canvas3d"></canvas></div>
+  <script type="module">
+    import * as THREE from "three";
+    import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
+    import {
+      buildAvatarRig,
+      createAvatarMotion,
+      resetAvatarMotion,
+      resetRetargetFilters,
+      updateAvatarPose as applyMikapoAvatarPose,
+      auxFromSmpl,
+      footDirectionsFromSmplAux,
+      headForwardFromSmplAux,
+    } from "/static/mikapo_mixamo_solver.js";
+
+    const LAB_JOINTS = [
+      "pelvis", "left_hip", "right_hip", "left_knee", "right_knee",
+      "left_ankle", "right_ankle", "spine", "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow", "left_wrist", "right_wrist", "neck", "head",
+    ];
+    const JOINT_TO_IDX = Object.fromEntries(LAB_JOINTS.map((n, i) => [n, i]));
+    const BILATERAL_PAIRS = [
+      ["left_hip", "right_hip"], ["left_knee", "right_knee"],
+      ["left_ankle", "right_ankle"], ["left_shoulder", "right_shoulder"],
+      ["left_elbow", "right_elbow"], ["left_wrist", "right_wrist"],
+    ];
+    const AUX_BILATERAL_PAIRS = [
+      ["left_ankle", "right_ankle"], ["left_foot", "right_foot"],
+      ["left_shoulder", "right_shoulder"], ["left_elbow", "right_elbow"],
+      ["left_wrist", "right_wrist"], ["left_hand", "right_hand"],
+      ["left_ear", "right_ear"], ["left_eye", "right_eye"],
+      ["left_pinky", "right_pinky"], ["left_index", "right_index"],
+      ["left_thumb", "right_thumb"],
+    ];
+
+    const params = new URLSearchParams(location.search);
+    const poseUrl = params.get("pose");
+    // Still photos from a normal (non-mirrored) camera: default OFF.
+    const SELFIE_MIRROR = params.get("selfie") === "1" || params.get("selfie") === "true";
+    const AVATAR_URL = params.get("avatar") || "/assets/Ch28_nonPBR.fbx";
+    const SHOW_STICK = params.get("stick") === "1";
+
+    const statusEl = document.getElementById("status");
+    const viewport = document.getElementById("viewport");
+    const canvas = document.getElementById("canvas3d");
+
+    window.__BAKE_READY__ = false;
+    window.__BAKE_ERROR__ = null;
+    window.__BAKE_META__ = { selfieMirror: SELFIE_MIRROR };
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function fail(err) {
+      const msg = err?.message || String(err);
+      window.__BAKE_ERROR__ = msg;
+      setStatus("ERROR: " + msg);
+      document.body.dataset.bake = "error";
+      console.error(err);
+    }
+
+    function swapBilateralPose(pose) {
+      const out = pose.map((p) => (Array.isArray(p) ? p.slice() : [p[0], p[1], p[2]]));
+      for (const [a, b] of BILATERAL_PAIRS) {
+        const ia = JOINT_TO_IDX[a], ib = JOINT_TO_IDX[b];
+        const tmp = out[ia];
+        out[ia] = out[ib];
+        out[ib] = tmp;
+      }
+      return out;
+    }
+
+    function toViewerSpace(pose) {
+      const mapped = pose.map((p) => [
+        SELFIE_MIRROR ? -p[0] : p[0],
+        -p[1],
+        -p[2],
+      ]);
+      return SELFIE_MIRROR ? swapBilateralPose(mapped) : mapped;
+    }
+
+    function selfieMirrorAux(aux) {
+      if (!aux || !SELFIE_MIRROR) return aux;
+      const out = { kind: aux.kind || "smpl" };
+      for (const [k, v] of Object.entries(aux)) {
+        if (k === "kind" || !v?.isVector3) continue;
+        out[k] = new THREE.Vector3(-v.x, v.y, v.z);
+      }
+      for (const [a, b] of AUX_BILATERAL_PAIRS) {
+        if (out[a] == null && out[b] == null) continue;
+        const ta = out[a];
+        out[a] = out[b];
+        out[b] = ta;
+      }
+      return out;
+    }
+
+    function plantFeet(poseView) {
+      const la = poseView[JOINT_TO_IDX.left_ankle][1];
+      const ra = poseView[JOINT_TO_IDX.right_ankle][1];
+      const g = Math.min(la, ra);
+      return poseView.map((p) => [p[0], p[1] - g, p[2]]);
+    }
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: false,
+      preserveDrawingBuffer: true,
+    });
+    renderer.setPixelRatio(1);
+    renderer.setSize(720, 960, false);
+    renderer.setClearColor(0x222a31, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.shadowMap.enabled = true;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 720 / 960, 0.01, 100);
+    camera.position.set(1.55, 1.45, 2.35);
+    camera.lookAt(0, 0.9, 0);
+
+    scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+    scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+    const key = new THREE.DirectionalLight(0xffffff, 3.2);
+    key.position.set(2, 3, 2);
+    key.castShadow = true;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9fc8ff, 1.8);
+    fill.position.set(-3, 1.5, 2);
+    scene.add(fill);
+    const avatarSpot = new THREE.SpotLight(0xfff2dc, 240, 25, Math.PI / 5, 0.45);
+    avatarSpot.position.set(-3, 9, 5);
+    avatarSpot.castShadow = true;
+    scene.add(avatarSpot);
+    scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+
+    let jointMeshes = [];
+    let boneLines = null;
+    const LAB_BONES = [
+      ["pelvis", "spine"], ["spine", "neck"], ["neck", "head"],
+      ["pelvis", "left_hip"], ["left_hip", "left_knee"], ["left_knee", "left_ankle"],
+      ["pelvis", "right_hip"], ["right_hip", "right_knee"], ["right_knee", "right_ankle"],
+      ["spine", "left_shoulder"], ["left_shoulder", "left_elbow"], ["left_elbow", "left_wrist"],
+      ["spine", "right_shoulder"], ["right_shoulder", "right_elbow"], ["right_elbow", "right_wrist"],
+    ];
+
+    function buildStick() {
+      const geo = new THREE.SphereGeometry(0.028, 12, 12);
+      const mat = new THREE.MeshStandardMaterial({ color: 0x3ddea5, roughness: 0.35 });
+      jointMeshes = LAB_JOINTS.map(() => {
+        const m = new THREE.Mesh(geo, mat);
+        m.visible = false;
+        scene.add(m);
+        return m;
+      });
+      const positions = new Float32Array(LAB_BONES.length * 2 * 3);
+      const bgeo = new THREE.BufferGeometry();
+      bgeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      boneLines = new THREE.LineSegments(
+        bgeo,
+        new THREE.LineBasicMaterial({ color: 0xc5d0de }),
+      );
+      boneLines.visible = false;
+      scene.add(boneLines);
+    }
+
+    function setStick(poseView) {
+      if (!SHOW_STICK) return;
+      for (let i = 0; i < jointMeshes.length; i++) {
+        const p = poseView[i];
+        jointMeshes[i].visible = true;
+        jointMeshes[i].position.set(p[0], p[1], p[2]);
+      }
+      const arr = boneLines.geometry.attributes.position.array;
+      let o = 0;
+      for (const [a, b] of LAB_BONES) {
+        const A = poseView[JOINT_TO_IDX[a]], B = poseView[JOINT_TO_IDX[b]];
+        arr[o++] = A[0]; arr[o++] = A[1]; arr[o++] = A[2];
+        arr[o++] = B[0]; arr[o++] = B[1]; arr[o++] = B[2];
+      }
+      boneLines.geometry.attributes.position.needsUpdate = true;
+      boneLines.visible = true;
+    }
+
+    async function loadAvatar() {
+      const model = await new FBXLoader().loadAsync(AVATAR_URL);
+      const outfitColors = {
+        Ch28_Hoody: 0x0e7490,
+        Ch28_Pants: 0x1d4ed8,
+        Ch28_Sneakers: 0xf1f5f9,
+      };
+      model.scale.setScalar(0.01);
+      model.position.set(0, 0, 0);
+      model.traverse((node) => {
+        if (!node.isMesh) return;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        const outfitColor = outfitColors[node.name];
+        const materials = (Array.isArray(node.material) ? node.material : [node.material])
+          .map((material) => (outfitColor ? material.clone() : material));
+        node.material = Array.isArray(node.material) ? materials : materials[0];
+        for (const material of materials) {
+          if (!material) continue;
+          if (outfitColor) {
+            material.map = null;
+            material.emissiveMap = null;
+            material.color.setHex(outfitColor);
+            material.emissive.setHex(outfitColor);
+            material.emissiveIntensity = 0.12;
+            material.needsUpdate = true;
+            continue;
+          }
+          if (material.map) {
+            material.map.colorSpace = THREE.SRGBColorSpace;
+            material.color?.setRGB(1, 1, 1);
+          }
+          material.needsUpdate = true;
+        }
+      });
+      const rig = buildAvatarRig(model);
+      if (rig.bones.size < 4) throw new Error("FBX bones incompatible with Mixamo map");
+      scene.add(model);
+      return { model, rig };
+    }
+
+    async function main() {
+      if (!poseUrl) throw new Error("missing ?pose= URL");
+      setStatus(`selfieMirror=${SELFIE_MIRROR} · fetching pose…`);
+      const data = await fetch(poseUrl).then(async (r) => {
+        if (!r.ok) throw new Error(`pose fetch ${r.status}`);
+        return r.json();
+      });
+      if (!data.joints) throw new Error("pose JSON missing joints");
+
+      buildStick();
+      setStatus("loading Mixamo FBX…");
+      const { model, rig } = await loadAvatar();
+      const motion = createAvatarMotion();
+      resetAvatarMotion(model, motion);
+      resetRetargetFilters(rig);
+
+      const view = plantFeet(toViewerSpace(data.joints));
+      const aux = data.aux_smpl
+        ? selfieMirrorAux(auxFromSmpl(data.aux_smpl, true))
+        : null;
+      const footDirections = footDirectionsFromSmplAux(aux);
+      const headForward = headForwardFromSmplAux(aux);
+
+      // Apply twice so One-Euro settles on a still frame.
+      const t0 = 1000;
+      for (const ts of [t0, t0 + 33, t0 + 66]) {
+        applyMikapoAvatarPose({
+          model,
+          rig,
+          pose: view,
+          nameToIndex: JOINT_TO_IDX,
+          motion,
+          allowFeet: true,
+          footMode: "yawFromDir",
+          footDirections,
+          headForward,
+          aux,
+          plantGround: true,
+          groundY: 0,
+          timestampMs: ts,
+          useWitness: true,
+        });
+      }
+      setStick(view);
+      renderer.render(scene, camera);
+      // Extra frames for GPU texture upload / shadows.
+      for (let i = 0; i < 4; i++) {
+        await new Promise((r) => requestAnimationFrame(r));
+        renderer.render(scene, camera);
+      }
+
+      window.__BAKE_META__ = {
+        selfieMirror: SELFIE_MIRROR,
+        name: data.name || null,
+        nBones: rig.bones.size,
+        hasAux: !!aux,
+      };
+      window.__BAKE_READY__ = true;
+      document.body.dataset.bake = "ready";
+      setStatus(`ready · selfie=${SELFIE_MIRROR} · bones=${rig.bones.size}`);
+    }
+
+    main().catch(fail);
+  </script>
+</body>
+</html>

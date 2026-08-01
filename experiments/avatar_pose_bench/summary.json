@@ -1,0 +1,283 @@
+{
+  "created": "2026-08-01T14:25:41",
+  "device": "cuda",
+  "model": "data/models/nlf/nlf_s_multi_0.2.2.torchscript",
+  "selfie_mirror": false,
+  "n_images": 13,
+  "n_ok": 13,
+  "notes": {
+    "goal": "First-pass NLF\u2192Mixamo avatar bake for visual judgment",
+    "judge_priority": [
+      "trunk-from-waist-down fidelity",
+      "shoulder shrug/drop (raised/lowered) \u2014 avatar often feels locked"
+    ],
+    "selfie_mirror": false,
+    "selfie_note": "OFF for still photos (WIN camera stills are not mirrored). Live webcam path in live.html defaults selfie ON to match CSS scaleX(-1).",
+    "viewer_transform": "OpenCV-ish \u2192 negate Y and Z; optional selfie negate-X + L/R swap",
+    "nlf_path": "YOLOv8n sticky crop \u2192 estimate_joints24 num_aug=1 \u2192 root-center metres",
+    "avatar": "assets/Ch28_nonPBR.fbx",
+    "retarget": "viewer/mikapo_mixamo_solver.js via viewer/avatar_bake.html + Playwright"
+  },
+  "items": [
+    {
+      "name": "WIN_20260801_13_57_25_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_25_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_25_Pro_joints.json",
+      "ms": 5198.22,
+      "nlf_ms": 4834.14,
+      "det_ms": 364.08,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1438.4805908203125,
+        101.39794921875,
+        1159.90673828125,
+        2058.60205078125
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_25_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_25_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_57_30_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_30_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_30_Pro_joints.json",
+      "ms": 7610.88,
+      "nlf_ms": 7550.22,
+      "det_ms": 60.66,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1374.04541015625,
+        458.56451416015625,
+        1916.619384765625,
+        1701.4354248046875
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_30_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_30_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_57_35_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_35_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_35_Pro_joints.json",
+      "ms": 271.55,
+      "nlf_ms": 193.07,
+      "det_ms": 78.48,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        850.973388671875,
+        530.5950927734375,
+        1949.365234375,
+        1629.4049072265625
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_35_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_35_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_57_40_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_40_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_40_Pro_joints.json",
+      "ms": 173.22,
+      "nlf_ms": 30.82,
+      "det_ms": 142.4,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1522.5693359375,
+        0.0,
+        1054.748779296875,
+        2160.0
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_40_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_40_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_57_44_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_44_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_44_Pro_joints.json",
+      "ms": 180.68,
+      "nlf_ms": 129.51,
+      "det_ms": 51.17,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1536.58203125,
+        0.0,
+        1058.3367919921875,
+        2160.0
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_44_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_44_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_57_50_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_50_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_50_Pro_joints.json",
+      "ms": 339.77,
+      "nlf_ms": 30.71,
+      "det_ms": 309.06,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1649.697998046875,
+        0.0,
+        1112.7557373046875,
+        2160.0
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_50_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_50_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_57_54_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_57_54_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_57_54_Pro_joints.json",
+      "ms": 386.09,
+      "nlf_ms": 293.97,
+      "det_ms": 92.12,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1639.424560546875,
+        0.0,
+        1070.976318359375,
+        2160.0
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_57_54_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_57_54_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_58_00_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_58_00_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_58_00_Pro_joints.json",
+      "ms": 80.38,
+      "nlf_ms": 39.29,
+      "det_ms": 41.09,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1401.759521484375,
+        245.5394287109375,
+        1371.2548828125,
+        1914.4605712890625
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_58_00_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_58_00_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_58_05_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_58_05_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_58_05_Pro_joints.json",
+      "ms": 348.62,
+      "nlf_ms": 293.76,
+      "det_ms": 54.86,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        962.79541015625,
+        421.3487243652344,
+        1741.3172607421875,
+        1738.6512451171875
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_58_05_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_58_05_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_58_10_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_58_10_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_58_10_Pro_joints.json",
+      "ms": 297.89,
+      "nlf_ms": 213.18,
+      "det_ms": 84.71,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1459.6839599609375,
+        397.0068359375,
+        1398.2249755859375,
+        1762.9931640625
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_58_10_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_58_10_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_58_15_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_58_15_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_58_15_Pro_joints.json",
+      "ms": 208.4,
+      "nlf_ms": 146.94,
+      "det_ms": 61.46,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1899.3165283203125,
+        219.17959594726562,
+        1399.91357421875,
+        1940.8204345703125
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_58_15_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_58_15_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_58_20_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_58_20_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_58_20_Pro_joints.json",
+      "ms": 204.01,
+      "nlf_ms": 30.31,
+      "det_ms": 173.7,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1502.055419921875,
+        679.4833984375,
+        1569.5928955078125,
+        1480.5166015625
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_58_20_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_58_20_Pro_overlay.png"
+    },
+    {
+      "name": "WIN_20260801_13_58_26_Pro",
+      "ok": true,
+      "input": "input/WIN_20260801_13_58_26_Pro.jpg",
+      "joints": "pred/WIN_20260801_13_58_26_Pro_joints.json",
+      "ms": 299.59,
+      "nlf_ms": 201.71,
+      "det_ms": 97.88,
+      "device": "cuda",
+      "crop": "yolov8n_sticky",
+      "box": [
+        1846.3092041015625,
+        147.3392333984375,
+        1224.129638671875,
+        2012.6607666015625
+      ],
+      "error": null,
+      "avatar": "pred/WIN_20260801_13_58_26_Pro_avatar.png",
+      "overlay": "pred/WIN_20260801_13_58_26_Pro_overlay.png"
+    }
+  ]
+}
