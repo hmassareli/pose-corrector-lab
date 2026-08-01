@@ -219,11 +219,13 @@
       <button type="button" data-source="teacher">Teacher</button>
       <button type="button" data-source="teacher_aligned">Teacher aligned</button>
       <button type="button" data-source="corrected">Corrector exportado</button>
+      <button type="button" data-source="nlf_s">NLF-S</button>
     </div>
     <span class="meta" id="sourceBadge" style="color:var(--accent);font-weight:600">—</span>
     <span class="meta" id="titleMeta">carregando…</span>
     <select id="clipSelect" title="Clips"></select>
     <button type="button" id="btnReload">Reload</button>
+    <button type="button" id="btnAvatar">Avatar 3D</button>
     <button type="button" id="btnResetCam">Reset camera</button>
     <span class="spacer"></span>
   </header>
@@ -255,10 +257,19 @@
             <input type="checkbox" id="chkShadow" />
             Sombra MP
           </span>
-          <span class="toggle" title="Overlay do teacher aligned (mesmo frame)">
+          <span class="toggle" id="teacherToggleWrap" title="Overlay do teacher aligned (mesmo frame)">
             <input type="checkbox" id="chkTeacher" />
-            Teacher
+            <span id="chkTeacherLabel">Teacher</span>
           </span>
+          <span class="toggle" id="corrShadowToggleWrap" hidden title="Overlay do MP + corretor exportado">
+            <input type="checkbox" id="chkCorrShadow" />
+            Sombra MP+corretor
+          </span>
+        </label>
+        <label class="toggle" id="oracleToggleWrap" hidden
+          title="Mostra MediaPipe + o delta real salvo no dataset; nao executa a rede nem aplica gate.">
+          <input type="checkbox" id="chkOracle" disabled />
+          Oraculo treino: MP + delta real
         </label>
       </div>
       <div class="err" id="err" hidden></div>
@@ -276,6 +287,19 @@
   <script type="module">
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
+    import { clone as cloneSkeleton } from "three/addons/utils/SkeletonUtils.js";
+    import {
+      buildAvatarRig,
+      createAvatarMotion,
+      resetAvatarMotion,
+      resetRetargetFilters,
+      updateAvatarPose as applyMikapoAvatarPose,
+      MP_AUX,
+      auxFromSmpl,
+      footDirectionsFromSmplAux,
+      headForwardFromSmplAux,
+    } from "/static/mikapo_mixamo_solver.js";
 
     const params = new URLSearchParams(location.search);
     let clip = params.get("clip") || "";
@@ -291,6 +315,7 @@
     const errBox = document.getElementById("err");
     const clipSelect = document.getElementById("clipSelect");
     const btnPlay = document.getElementById("btnPlay");
+    const btnAvatar = document.getElementById("btnAvatar");
     const sourceBar = document.getElementById("sourceBar");
 
     const SOURCE_LABELS = {
@@ -298,12 +323,29 @@
       teacher: "Teacher (GVHMR)",
       teacher_aligned: "Teacher aligned",
       corrected: "Corrector exportado",
+      nlf_s: "NLF-S",
     };
 
     let payload = null;
     let jointMeshes = [];
     let boneLines = null;
     let nameToIndex = {};
+    let avatar = null;
+    let avatarShadow = null;
+    let avatarShadowCorr = null;
+    let avatarRig = null;
+    let avatarShadowRig = null;
+    let avatarShadowCorrRig = null;
+    let avatarMode = false;
+    let avatarLoadPromise = null;
+    let avatarFootLandmarks = null;
+    /** Pose-33 head/palm aux from /api/pose-aux.json (MediaPipe viewer space). */
+    let poseAux = null;
+    let trainingOracle = null;
+    const AVATAR_URL = "/assets/Ch28_nonPBR.fbx";
+    const avatarMotion = createAvatarMotion();
+    const avatarShadowMotion = createAvatarMotion();
+    const avatarShadowCorrMotion = createAvatarMotion();
     /** Bumps on every clip/source load so stale fetches cannot paint error overlays. */
     let loadGen = 0;
     /** Suppress clipSelect "change" while we rebuild options on source switch. */
@@ -338,8 +380,14 @@
     const corrChip = document.getElementById("corrChip");
     const corrChipText = document.getElementById("corrChipText");
     const overlayToggleWrap = document.getElementById("overlayToggleWrap");
+    const teacherToggleWrap = document.getElementById("teacherToggleWrap");
+    const corrShadowToggleWrap = document.getElementById("corrShadowToggleWrap");
     const chkShadow = document.getElementById("chkShadow");
     const chkTeacher = document.getElementById("chkTeacher");
+    const chkTeacherLabel = document.getElementById("chkTeacherLabel");
+    const chkCorrShadow = document.getElementById("chkCorrShadow");
+    const oracleToggleWrap = document.getElementById("oracleToggleWrap");
+    const chkOracle = document.getElementById("chkOracle");
 
     function makeGhostOverlay({ color, opacity = 0.4 }) {
       return {
@@ -422,7 +470,9 @@
     const transport = document.getElementById("transport");
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setClearColor(0x0e1116, 1);
+    renderer.setClearColor(0x222a31, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.shadowMap.enabled = true;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
@@ -430,9 +480,10 @@
     const DEFAULT_TARGET = new THREE.Vector3(0, 0.9, 0);
     camera.position.copy(DEFAULT_CAM_POS);
 
-    // Ghost overlays (corrected viewer): orange = MediaPipe, violet = teacher aligned.
+    // Ghost overlays: orange = MediaPipe, violet = teacher, teal = MP+corrector.
     const mpOverlay = makeGhostOverlay({ color: 0xff8c42, opacity: 0.42 });
     const teacherOverlay = makeGhostOverlay({ color: 0xb794f6, opacity: 0.42 });
+    const corrOverlay = makeGhostOverlay({ color: 0x3ddea5, opacity: 0.40 });
 
     const controls = new OrbitControls(camera, viewport);
     controls.enableDamping = true;
@@ -453,10 +504,17 @@
     viewport.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
     transport.addEventListener("pointerdown", (e) => e.stopPropagation());
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 0.85);
+    scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 2.5));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+    const key = new THREE.DirectionalLight(0xffffff, 2.2);
     key.position.set(2, 3, 2);
+    key.castShadow = true;
     scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9fc8ff, 1.2);
+    fill.position.set(-3, 1.5, 2);
+    scene.add(fill);
+    const cameraLight = new THREE.PointLight(0xffffff, 10, 8, 2);
+    scene.add(cameraLight);
 
     const grid = new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c);
     scene.add(grid);
@@ -529,6 +587,148 @@
       scene.add(boneLines);
     }
 
+    function auxForFrame(fi) {
+      // Prefer NLF/SMPL avatar aux when present (aligned with body).
+      if (poseAux?.kind === "smpl" && poseAux?.frames?.[fi]) {
+        const row = poseAux.frames[fi];
+        const names = poseAux.names;
+        if (!names || row.length !== names.length) return null;
+        const dict = {};
+        for (let i = 0; i < names.length; i++) {
+          dict[names[i]] = new THREE.Vector3(...row[i]);
+        }
+        return auxFromSmpl(dict, false);
+      }
+      if (!poseAux?.frames?.[fi]) return null;
+      const row = poseAux.frames[fi];
+      const names = poseAux.names;
+      if (!names || row.length !== names.length) return null;
+      const dict = {};
+      for (let i = 0; i < names.length; i++) {
+        dict[names[i]] = new THREE.Vector3(...row[i]);
+      }
+      // Validate required keys for head/hands (Pose-33)
+      for (const k of Object.keys(MP_AUX)) {
+        if (!dict[k]) return null;
+      }
+      dict.kind = "pose33";
+      return dict;
+    }
+
+    /** MiKaPo-style Mixamo FK (see /static/mikapo_mixamo_solver.js). */
+    function updateAvatarPose(model, rig, pose, motion, footFrame = null, bodyFrame = null, allowFeet = false, fi = 0) {
+      const aux = auxForFrame(fi);
+      const feet = aux?.kind === "smpl" ? footDirectionsFromSmplAux(aux) : null;
+      const headFwd = aux?.kind === "smpl" ? headForwardFromSmplAux(aux) : null;
+      applyMikapoAvatarPose({
+        model,
+        rig,
+        pose,
+        nameToIndex,
+        motion,
+        footFrame,
+        bodyFrame,
+        allowFeet,
+        footMode: "yawFromDir",
+        footDirections: feet,
+        headForward: headFwd,
+        aux,
+        plantGround: true,
+        groundY: 0,
+        timestampMs: performance.now(),
+        useWitness: true,
+      });
+    }
+
+    function overlaysEnabled() {
+      return dataSource === "corrected" || dataSource === "nlf_s";
+    }
+
+    function syncAvatarVisibility() {
+      const showMpShadow =
+        avatarMode && overlaysEnabled() && chkShadow.checked && !!mpOverlay.payload;
+      const showCorrAvatar =
+        avatarMode && dataSource === "nlf_s" && chkCorrShadow.checked && !!corrOverlay.payload;
+      if (avatar) avatar.visible = avatarMode;
+      if (avatarShadow) avatarShadow.visible = showMpShadow;
+      if (avatarShadowCorr) avatarShadowCorr.visible = showCorrAvatar;
+      for (const mesh of jointMeshes) mesh.visible = !avatarMode;
+      if (boneLines) boneLines.visible = !avatarMode;
+      mpOverlay.setVisible(!avatarMode && chkShadow.checked);
+      teacherOverlay.setVisible(
+        !avatarMode && dataSource === "corrected" && chkTeacher.checked,
+      );
+      corrOverlay.setVisible(
+        !avatarMode && dataSource === "nlf_s" && chkCorrShadow.checked,
+      );
+    }
+
+    async function loadAvatar() {
+      if (avatar) return avatar;
+      if (avatarLoadPromise) return avatarLoadPromise;
+      btnAvatar.disabled = true;
+      btnAvatar.textContent = "Carregando avatar…";
+      avatarLoadPromise = new FBXLoader().loadAsync(AVATAR_URL).then((model) => {
+        const outfitColors = { Ch28_Hoody: 0x0e7490, Ch28_Pants: 0x1d4ed8, Ch28_Sneakers: 0xf1f5f9 };
+        model.scale.setScalar(0.01);
+        model.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          const outfitColor = outfitColors[node.name];
+          const materials = (Array.isArray(node.material) ? node.material : [node.material])
+            .map((material) => outfitColor ? material.clone() : material);
+          node.material = Array.isArray(node.material) ? materials : materials[0];
+          for (const material of materials) {
+            if (outfitColor) {
+              material.map = null;
+              material.emissiveMap = null;
+              material.color.setHex(outfitColor);
+              material.emissive.setHex(outfitColor);
+              material.emissiveIntensity = 0.12;
+            } else if (material.map) {
+              material.map.colorSpace = THREE.SRGBColorSpace;
+              material.color.setRGB(1, 1, 1);
+              material.emissiveMap = material.map;
+              material.emissive.setRGB(1, 1, 1);
+              material.emissiveIntensity = 0.48;
+            }
+            material.needsUpdate = true;
+          }
+        });
+        avatar = model;
+        avatarRig = buildAvatarRig(avatar);
+        if (avatarRig.bones.size < 4) throw new Error("O FBX não expôs ossos compatíveis com Mixamo");
+        const makeShadowClone = (colorHex) => {
+          const clone = cloneSkeleton(avatar);
+          clone.traverse((node) => {
+            if (!node.isMesh) return;
+            node.castShadow = false;
+            node.receiveShadow = false;
+            const shadowMaterial = new THREE.MeshBasicMaterial({
+              color: colorHex, transparent: true, opacity: 0.34, depthWrite: false,
+            });
+            node.material = Array.isArray(node.material)
+              ? node.material.map(() => shadowMaterial.clone())
+              : shadowMaterial;
+          });
+          return clone;
+        };
+        avatarShadow = makeShadowClone(0x9ca3af);
+        avatarShadowRig = buildAvatarRig(avatarShadow);
+        avatarShadowCorr = makeShadowClone(0x3ddea5);
+        avatarShadowCorrRig = buildAvatarRig(avatarShadowCorr);
+        scene.add(avatarShadowCorr, avatarShadow, avatar);
+        syncAvatarVisibility();
+        return avatar;
+      }).finally(() => {
+        avatarLoadPromise = null;
+        btnAvatar.disabled = false;
+        btnAvatar.textContent = avatarMode ? "Esqueleto" : "Avatar 3D";
+      });
+      return avatarLoadPromise;
+    }
+
     let lastFi = -1;
     let lastUiMs = 0;
 
@@ -591,7 +791,9 @@
       if (!poseChanged && !updateUi) return;
       lastFi = fi;
       if (poseChanged) {
-        const J = frames[fi];
+        const J = chkOracle.checked && trainingOracle?.frames?.[fi]
+          ? trainingOracle.frames[fi]
+          : frames[fi];
         for (let i = 0; i < jointMeshes.length; i++) {
           const p = J[i];
           jointMeshes[i].position.set(p[0], p[1], p[2]);
@@ -607,10 +809,46 @@
         }
         boneLines.geometry.attributes.position.needsUpdate = true;
 
-        if (mpOverlay.payload || teacherOverlay.payload) {
-          const mpPose = mpOverlay.updateFrame(fi);
+        // Feet follow the declared source: MP feet for mediapipe/corrected;
+        // teacher foot_landmarks for teacher_aligned (SMPL ankle→foot).
+        const allowFeet = !!avatarFootLandmarks && (
+          dataSource === "mediapipe"
+          || dataSource === "corrected"
+          || dataSource === "nlf_s"
+          || (dataSource === "teacher_aligned" && avatarFootLandmarks.source === "teacher")
+        );
+        if (avatarMode) updateAvatarPose(
+          avatar, avatarRig, J, avatarMotion,
+          allowFeet ? avatarFootLandmarks?.frames?.[fi] : null,
+          allowFeet ? avatarFootLandmarks?.body_frames?.[fi] : null,
+          allowFeet,
+          fi,
+        );
+        let mpPose = null;
+        let corrPose = null;
+        if (mpOverlay.payload || teacherOverlay.payload || corrOverlay.payload) {
+          mpPose = mpOverlay.updateFrame(fi);
           teacherOverlay.updateFrame(fi);
+          corrPose = corrOverlay.updateFrame(fi);
           if (mpPose) updateCorrChip(J, mpPose);
+        }
+        if (avatarMode && avatarShadow && mpPose && chkShadow.checked) {
+          const mpFeet = avatarFootLandmarks?.source !== "teacher" ? avatarFootLandmarks : null;
+          updateAvatarPose(
+            avatarShadow, avatarShadowRig, mpPose, avatarShadowMotion,
+            mpFeet?.frames?.[fi], mpFeet?.body_frames?.[fi],
+            !!mpFeet,
+            fi,
+          );
+        }
+        if (avatarMode && avatarShadowCorr && corrPose && chkCorrShadow.checked) {
+          const mpFeet = avatarFootLandmarks?.source !== "teacher" ? avatarFootLandmarks : null;
+          updateAvatarPose(
+            avatarShadowCorr, avatarShadowCorrRig, corrPose, avatarShadowCorrMotion,
+            mpFeet?.frames?.[fi], mpFeet?.body_frames?.[fi],
+            !!mpFeet,
+            fi,
+          );
         }
       }
 
@@ -786,15 +1024,30 @@
       sourceBadge.textContent = label;
       document.title = `Pose Lab — ${label}`;
       const isCorr = dataSource === "corrected";
-      overlayToggleWrap.hidden = !isCorr;
-      if (!isCorr) {
+      const isNlf = dataSource === "nlf_s";
+      const isTeacherAligned = dataSource === "teacher_aligned";
+      overlayToggleWrap.hidden = !(isCorr || isNlf);
+      teacherToggleWrap.hidden = !isCorr;
+      corrShadowToggleWrap.hidden = !isNlf;
+      oracleToggleWrap.hidden = !isTeacherAligned;
+      chkOracle.checked = false;
+      chkOracle.disabled = true;
+      if (isNlf) {
+        chkTeacherLabel.textContent = "Teacher";
+        chkCorrShadow.checked = true;
+        chkShadow.checked = true;
+      }
+      if (!isCorr && !isNlf) {
         chkShadow.checked = false;
         chkTeacher.checked = false;
+        chkCorrShadow.checked = false;
         corrChip.classList.remove("on", "corrected", "passthrough");
         mpOverlay.clear();
         mpOverlay.payload = null;
         teacherOverlay.clear();
         teacherOverlay.payload = null;
+        corrOverlay.clear();
+        corrOverlay.payload = null;
       }
       const clips = Array.isArray(data.clips) ? data.clips : [];
       const want = clip || data.current || "";
@@ -829,7 +1082,7 @@
     async function loadOverlay(overlay, url, label) {
       overlay.clear();
       overlay.payload = null;
-      if (dataSource !== "corrected") return;
+      if (!overlaysEnabled()) return;
       const res = await fetch(url);
       if (!res.ok) {
         console.warn(`${label} overlay unavailable`, res.status);
@@ -886,6 +1139,21 @@
       const nextPayload = await res.json();
       if (gen !== loadGen) return;
       payload = nextPayload;
+      avatarFootLandmarks = null;
+      poseAux = null;
+      trainingOracle = null;
+      if (avatar) {
+        resetAvatarMotion(avatar, avatarMotion);
+        if (avatarRig) resetRetargetFilters(avatarRig);
+      }
+      if (avatarShadow) {
+        resetAvatarMotion(avatarShadow, avatarShadowMotion);
+        if (avatarShadowRig) resetRetargetFilters(avatarShadowRig);
+      }
+      if (avatarShadowCorr) {
+        resetAvatarMotion(avatarShadowCorr, avatarShadowCorrMotion);
+        if (avatarShadowCorrRig) resetRetargetFilters(avatarShadowCorrRig);
+      }
       if (payload.source) dataSource = payload.source;
       syncSourceButtons();
       lastFi = -1;
@@ -896,10 +1164,27 @@
       }
       clearSeekLock();
       seekGen += 1;
-      await Promise.all([
+      const overlayLoads = [
         loadOverlay(mpOverlay, `/api/shadow.json?clip=${encodeURIComponent(id)}`, "MP"),
-        loadOverlay(teacherOverlay, `/api/teacher.json?clip=${encodeURIComponent(id)}`, "teacher"),
-      ]);
+      ];
+      if (dataSource === "corrected") {
+        overlayLoads.push(
+          loadOverlay(teacherOverlay, `/api/teacher.json?clip=${encodeURIComponent(id)}`, "teacher"),
+        );
+        corrOverlay.clear();
+        corrOverlay.payload = null;
+      } else if (dataSource === "nlf_s") {
+        teacherOverlay.clear();
+        teacherOverlay.payload = null;
+        overlayLoads.push(
+          loadOverlay(
+            corrOverlay,
+            `/api/corrected_shadow.json?clip=${encodeURIComponent(id)}`,
+            "corrected",
+          ),
+        );
+      }
+      await Promise.all(overlayLoads);
       if (gen !== loadGen) return;
       const srcLabel = sourceLabel(dataSource);
       titleMeta.textContent = `${srcLabel} · ${id}`;
@@ -910,10 +1195,13 @@
       payload.frames = plantFeetOnGround(payload.frames, payload.joint_names, ground);
       await prepareOverlay(mpOverlay, ground);
       await prepareOverlay(teacherOverlay, ground);
+      await prepareOverlay(corrOverlay, ground);
       if (gen !== loadGen) return;
       mpOverlay.setVisible(chkShadow.checked);
-      teacherOverlay.setVisible(chkTeacher.checked);
+      teacherOverlay.setVisible(dataSource === "corrected" && chkTeacher.checked);
+      corrOverlay.setVisible(dataSource === "nlf_s" && chkCorrShadow.checked);
       buildSkeleton(payload.joint_names, payload.bones);
+      syncAvatarVisibility();
       const maxFi = Math.max(0, payload.frames.length - 1);
       scrub.max = String(maxFi);
       frameInput.max = String(maxFi);
@@ -924,6 +1212,65 @@
       seekToFrame(0);
       resize();
       updateUrl();
+      if (dataSource === "teacher_aligned") {
+        void fetch(`/api/training-oracle.json?clip=${encodeURIComponent(id)}`)
+          .then((response) => response.ok ? response.json() : null)
+          .then((oracle) => {
+            if (gen !== loadGen || !oracle?.frames) return;
+            oracle.frames = ensureUpright(oracle.frames, oracle.joint_names);
+            oracle.frames = plantFeetOnGround(oracle.frames, oracle.joint_names, ground);
+            if (oracle.frames.length !== payload.frames.length) {
+              console.warn(`training oracle T=${oracle.frames.length} vs main T=${payload.frames.length}`);
+              return;
+            }
+            trainingOracle = oracle;
+            chkOracle.disabled = false;
+          })
+          .catch(() => {});
+      }
+      const footUrl = dataSource === "teacher_aligned"
+        ? `/media/teacher_aligned/${encodeURIComponent(id)}/foot_landmarks.json`
+        : (dataSource === "mediapipe" || dataSource === "corrected" || dataSource === "nlf_s")
+          ? `/media/mediapipe/${encodeURIComponent(id)}/foot_landmarks.json`
+          : null;
+      if (footUrl) {
+        void fetch(footUrl)
+          .then((response) => response.ok ? response.json() : null)
+          .then((footData) => {
+            if (gen !== loadGen || !footData?.frames || !footData?.body_frames) return;
+            if (!footData.source) {
+              footData.source = dataSource === "teacher_aligned" ? "teacher" : "mediapipe";
+            }
+            avatarFootLandmarks = footData;
+            if (!avatarMode || lastFi < 0) return;
+            const currentFi = lastFi;
+            lastFi = -1;
+            setFrame(currentFi);
+          })
+          .catch(() => {});
+      }
+      // NLF: use SMPL avatar_aux from payload (aligned). Else Pose-33 MP aux for MP/corrected.
+      if (dataSource === "nlf_s" && payload?.avatar_aux?.frames?.length) {
+        poseAux = payload.avatar_aux;
+      } else if (
+        dataSource === "mediapipe"
+        || dataSource === "corrected"
+      ) {
+        void fetch(`/api/pose-aux.json?clip=${encodeURIComponent(id)}`)
+          .then((response) => response.ok ? response.json() : null)
+          .then((auxData) => {
+            if (gen !== loadGen || !auxData?.frames?.length) return;
+            poseAux = auxData;
+            if (!avatarMode || lastFi < 0) return;
+            const currentFi = lastFi;
+            lastFi = -1;
+            setFrame(currentFi);
+          })
+          .catch(() => {});
+      } else if (dataSource === "nlf_s") {
+        // No avatar_aux baked yet — don't use mismatched MP face/hands on NLF body.
+        poseAux = null;
+      }
     }
 
     async function switchSource(next) {
@@ -945,10 +1292,65 @@
     });
 
     chkShadow.addEventListener("change", () => {
-      mpOverlay.setVisible(chkShadow.checked);
+      syncAvatarVisibility();
+      if (payload && lastFi >= 0) {
+        const fi = lastFi;
+        lastFi = -1;
+        setFrame(fi);
+      }
+    });
+    chkCorrShadow.addEventListener("change", () => {
+      syncAvatarVisibility();
+      if (payload && lastFi >= 0) {
+        const fi = lastFi;
+        lastFi = -1;
+        setFrame(fi);
+      }
     });
     chkTeacher.addEventListener("change", () => {
-      teacherOverlay.setVisible(chkTeacher.checked);
+      syncAvatarVisibility();
+    });
+    chkOracle.addEventListener("change", () => {
+      const frame = uiFrame();
+      if (avatar) resetAvatarMotion(avatar, avatarMotion);
+      lastFi = -1;
+      setFrame(frame);
+    });
+    btnAvatar.addEventListener("click", async () => {
+      const nextMode = !avatarMode;
+      if (nextMode) {
+        try {
+          await loadAvatar();
+        } catch (error) {
+          errBox.hidden = false;
+          errBox.textContent = `Falha ao carregar avatar: ${error.message || error}`;
+          return;
+        }
+      }
+      avatarMode = nextMode;
+      btnAvatar.classList.toggle("active", avatarMode);
+      btnAvatar.textContent = avatarMode ? "Esqueleto" : "Avatar 3D";
+      if (avatarMode) {
+        resetAvatarMotion(avatar, avatarMotion);
+        if (avatarShadow) resetAvatarMotion(avatarShadow, avatarShadowMotion);
+        controls.target.set(0, 0.9, 0);
+        camera.position.set(1.55, 1.45, 2.35);
+        controls.update();
+        if (payload) {
+          lastFi = -1;
+          setFrame(uiFrame(), { updateUi: false });
+        }
+      } else {
+        if (avatar) {
+          avatar.position.set(0, 0, 0);
+          resetAvatarMotion(avatar, avatarMotion);
+        }
+        if (avatarShadow) {
+          avatarShadow.position.set(0, 0, 0);
+          resetAvatarMotion(avatarShadow, avatarShadowMotion);
+        }
+      }
+      syncAvatarVisibility();
     });
     clipSelect.addEventListener("change", () => {
       if (suppressClipChange) return;
@@ -1090,6 +1492,7 @@
         syncFromVideo({ updateUi: ui });
       }
       controls.update();
+      cameraLight.position.copy(camera.position);
       renderer.render(scene, camera);
     }
 

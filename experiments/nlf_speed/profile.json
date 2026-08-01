@@ -1,0 +1,54 @@
+{
+  "frame_hw": [
+    646,
+    304
+  ],
+  "detector_yolov8x": {
+    "mean": 26.472489452362062,
+    "p50": 26.464767456054688,
+    "p95": 26.937037658691406,
+    "min": 25.826303482055664,
+    "max": 27.95417594909668,
+    "n": 40.0
+  },
+  "estimate_joints24_fullframe_num_aug1": {
+    "mean": 22.272975158691406,
+    "p50": 22.312384605407715,
+    "p95": 23.068364906311036,
+    "min": 21.284639358520508,
+    "max": 23.2620792388916,
+    "n": 40.0
+  },
+  "detect_smpl_batched_full": {
+    "mean": 142.03883018493653,
+    "p50": 141.8177719116211,
+    "p95": 145.16193084716795,
+    "min": 137.90821838378906,
+    "max": 147.88812255859375,
+    "n": 40.0
+  },
+  "approx_extra_in_full_ms": 93.29336557388307,
+  "budget_30fps_ms": 33.333,
+  "fast_path_p95_ok": true,
+  "estimate_lab13_fullframe_num_aug1": {
+    "mean": 23.826251125335695,
+    "p50": 23.794143676757812,
+    "p95": 25.12798681259155,
+    "min": 22.385663986206055,
+    "max": 25.358335494995117,
+    "n": 40.0
+  },
+  "variants": {
+    "full_detect_smpl": "YOLO-x + ~1048 queries + SMPL fit",
+    "estimate_joints24_fullframe": "no detector, 24 joint queries, num_aug=1, no fit",
+    "estimate_lab13_fullframe": "no detector, 13 joint queries, num_aug=1, no fit"
+  },
+  "clip_id": "burn_500_shots__shot_000__person_009",
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "paper_ref": {
+    "nlf_s_unbatched_fps_rtx3090": 79,
+    "nlf_s_batched_fps_rtx3090": 410,
+    "note": "paper FPS is crop-model throughput, not detect_smpl_batched"
+  }
+}

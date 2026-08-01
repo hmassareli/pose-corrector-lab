@@ -1,0 +1,10 @@
+{
+  "model": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\data\\models\\nlf\\nlf_s_multi_0.2.2.torchscript",
+  "torch_tensorrt_available": false,
+  "tensorrt_available": false,
+  "compiled": false,
+  "skipped_reason": "torch_tensorrt not installed \u2014 see TRT_DECISION.md",
+  "note": "Fast-path CUDA p95 already under 33ms; TRT is optional headroom.",
+  "tensorrt_error": "No module named 'tensorrt'",
+  "torch_tensorrt_error": "No module named 'torch_tensorrt'"
+}

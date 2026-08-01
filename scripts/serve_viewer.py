@@ -38,6 +38,7 @@ SOURCE_ROOTS = {
     "mediapipe": LAB_ROOT / "data" / "mediapipe",
     "corrected": LAB_ROOT / "data" / "corrected",
     "teacher_aligned": LAB_ROOT / "data" / "teacher_aligned",
+    "nlf_s": LAB_ROOT / "data" / "nlf_fast",
 }
 
 

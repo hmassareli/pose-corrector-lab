@@ -24,9 +24,10 @@
 - [x] `train.py` + JSONL/TensorBoard
 - [x] `eval.py` hard/easy vs MediaPipe
 - [ ] Implementar baseline EMA na avaliação principal
-- [ ] Implementar métricas temporais (direção, timing do pico e jitter) no relatório principal
-- [ ] Implementar loss temporal real; `w_smooth` atual é apenas magnitude e foi 0.0 nos treinos recentes
-- [ ] Implementar ou remover `w_bone`; atualmente o config não tem efeito
+- [x] Implementar métricas temporais de soco (`scripts/bench_punch_trajectory.py`)
+- [x] Implementar loss temporal real (`w_vel` / `w_dir` + `predict_sequence`); `w_smooth` ainda é magnitude
+- [x] Implementar `w_bone_len` (bone length); legado `w_bone` permanece no-op
+- [x] Competição de ablação GPT vs me em `ablations/` (`run_competition.py`)
 
 ## Go/No-go
 Ver critérios em `docs/04_evaluation.md`.

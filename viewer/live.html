@@ -189,6 +189,32 @@
       pointer-events: none;
       background: rgba(14,17,22,0.55);
     }
+    .calib-panel {
+      position: absolute; top: 2.4rem; right: 0.65rem; width: min(280px, 46%);
+      z-index: 5;
+      background: rgba(14,17,22,0.92);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.75rem;
+      display: flex; flex-direction: column; gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+    .calib-panel[hidden] { display: none !important; }
+    .calib-panel strong { font-size: 0.82rem; }
+    .calib-help { margin: 0; color: var(--muted); line-height: 1.35; }
+    .calib-panel .toggle { font-size: 0.75rem; }
+    .calib-dump {
+      margin: 0.25rem 0 0;
+      padding: 0.4rem;
+      background: #0a0d11;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      color: #9ecbff;
+      white-space: pre-wrap;
+      max-height: 7rem;
+      overflow: auto;
+    }
     .note {
       position: absolute; bottom: 56px; left: 12px; right: 12px; z-index: 2;
       font-size: 0.7rem; color: var(--muted);
@@ -205,10 +231,13 @@
       <a class="on" href="/live">Live</a>
     </nav>
     <button type="button" id="btnCam">Iniciar webcam</button>
+    <span class="control-label">Pose</span>
+    <button type="button" id="btnPoseMp" class="active" title="MediaPipe no browser">MediaPipe</button>
+    <button type="button" id="btnPoseNlf" title="NLF-S fast path no servidor (CUDA)">NLF-S</button>
     <span class="control-label">Exibição</span>
     <button type="button" id="btnModeRaw">Raw MP</button>
     <button type="button" id="btnModeCorr" class="active">Corretor</button>
-    <label class="toggle" title="Sobrepor skeleton MediaPipe raw enquanto mostra corrigido">
+    <label class="toggle" title="Sobrepor skeleton MediaPipe raw (ou MP enquanto NLF é principal)">
       <input type="checkbox" id="chkShadow" />
       Sombra MP
     </label>
@@ -216,6 +245,9 @@
       <input type="checkbox" id="chkGate" checked />
       Gate
     </label>
+    <span class="control-label">Avatar</span>
+    <button type="button" id="btnAvatar" title="Trocar o esqueleto pelo avatar 3D estático">Avatar 3D</button>
+    <button type="button" id="btnHandCalib" title="Painel para achar polaridade da palm (sem chute)">Calibrar mãos</button>
     <span class="control-label">Modelo corretor</span>
     <select id="ckptSelect" title="Modelo corretor"></select>
     <button type="button" id="btnWarmup">Carregar modelo</button>
@@ -250,6 +282,21 @@
         <span id="ckptLabel">ckpt —</span>
       </div>
       <div class="err" id="err" hidden></div>
+      <aside id="handCalibPanel" class="calib-panel" hidden>
+        <strong>Calibrar mãos (NLF→Mixamo)</strong>
+        <p class="calib-help">
+          Pose de referência: <b>mão direita pra frente</b>, palma pra câmera, dedos pra cima.
+          Ajuste os toggles até a palm bater. Config salva no browser.
+        </p>
+        <label class="toggle"><input type="checkbox" id="chkPalmOn" checked /> Palm SMPL ligada</label>
+        <label class="toggle"><input type="checkbox" id="chkAimOnly" /> Só aim (sem twist) — isola roll</label>
+        <label class="toggle"><input type="checkbox" id="chkSwapCross" checked /> swap cross (fwd×forearm)</label>
+        <label class="toggle"><input type="checkbox" id="chkNegL" checked /> negate across LEFT</label>
+        <label class="toggle"><input type="checkbox" id="chkNegR" /> negate across RIGHT</label>
+        <label class="toggle"><input type="checkbox" id="chkHandAxes" checked /> Setas debug (cyan=fwd, mag=across)</label>
+        <label class="toggle"><input type="checkbox" id="chkSelfieMirror" checked /> Selfie mirror (−X + L/R)</label>
+        <pre id="handCalibDump" class="calib-dump"></pre>
+      </aside>
     </div>
   </div>
 
@@ -265,7 +312,22 @@
   <script type="module">
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
     import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
+    import {
+      buildAvatarRig,
+      createAvatarMotion,
+      resetAvatarMotion as resetMikapoMotion,
+      resetRetargetFilters,
+      updateAvatarPose as applyMikapoAvatarPose,
+      auxFromPose33,
+      auxFromSmpl,
+      footDirectionsFromSmplAux,
+      headForwardFromSmplAux,
+      computeHandPalmAxes,
+      setHandRetargetOpts,
+      getHandRetargetOpts,
+    } from "/static/mikapo_mixamo_solver.js";
 
     // ---- Lab skeleton (mirrors pose_lab.skeleton) ----
     const LAB_JOINTS = [
@@ -309,6 +371,7 @@
     const btnModeCorr = document.getElementById("btnModeCorr");
     const chkShadow = document.getElementById("chkShadow");
     const chkGate = document.getElementById("chkGate");
+    const btnAvatar = document.getElementById("btnAvatar");
     const ckptSelect = document.getElementById("ckptSelect");
     const btnWarmup = document.getElementById("btnWarmup");
     const statusMeta = document.getElementById("statusMeta");
@@ -324,7 +387,29 @@
     let camStream = null;
     let running = false;
     let lastVideoTime = -1;
-    let mode = "corrected"; // raw | corrected
+    let mode = "corrected"; // raw | corrected (MP backend only)
+    let poseBackend = "mp"; // mp | nlf
+    let nlfReady = false;
+    let nlfBusy = false;
+    let lastNlfMs = 0;
+    let nlfFpsEma = 0;
+    let lastNlfTs = 0;
+    let lastNlfView = null;
+    let lastNlfAux = null;
+    let lastNlfFootDirections = null;
+    let lastNlfHeadForward = null;
+    let lastNlfRequestTs = 0;
+    let nlfAbort = null;
+    let nlfWs = null;
+    let nlfWsReady = false;
+    let nlfWsUrl = "";
+    // WS binary — keep person pixels; server sticky-crops with YOLOv8n.
+    const NLF_MIN_INTERVAL_MS = 0;
+    const NLF_UPLOAD_MAX_SIDE = 960;
+    const NLF_JPEG_QUALITY = 0.82;
+    let nlfCanvas = null;
+    const btnPoseMp = document.getElementById("btnPoseMp");
+    const btnPoseNlf = document.getElementById("btnPoseNlf");
     let checkpointId = "";
     let checkpointOptions = new Map();
     let checkpointReadyId = "";
@@ -342,6 +427,16 @@
     let lastCorrectedCheckpoint = "";
     let lastRawView = null;
     let lastCorrectedView = null;
+    let lastRawHeadForward = null;
+    let lastRawFootDirections = null;
+    let lastRawAux = null;
+
+    function cloneAux(aux) {
+      if (!aux) return null;
+      const out = {};
+      for (const [k, v] of Object.entries(aux)) out[k] = v.clone();
+      return out;
+    }
 
     /** Timestamped raw MP history; server regrids it to the training 30 Hz clock. */
     const histJoints = [];
@@ -354,13 +449,23 @@
     let nameToIndex = {};
     let shadowMeshes = [];
     let shadowBones = null;
+    let avatar = null;
+    let avatarMode = false;
+    let avatarLoadPromise = null;
+    let avatarRig = null;
+    const avatarMotion = createAvatarMotion();
+    const AVATAR_URL = "/assets/Ch28_nonPBR.fbx";
 
     // ---- Three.js ----
     const viewport = document.getElementById("viewport3d");
     const canvas = document.getElementById("canvas3d");
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setClearColor(0x0e1116, 1);
+    renderer.setClearColor(0x222a31, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.shadowMap.enabled = true;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
@@ -378,10 +483,21 @@
     controls.target.copy(DEFAULT_TARGET);
     controls.update();
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 0.85);
+    scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+    scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+    const key = new THREE.DirectionalLight(0xffffff, 3.2);
     key.position.set(2, 3, 2);
+    key.castShadow = true;
     scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9fc8ff, 1.8);
+    fill.position.set(-3, 1.5, 2);
+    scene.add(fill);
+    const avatarSpot = new THREE.SpotLight(0xfff2dc, 240, 25, Math.PI / 5, 0.45);
+    avatarSpot.position.set(-3, 9, 5);
+    avatarSpot.castShadow = true;
+    scene.add(avatarSpot);
+    const cameraLight = new THREE.PointLight(0xffffff, 16, 8, 2);
+    scene.add(cameraLight);
     scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
     scene.add(new THREE.AxesHelper(0.35));
 
@@ -466,9 +582,300 @@
       lines.geometry.attributes.position.needsUpdate = true;
     }
 
-    /** Disk MP (OpenCV-ish) → viewer Y-up (same flip as run_mediapipe / io.py). */
+    function resetAvatarMotion() {
+      resetMikapoMotion(avatar, avatarMotion);
+      if (avatarRig) resetRetargetFilters(avatarRig);
+    }
+
+    function loadHandCalib() {
+      try {
+        const raw = localStorage.getItem(HAND_CALIB_KEY);
+        if (!raw) return;
+        const cfg = JSON.parse(raw);
+        if (typeof cfg.selfieMirror === "boolean") SELFIE_MIRROR = cfg.selfieMirror;
+        setHandRetargetOpts({
+          palmEnabled: cfg.palmEnabled ?? true,
+          aimOnly: !!cfg.aimOnly,
+          swapCrossOrder: cfg.swapCrossOrder ?? true,
+          negateAcrossLeft: cfg.negateAcrossLeft ?? true,
+          negateAcrossRight: !!cfg.negateAcrossRight,
+        });
+      } catch (_) { /* ignore */ }
+    }
+
+    function syncHandCalibUi() {
+      const o = getHandRetargetOpts();
+      chkPalmOn.checked = !!o.palmEnabled;
+      chkAimOnly.checked = !!o.aimOnly;
+      chkSwapCross.checked = !!o.swapCrossOrder;
+      chkNegL.checked = !!o.negateAcrossLeft;
+      chkNegR.checked = !!o.negateAcrossRight;
+      chkSelfieMirror.checked = !!SELFIE_MIRROR;
+      handCalibDump.textContent = JSON.stringify({ selfieMirror: SELFIE_MIRROR, ...o }, null, 2);
+    }
+
+    function saveHandCalib() {
+      const o = getHandRetargetOpts();
+      localStorage.setItem(HAND_CALIB_KEY, JSON.stringify({ selfieMirror: SELFIE_MIRROR, ...o }));
+      syncHandCalibUi();
+    }
+
+    function applyHandCalibFromUi() {
+      SELFIE_MIRROR = chkSelfieMirror.checked;
+      setHandRetargetOpts({
+        palmEnabled: chkPalmOn.checked,
+        aimOnly: chkAimOnly.checked,
+        swapCrossOrder: chkSwapCross.checked,
+        negateAcrossLeft: chkNegL.checked,
+        negateAcrossRight: chkNegR.checked,
+      });
+      saveHandCalib();
+      if (avatarMode && lastNlfView) {
+        updateAvatarPose(lastNlfView, lastNlfHeadForward, lastNlfFootDirections, lastNlfAux);
+      } else if (avatarMode && lastRawView) {
+        updateAvatarPose(lastRawView, lastRawHeadForward, lastRawFootDirections, lastRawAux);
+      }
+    }
+
+    function ensureHandAxesGroup() {
+      if (handAxesGroup) return handAxesGroup;
+      handAxesGroup = new THREE.Group();
+      handAxesGroup.name = "handDebugAxes";
+      scene.add(handAxesGroup);
+      return handAxesGroup;
+    }
+
+    function updateHandDebugAxes(aux) {
+      const g = ensureHandAxesGroup();
+      while (g.children.length) {
+        const c = g.children[0];
+        g.remove(c);
+      }
+      if (!chkHandAxes.checked || !aux || !avatarMode || !avatarRig) {
+        g.visible = false;
+        return;
+      }
+      g.visible = true;
+      for (const side of ["left", "right"]) {
+        const axes = computeHandPalmAxes(aux, side);
+        const rest = avatarRig.bones.get(side === "left" ? "leftHand" : "rightHand");
+        if (!axes || !rest) continue;
+        const origin = rest.bone.getWorldPosition(new THREE.Vector3());
+        g.add(new THREE.ArrowHelper(axes.forward, origin, 0.18, 0x3de0ff, 0.04, 0.025));
+        if (axes.across) {
+          g.add(new THREE.ArrowHelper(axes.across, origin, 0.14, 0xff40c8, 0.035, 0.022));
+        }
+      }
+    }
+
+    /** MiKaPo-style Mixamo FK (live MediaPipe always owns feet). */
+    function updateAvatarPose(poseView, headForward = null, footDirections = null, aux = null) {
+      if (!avatarMode || !avatar || !avatarRig || !poseView) return;
+      applyMikapoAvatarPose({
+        model: avatar,
+        rig: avatarRig,
+        pose: poseView,
+        nameToIndex: JOINT_TO_IDX,
+        motion: avatarMotion,
+        allowFeet: true,
+        footMode: "yawFromDir",
+        footDirections,
+        headForward,
+        aux,
+        plantGround: true,
+        groundY: 0,
+        timestampMs: performance.now(),
+        useWitness: true,
+      });
+      updateHandDebugAxes(aux);
+    }
+
+    function setAvatarMode(enabled) {
+      avatarMode = enabled;
+      btnAvatar.classList.toggle("active", enabled);
+      btnAvatar.textContent = enabled ? "Esqueleto" : "Avatar 3D";
+      for (const mesh of jointMeshes) mesh.visible = !enabled;
+      if (boneLines) boneLines.visible = !enabled;
+      for (const mesh of shadowMeshes) mesh.visible = !enabled && chkShadow.checked;
+      if (shadowBones) shadowBones.visible = !enabled && chkShadow.checked;
+      if (avatar) avatar.visible = enabled;
+      if (enabled) {
+        resetAvatarMotion();
+        controls.target.set(0, 0.9, 0);
+        camera.position.set(1.55, 1.45, 2.35);
+        controls.update();
+      } else if (avatar) {
+        avatar.position.set(0, 0, 0);
+        resetAvatarMotion();
+      }
+    }
+
+    async function loadAvatar() {
+      if (avatar) return avatar;
+      if (avatarLoadPromise) return avatarLoadPromise;
+      btnAvatar.disabled = true;
+      btnAvatar.textContent = "Carregando avatar…";
+      avatarLoadPromise = new FBXLoader().loadAsync(AVATAR_URL)
+        .then((model) => {
+          // Deliberately do not create an AnimationMixer: embedded Mixamo clips stay stopped.
+          const outfitColors = {
+            Ch28_Hoody: 0x0e7490,
+            Ch28_Pants: 0x1d4ed8,
+            Ch28_Sneakers: 0xf1f5f9,
+          };
+          model.scale.setScalar(0.01);
+          model.position.set(0, 0, 0);
+          model.traverse((node) => {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+              const outfitColor = outfitColors[node.name];
+              const materials = (Array.isArray(node.material) ? node.material : [node.material])
+                .map((material) => outfitColor ? material.clone() : material);
+              node.material = Array.isArray(node.material) ? materials : materials[0];
+              for (const material of materials) {
+                if (!material) continue;
+                if (outfitColor) {
+                  material.map = null;
+                  material.emissiveMap = null;
+                  material.color.setHex(outfitColor);
+                  material.emissive.setHex(outfitColor);
+                  material.emissiveIntensity = 0.12;
+                  material.needsUpdate = true;
+                  continue;
+                }
+                if (material.map) {
+                  material.map.colorSpace = THREE.SRGBColorSpace;
+                  material.color?.setRGB(1, 1, 1);
+                }
+                if (material.emissive) {
+                  material.emissiveMap = material.map || null;
+                  material.emissive.setRGB(1, 1, 1);
+                  material.emissiveIntensity = material.map ? 0.48 : 0;
+                }
+                material.needsUpdate = true;
+              }
+            }
+          });
+          avatar = model;
+          avatarRig = buildAvatarRig(model);
+          if (avatarRig.bones.size < 4) {
+            throw new Error("O FBX não expôs ossos compatíveis com Mixamo");
+          }
+          scene.add(avatar);
+          return avatar;
+        })
+        .finally(() => {
+          avatarLoadPromise = null;
+          btnAvatar.disabled = false;
+        });
+      return avatarLoadPromise;
+    }
+
+    btnAvatar.addEventListener("click", async () => {
+      try {
+        if (!avatar) await loadAvatar();
+        setAvatarMode(!avatarMode);
+        statusMeta.textContent = avatarMode
+          ? `avatar 3D seguindo sua pose · ${avatarRig.bones.size} ossos mapeados`
+          : "exibindo esqueleto 3D";
+      } catch (error) {
+        console.error(error);
+        showError(`Não foi possível carregar o avatar: ${error.message || error}`);
+        btnAvatar.textContent = "Avatar 3D";
+      }
+    });
+
+    /**
+     * OpenCV-ish → viewer Y-up, then selfie mirror to match #camVideo { scaleX(-1) }.
+     * Negate X + swap L/R so anatomical limbs stay consistent after the flip.
+     */
+    let SELFIE_MIRROR = true;
+    const HAND_CALIB_KEY = "poseLab.handRetarget.v1";
+    let handAxesGroup = null;
+    const handCalibPanel = document.getElementById("handCalibPanel");
+    const btnHandCalib = document.getElementById("btnHandCalib");
+    const chkPalmOn = document.getElementById("chkPalmOn");
+    const chkAimOnly = document.getElementById("chkAimOnly");
+    const chkSwapCross = document.getElementById("chkSwapCross");
+    const chkNegL = document.getElementById("chkNegL");
+    const chkNegR = document.getElementById("chkNegR");
+    const chkHandAxes = document.getElementById("chkHandAxes");
+    const chkSelfieMirror = document.getElementById("chkSelfieMirror");
+    const handCalibDump = document.getElementById("handCalibDump");
+    const BILATERAL_PAIRS = [
+      ["left_hip", "right_hip"], ["left_knee", "right_knee"],
+      ["left_ankle", "right_ankle"], ["left_shoulder", "right_shoulder"],
+      ["left_elbow", "right_elbow"], ["left_wrist", "right_wrist"],
+    ];
+    const AUX_BILATERAL_PAIRS = [
+      ["left_ankle", "right_ankle"], ["left_foot", "right_foot"],
+      ["left_shoulder", "right_shoulder"], ["left_elbow", "right_elbow"],
+      ["left_wrist", "right_wrist"], ["left_hand", "right_hand"],
+      ["left_ear", "right_ear"], ["left_eye", "right_eye"],
+      ["left_pinky", "right_pinky"], ["left_index", "right_index"],
+      ["left_thumb", "right_thumb"],
+    ];
+
+    function swapBilateralPose(pose) {
+      const out = pose.map((p) => (Array.isArray(p) ? p.slice() : [p[0], p[1], p[2]]));
+      for (const [a, b] of BILATERAL_PAIRS) {
+        const ia = JOINT_TO_IDX[a], ib = JOINT_TO_IDX[b];
+        const tmp = out[ia];
+        out[ia] = out[ib];
+        out[ib] = tmp;
+      }
+      return out;
+    }
+
     function toViewerSpace(pose) {
-      return pose.map((p) => [p[0], -p[1], -p[2]]);
+      const mapped = pose.map((p) => [
+        SELFIE_MIRROR ? -p[0] : p[0],
+        -p[1],
+        -p[2],
+      ]);
+      return SELFIE_MIRROR ? swapBilateralPose(mapped) : mapped;
+    }
+
+    /** Mirror aux / dirs the same way as lab joints (after OpenCV→viewer flip). */
+    function selfieMirrorAux(aux) {
+      if (!aux || !SELFIE_MIRROR) return aux;
+      const out = { kind: aux.kind || "smpl" };
+      for (const [k, v] of Object.entries(aux)) {
+        if (k === "kind" || !v?.isVector3) continue;
+        out[k] = new THREE.Vector3(-v.x, v.y, v.z);
+      }
+      for (const [a, b] of AUX_BILATERAL_PAIRS) {
+        if (out[a] == null && out[b] == null) continue;
+        const ta = out[a];
+        out[a] = out[b];
+        out[b] = ta;
+      }
+      return out;
+    }
+
+    function selfieMirrorVec(v) {
+      if (!v || !SELFIE_MIRROR) return v;
+      return new THREE.Vector3(-v.x, v.y, v.z);
+    }
+
+    function selfieMirrorFootDirs(fd) {
+      if (!fd || !SELFIE_MIRROR) return fd;
+      return {
+        left: selfieMirrorVec(fd.right),
+        right: selfieMirrorVec(fd.left),
+      };
+    }
+
+    loadHandCalib();
+    syncHandCalibUi();
+    btnHandCalib.onclick = () => {
+      handCalibPanel.hidden = !handCalibPanel.hidden;
+      btnHandCalib.classList.toggle("active", !handCalibPanel.hidden);
+      if (!handCalibPanel.hidden) syncHandCalibUi();
+    };
+    for (const el of [chkPalmOn, chkAimOnly, chkSwapCross, chkNegL, chkNegR, chkSelfieMirror, chkHandAxes]) {
+      el.addEventListener("change", applyHandCalibFromUi);
     }
 
     function plantFeet(poseView) {
@@ -526,7 +933,35 @@
         0.5 * (j2d[JOINT_TO_IDX.neck][0] + j2d[JOINT_TO_IDX.pelvis][0]),
         0.5 * (j2d[JOINT_TO_IDX.neck][1] + j2d[JOINT_TO_IDX.pelvis][1]),
       ];
-      return { joints: out, conf, joints2d: j2d };
+      const nose = worldLms[0];
+      const leftEar = worldLms[7];
+      const rightEar = worldLms[8];
+      const earCenter = {
+        x: 0.5 * (leftEar.x + rightEar.x),
+        y: 0.5 * (leftEar.y + rightEar.y),
+        z: 0.5 * (leftEar.z + rightEar.z),
+      };
+      return {
+        joints: out,
+        conf,
+        joints2d: j2d,
+        headForward: new THREE.Vector3(nose.x - earCenter.x, earCenter.y - nose.y, earCenter.z - nose.z),
+        // MiKaPo: ankle → foot_index; Y/Z flipped into viewer space like toViewerSpace.
+        footDirections: {
+          left: new THREE.Vector3(
+            worldLms[31].x - worldLms[27].x,
+            worldLms[27].y - worldLms[31].y,
+            worldLms[27].z - worldLms[31].z,
+          ),
+          right: new THREE.Vector3(
+            worldLms[32].x - worldLms[28].x,
+            worldLms[28].y - worldLms[32].y,
+            worldLms[28].z - worldLms[32].z,
+          ),
+        },
+        // Head/palm aux in viewer space (flip raw MP world).
+        aux: auxFromPose33(worldLms, true),
+      };
     }
 
     function showError(msg) {
@@ -597,6 +1032,214 @@
     }
     btnModeRaw.onclick = () => setMode("raw");
     btnModeCorr.onclick = () => setMode("corrected");
+
+    function defaultNlfWsUrl() {
+      const loc = window.location;
+      const host = loc.hostname || "127.0.0.1";
+      const httpPort = Number(loc.port) || 8780;
+      return `ws://${host}:${httpPort + 1}/nlf`;
+    }
+
+    function ensureNlfWs() {
+      if (nlfWs && (nlfWs.readyState === WebSocket.OPEN || nlfWs.readyState === WebSocket.CONNECTING)) {
+        return nlfWs;
+      }
+      const url = nlfWsUrl || defaultNlfWsUrl();
+      nlfWsReady = false;
+      nlfWs = new WebSocket(url);
+      nlfWs.binaryType = "arraybuffer";
+      nlfWs.onopen = () => {
+        nlfWsReady = true;
+        try { nlfWs.send("warmup"); } catch (_) { /* ignore */ }
+      };
+      nlfWs.onclose = () => { nlfWsReady = false; };
+      nlfWs.onerror = () => { nlfWsReady = false; };
+      return nlfWs;
+    }
+
+    function closeNlfWs() {
+      if (nlfWs) {
+        try { nlfWs.close(); } catch (_) { /* ignore */ }
+        nlfWs = null;
+        nlfWsReady = false;
+      }
+    }
+
+    function applyNlfResult(data, t0, seq) {
+      if (!running || poseBackend !== "nlf") return;
+      if (data.frame_id != null && Number(data.frame_id) !== seq && data.type === "pose") {
+        // Stale frame — still ok to draw if newer than nothing; skip if older than last.
+      }
+      if (!data.ok) throw new Error(data.error || "NLF failed");
+      const roundTrip = performance.now() - t0;
+      lastNlfMs = Number(data.ms) || roundTrip;
+      const now = performance.now();
+      if (lastNlfTs) {
+        const inst = 1000 / Math.max(1, now - lastNlfTs);
+        nlfFpsEma = nlfFpsEma ? nlfFpsEma * 0.85 + inst * 0.15 : inst;
+      }
+      lastNlfTs = now;
+      const view = plantFeet(toViewerSpace(data.joints));
+      lastNlfView = view;
+      // SMPL24 extras — viewer flip + same selfie L/R mirror as lab joints.
+      lastNlfAux = data.aux_smpl
+        ? selfieMirrorAux(auxFromSmpl(data.aux_smpl, true))
+        : null;
+      lastNlfFootDirections = footDirectionsFromSmplAux(lastNlfAux);
+      lastNlfHeadForward = headForwardFromSmplAux(lastNlfAux);
+      setPose(jointMeshes, boneLines, view);
+      updateAvatarPose(view, lastNlfHeadForward, lastNlfFootDirections, lastNlfAux);
+      const showShadow = !avatarMode && chkShadow.checked && lastRawView;
+      for (const m of shadowMeshes) m.visible = showShadow;
+      if (shadowBones) shadowBones.visible = showShadow;
+      if (showShadow) setPose(shadowMeshes, shadowBones, lastRawView);
+      liveChipText.textContent = "principal: NLF-S";
+      liveChip.classList.remove("warn");
+      const det = data.detected ? ` · det ${Number(data.det_ms || 0).toFixed(0)}ms` : "";
+      deltaLabel.textContent =
+        `NLF ${lastNlfMs.toFixed(0)} ms · rtt ${roundTrip.toFixed(0)} ms · WS ≤${NLF_UPLOAD_MAX_SIDE}px${det}`;
+      fpsLabel.textContent = `NLF ${nlfFpsEma ? nlfFpsEma.toFixed(0) : "—"} fps · crop sticky`;
+      statusMeta.textContent = `NLF-S · ${data.device || "?"} · ${data.crop || "yolov8n_sticky"}`;
+    }
+
+    async function warmupNlf() {
+      statusMeta.textContent = "carregando NLF-S…";
+      liveChipText.textContent = "carregando NLF";
+      const res = await fetch("/api/nlf_warmup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      nlfReady = true;
+      nlfWsUrl = data.ws_url || defaultNlfWsUrl();
+      ensureNlfWs();
+      statusMeta.textContent = `NLF-S pronto · ${data.device} · WS`;
+      liveChipText.textContent = "NLF pronto";
+      return data;
+    }
+
+    function setPoseBackend(next) {
+      if (poseBackend === next) return;
+      poseBackend = next;
+      btnPoseMp.classList.toggle("active", poseBackend === "mp");
+      btnPoseNlf.classList.toggle("active", poseBackend === "nlf");
+      btnModeCorr.disabled = poseBackend === "nlf";
+      btnModeRaw.disabled = poseBackend === "nlf";
+      if (poseBackend === "nlf") {
+        mode = "raw";
+        btnModeRaw.classList.add("active");
+        btnModeCorr.classList.remove("active");
+        // Shadow MP costs WASM every frame — off by default for snappier NLF live.
+        chkShadow.checked = false;
+        liveChipText.textContent = nlfReady ? "principal: NLF-S" : "NLF não carregado";
+        statusMeta.textContent = nlfReady
+          ? "NLF-S · WS binário ≤960px · YOLOv8n sticky crop"
+          : "NLF-S · clique Iniciar (carrega o modelo)";
+        if (nlfReady) ensureNlfWs();
+      } else {
+        closeNlfWs();
+        btnModeCorr.disabled = false;
+        btnModeRaw.disabled = false;
+        setMode(mode === "raw" ? "raw" : "corrected");
+      }
+    }
+    btnPoseMp.onclick = () => setPoseBackend("mp");
+    btnPoseNlf.onclick = () => setPoseBackend("nlf");
+
+    function grabJpegBlob() {
+      const vw = camVideo.videoWidth || 0;
+      const vh = camVideo.videoHeight || 0;
+      if (!vw || !vh) return Promise.resolve(null);
+      const scale = Math.min(1, NLF_UPLOAD_MAX_SIDE / Math.max(vw, vh));
+      const w = Math.max(64, Math.round(vw * scale));
+      const h = Math.max(64, Math.round(vh * scale));
+      if (!nlfCanvas) nlfCanvas = document.createElement("canvas");
+      if (nlfCanvas.width !== w || nlfCanvas.height !== h) {
+        nlfCanvas.width = w;
+        nlfCanvas.height = h;
+      }
+      const ctx = nlfCanvas.getContext("2d", { alpha: false });
+      ctx.drawImage(camVideo, 0, 0, w, h);
+      return new Promise((resolve) => {
+        nlfCanvas.toBlob((blob) => resolve(blob), "image/jpeg", NLF_JPEG_QUALITY);
+      });
+    }
+
+    function packNlfWsFrame(frameId, jpegBuf) {
+      const out = new Uint8Array(8 + jpegBuf.byteLength);
+      out[0] = 0x4e; out[1] = 0x4c; out[2] = 0x46; out[3] = 0x31; // NLF1
+      const view = new DataView(out.buffer);
+      view.setUint32(4, frameId >>> 0, true);
+      out.set(new Uint8Array(jpegBuf), 8);
+      return out.buffer;
+    }
+
+    async function requestNlfPose() {
+      if (nlfBusy || !running || poseBackend !== "nlf") return;
+      const now0 = performance.now();
+      if (NLF_MIN_INTERVAL_MS > 0 && now0 - lastNlfRequestTs < NLF_MIN_INTERVAL_MS) return;
+      nlfBusy = true;
+      lastNlfRequestTs = now0;
+      const seq = ++poseSequence;
+      const t0 = performance.now();
+      try {
+        if (!nlfReady) await warmupNlf();
+        const blob = await grabJpegBlob();
+        if (!blob) return;
+        const jpegBuf = await blob.arrayBuffer();
+        const ws = ensureNlfWs();
+        if (ws.readyState !== WebSocket.OPEN) {
+          // Wait briefly for WS; fallback HTTP once if still down.
+          await new Promise((r) => setTimeout(r, 80));
+        }
+        if (ws.readyState === WebSocket.OPEN) {
+          const data = await new Promise((resolve, reject) => {
+            const to = setTimeout(() => reject(new Error("NLF WS timeout")), 2500);
+            const onMsg = (ev) => {
+              try {
+                const msg = JSON.parse(ev.data);
+                if (msg.type === "warmup") return;
+                clearTimeout(to);
+                ws.removeEventListener("message", onMsg);
+                resolve(msg);
+              } catch (e) {
+                clearTimeout(to);
+                ws.removeEventListener("message", onMsg);
+                reject(e);
+              }
+            };
+            ws.addEventListener("message", onMsg);
+            try {
+              ws.send(packNlfWsFrame(seq, jpegBuf));
+            } catch (e) {
+              clearTimeout(to);
+              ws.removeEventListener("message", onMsg);
+              reject(e);
+            }
+          });
+          applyNlfResult(data, t0, seq);
+        } else {
+          // HTTP fallback (same crop path on server).
+          const res = await fetch("/api/nlf_pose", {
+            method: "POST",
+            headers: { "Content-Type": "image/jpeg", "X-Frame-Id": String(seq) },
+            body: blob,
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || res.statusText);
+          applyNlfResult(data, t0, seq);
+        }
+      } catch (e) {
+        if (e?.name === "AbortError") return;
+        liveChipText.textContent = "erro NLF";
+        liveChip.classList.add("warn");
+        statusMeta.textContent = `NLF: ${e.message || e}`;
+      } finally {
+        nlfBusy = false;
+      }
+    }
     chkShadow.addEventListener("change", () => {
       const show = mode === "corrected" && chkShadow.checked && lastRawView;
       for (const mesh of shadowMeshes) mesh.visible = !!show;
@@ -693,7 +1336,14 @@
     async function startCamera() {
       showError(null);
       try {
-        if (mode === "corrected" && checkpointReadyId !== checkpointId) {
+        if (poseBackend === "nlf") {
+          try {
+            await warmupNlf();
+          } catch (e) {
+            showError(`NLF-S: ${e.message || e}`);
+            return;
+          }
+        } else if (mode === "corrected" && checkpointReadyId !== checkpointId) {
           const ready = await warmup();
           if (!ready) return;
         }
@@ -731,6 +1381,7 @@
     function stopCamera() {
       cameraGeneration += 1;
       running = false;
+      closeNlfWs();
       if (camStream) {
         for (const t of camStream.getTracks()) t.stop();
         camStream = null;
@@ -765,6 +1416,11 @@
       const generation = checkpointGeneration;
       const requestedCameraGeneration = cameraGeneration;
       const requestedSequence = poseSequence;
+      const requestedHeadForward = lastRawHeadForward?.clone() || null;
+      const requestedFootDirections = lastRawFootDirections
+        ? { left: lastRawFootDirections.left.clone(), right: lastRawFootDirections.right.clone() }
+        : null;
+      const requestedAux = cloneAux(lastRawAux);
       const historyStart = canonicalHistoryStartIndex();
       const requestedJoints = histJoints.slice(historyStart);
       const requestedConf = histConf.slice(historyStart);
@@ -822,7 +1478,8 @@
 
         if (mode === "corrected") {
           setPose(jointMeshes, boneLines, corrView);
-          const showShadow = chkShadow.checked;
+          updateAvatarPose(corrView, requestedHeadForward, requestedFootDirections, requestedAux);
+          const showShadow = !avatarMode && chkShadow.checked;
           for (const m of shadowMeshes) m.visible = showShadow;
           if (shadowBones) shadowBones.visible = showShadow;
         }
@@ -850,7 +1507,7 @@
       }
     }
 
-    function onPoseFrame(joints, conf, joints2d, videoTime) {
+    function onPoseFrame(joints, conf, joints2d, headForward, footDirections, videoTime, aux = null) {
       poseSequence += 1;
       histJoints.push(joints);
       histConf.push(conf);
@@ -867,14 +1524,35 @@
 
       const view = plantFeet(toViewerSpace(joints));
       lastRawView = view;
-      const showLiveShadow = mode === "corrected" && chkShadow.checked;
+      lastRawHeadForward = selfieMirrorVec(headForward);
+      lastRawFootDirections = selfieMirrorFootDirs(footDirections);
+      lastRawAux = selfieMirrorAux(aux);
+      if (poseBackend !== "nlf") {
+        updateAvatarPose(
+          mode === "corrected" && lastCorrectedView ? lastCorrectedView : view,
+          lastRawHeadForward, lastRawFootDirections, lastRawAux,
+        );
+      }
+      const showLiveShadow = !avatarMode && mode === "corrected" && chkShadow.checked;
       setPose(shadowMeshes, shadowBones, view);
       for (const mesh of shadowMeshes) mesh.visible = showLiveShadow;
       if (shadowBones) shadowBones.visible = showLiveShadow;
       shadowLabel.textContent = chkShadow.checked
         ? `Sombra Raw ligada · frame ${poseSequence}`
         : "Sombra Raw desligada";
-      if (mode === "raw") {
+      if (poseBackend === "nlf") {
+        // MP path only when Sombra is on — avatar always from NLF + SMPL aux.
+        const showShadow = !avatarMode && chkShadow.checked;
+        setPose(shadowMeshes, shadowBones, view);
+        for (const m of shadowMeshes) m.visible = showShadow;
+        if (shadowBones) shadowBones.visible = showShadow;
+        if (lastNlfView) {
+          setPose(jointMeshes, boneLines, lastNlfView);
+          updateAvatarPose(
+            lastNlfView, lastNlfHeadForward, lastNlfFootDirections, lastNlfAux,
+          );
+        }
+      } else if (mode === "raw") {
         setPose(jointMeshes, boneLines, view);
         for (const m of shadowMeshes) m.visible = false;
         if (shadowBones) shadowBones.visible = false;
@@ -900,27 +1578,42 @@
         mpFpsEma = mpFpsEma ? mpFpsEma * 0.85 + inst * 0.15 : inst;
       }
       lastMpTs = now;
-      const fpsState = mpFpsEma >= 20 ? "reamostrado" : "amostragem baixa";
-      fpsLabel.textContent =
-        `MP ${mpFpsEma.toFixed(0)} fps (${fpsState} → ${TRAINING_FPS} Hz) · `
-        + `Corr ${corrFpsEma ? corrFpsEma.toFixed(0) : "—"} fps`;
+      if (poseBackend !== "nlf") {
+        const fpsState = mpFpsEma >= 20 ? "reamostrado" : "amostragem baixa";
+        fpsLabel.textContent =
+          `MP ${mpFpsEma.toFixed(0)} fps (${fpsState} → ${TRAINING_FPS} Hz) · `
+          + `Corr ${corrFpsEma ? corrFpsEma.toFixed(0) : "—"} fps`;
+      }
     }
 
     function loop() {
       if (!running) return;
       const lm = poseLandmarker;
-      if (lm && camVideo.readyState >= 2) {
+      // NLF mode: skip MediaPipe entirely unless Sombra Raw is on (optional overlay).
+      const needMp = poseBackend !== "nlf" || chkShadow.checked;
+      if (poseBackend === "nlf" && !chkShadow.checked && camVideo.readyState >= 2) {
+        if (camVideo.currentTime !== lastVideoTime) {
+          lastVideoTime = camVideo.currentTime;
+          void requestNlfPose();
+        }
+      } else if (lm && needMp && camVideo.readyState >= 2) {
         if (camVideo.currentTime !== lastVideoTime) {
           lastVideoTime = camVideo.currentTime;
           const ts = performance.now();
           const result = lm.detectForVideo(camVideo, ts);
           if (result.worldLandmarks?.[0] && result.landmarks?.[0]) {
             const mapped = mediapipeToLab(result.worldLandmarks[0], result.landmarks[0]);
-            onPoseFrame(mapped.joints, mapped.conf, mapped.joints2d, ts / 1000);
+            onPoseFrame(
+              mapped.joints, mapped.conf, mapped.joints2d,
+              mapped.headForward, mapped.footDirections, ts / 1000,
+              mapped.aux,
+            );
           }
+          if (poseBackend === "nlf") void requestNlfPose();
         }
       }
       controls.update();
+      cameraLight.position.copy(camera.position);
       renderer.render(scene, camera);
       requestAnimationFrame(loop);
     }
@@ -929,6 +1622,7 @@
     function idleRender() {
       if (!running) {
         controls.update();
+        cameraLight.position.copy(camera.position);
         renderer.render(scene, camera);
       }
       requestAnimationFrame(idleRender);

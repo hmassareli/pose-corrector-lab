@@ -163,7 +163,7 @@ def build_viewer_payload_from_clip(
     MediaPipe joints on disk are OpenCV-ish; apply the same Y/Z flip used in run_mediapipe.
     Teacher joints stay camera-space (viewer UI plants feet on the grid).
     """
-    from .skeleton import LAB_BONES, LAB_JOINTS
+    from .skeleton import JOINT_TO_IDX, LAB_BONES, LAB_JOINTS, SMPL24_AVATAR_AUX
 
     clip_dir = Path(clip_dir)
     joints_path = clip_dir / "joints3d.npy"
@@ -180,9 +180,17 @@ def build_viewer_payload_from_clip(
         raise ValueError(f"Expected joints (T,J,3), got {joints.shape}")
 
     view = joints.copy()
-    # Disk MP + raw GVHMR are OpenCV-ish (Y down). Paired corrected / teacher_aligned
-    # were already flipped in pair_poses — do not flip again.
-    if source in ("mediapipe", "teacher") and view.size:
+    # NLF TorchScript outputs millimetres + absolute camera translation (Z≈1–3m).
+    # Lab viewer / MediaPipe clips are metres and roughly hip-centered.
+    if source in ("nlf_s", "nlf_fast", "nlf") and view.size:
+        limb = float(np.linalg.norm(view[0, 3] - view[0, 1])) if view.shape[0] > 0 else 0.0
+        if limb > 5.0 or float(np.abs(view).max()) > 20.0:
+            view = view / 1000.0
+        pelvis = int(JOINT_TO_IDX["pelvis"])
+        view = view - view[:, pelvis : pelvis + 1, :]
+    # Disk MP + raw GVHMR + NLF (same OpenCV-ish axis) are Y-down.
+    # Paired corrected / teacher_aligned were already flipped in pair_poses.
+    if source in ("mediapipe", "teacher", "nlf_s", "nlf_fast", "nlf") and view.size:
         view[..., 1] *= -1.0
         view[..., 2] *= -1.0
 
@@ -202,6 +210,9 @@ def build_viewer_payload_from_clip(
         "teacher": "GVHMR",
         "teacher_aligned": "Teacher aligned",
         "corrected": "Corrector",
+        "nlf_s": "NLF-S",
+        "nlf_fast": "NLF-S",
+        "nlf": "NLF",
     }.get(source, source)
     payload = viewer_payload_dict(
         video_url=video_url,
@@ -211,6 +222,29 @@ def build_viewer_payload_from_clip(
         joint_names=joint_names,
         title=title or f"{label} — {clip_dir.name}",
     )
+
+    # Optional SMPL24 avatar aux (feet/hands/head) for Mixamo retarget — same axis as joints.
+    aux_path = clip_dir / "avatar_aux.npy"
+    aux_names_path = clip_dir / "avatar_aux_names.json"
+    if aux_path.is_file():
+        aux = np.load(aux_path).astype(np.float32)
+        if aux.ndim == 3 and aux.shape[0] == view.shape[0]:
+            if source in ("nlf_s", "nlf_fast", "nlf"):
+                # Already metres + pelvis-centered on export; apply viewer flip like joints.
+                aux = aux.copy()
+                aux[..., 1] *= -1.0
+                aux[..., 2] *= -1.0
+            names = list(SMPL24_AVATAR_AUX.keys())
+            if aux_names_path.is_file():
+                try:
+                    names = list(json.loads(aux_names_path.read_text(encoding="utf-8")).get("names") or names)
+                except Exception:
+                    pass
+            payload["avatar_aux"] = {
+                "kind": "smpl",
+                "names": names,
+                "frames": aux.tolist(),
+            }
 
     if cache:
         out = clip_dir / "viewer_payload.json"

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Unified Pose Lab: multi-source offline viewer + live webcam corrector.
+"""Unified Pose Lab: multi-source offline viewer + live webcam corrector / NLF-S.
 
 Usage:
   python scripts/serve_lab.py
-  → http://127.0.0.1:8780/          (offline clips, source toggle)
-  → http://127.0.0.1:8780/live      (webcam + MediaPipe + corrector)
+  → http://127.0.0.1:8780/          (offline clips: MP / Teacher / Corrector / NLF-S)
+  → http://127.0.0.1:8780/live      (webcam + MediaPipe / NLF-S + optional corrector)
 
 Legacy single-source server remains: scripts/serve_viewer.py
 """
@@ -27,14 +27,16 @@ import numpy as np
 LAB_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(LAB_ROOT / "src"))
 
-from pose_lab.data import apply_feature_ablation  # noqa: E402
+from pose_lab.align import body_frame_from_pose, from_body_frame, to_body_frame  # noqa: E402
+from pose_lab.data import apply_feature_ablation, feature_ablation_kwargs  # noqa: E402
 from pose_lab.features import build_feature_sequence, feature_dim  # noqa: E402
 from pose_lab.io import (  # noqa: E402
     build_viewer_payload_from_clip,
     clip_has_joints,
     resolve_clip_fps,
+    viewer_payload_dict,
 )
-from pose_lab.models import build_model  # noqa: E402
+from pose_lab.models import build_model, take_delta_last  # noqa: E402
 from pose_lab.skeleton import (  # noqa: E402
     DELTA_DIM,
     LAB_BONES,
@@ -42,9 +44,10 @@ from pose_lab.skeleton import (  # noqa: E402
     N_TARGETS,
     TARGET_IDX,
 )
-from pose_lab.timebase import CANONICAL_FPS, resample_at_times  # noqa: E402
+from pose_lab.timebase import CANONICAL_FPS, resample_at_times, resample_to_n_frames  # noqa: E402
 
 VIEWER_DIR = LAB_ROOT / "viewer"
+ASSETS_DIR = LAB_ROOT / "assets"
 RUNS_DIR = LAB_ROOT / "runs"
 
 SOURCE_ROOTS: dict[str, Path] = {
@@ -52,6 +55,7 @@ SOURCE_ROOTS: dict[str, Path] = {
     "mediapipe": LAB_ROOT / "data" / "mediapipe",
     "corrected": LAB_ROOT / "data" / "corrected",
     "teacher_aligned": LAB_ROOT / "data" / "teacher_aligned",
+    "nlf_s": LAB_ROOT / "data" / "nlf_fast",
 }
 
 SOURCE_LABELS = {
@@ -59,6 +63,7 @@ SOURCE_LABELS = {
     "teacher": "Teacher",
     "teacher_aligned": "Teacher aligned",
     "corrected": "Corrector exportado",
+    "nlf_s": "NLF-S",
 }
 
 DEFAULT_CKPT_HINTS = (
@@ -113,8 +118,77 @@ def payload_bytes_for_clip(clip_dir: Path, source: str) -> bytes:
         # /media/<clip>/file.mp4 → /media/<source>/<clip>/file.mp4
         rest = video[len("/media/") :]
         payload["video"] = f"/media/{source}/{rest}"
+    # NLF exports often omit source.mp4 — fall back to MediaPipe video for the same clip id.
+    if source == "nlf_s":
+        vid = payload.get("video") or ""
+        nlf_has = False
+        if vid.startswith(f"/media/{source}/"):
+            rel = vid[len(f"/media/{source}/") :]
+            nlf_has = (SOURCE_ROOTS[source] / rel).is_file()
+        if not nlf_has:
+            mp_dir = SOURCE_ROOTS["mediapipe"] / clip_dir.name
+            for name in ("source.mp4", "video.mp4", "clip.mp4"):
+                if (mp_dir / name).is_file():
+                    payload["video"] = f"/media/mediapipe/{clip_dir.name}/{name}"
+                    break
+            else:
+                # Any video under mediapipe clip dir
+                for p in sorted(mp_dir.glob("*.mp4")):
+                    payload["video"] = f"/media/mediapipe/{clip_dir.name}/{p.name}"
+                    break
     payload["source"] = source
     return json.dumps(payload).encode("utf-8")
+
+
+def apply_saved_training_delta(mp_pose: np.ndarray, delta: np.ndarray) -> np.ndarray:
+    """Apply the stored training residual with export_corrected.apply_delta semantics."""
+    R, scale, origin = body_frame_from_pose(mp_pose)
+    mp_body = to_body_frame(mp_pose, R, scale, origin)
+    target_delta = np.asarray(delta, dtype=np.float64).reshape(N_TARGETS, 3)
+    for target_index, joint_index in enumerate(TARGET_IDX):
+        mp_body[joint_index] += target_delta[target_index]
+    out = mp_pose.copy()
+    for joint_index in TARGET_IDX:
+        out[joint_index] = from_body_frame(mp_body[joint_index : joint_index + 1], R, scale, origin)[0]
+    return out
+
+
+def training_oracle_payload(clip: str) -> dict:
+    """Rebuild MP + exact saved target delta on the source-video frame grid."""
+    paired_dir = LAB_ROOT / "data" / "paired" / clip
+    mp_path = paired_dir / "mp_30.npy"
+    residual_path = paired_dir / "residual_30.npy"
+    meta_path = paired_dir / "meta.json"
+    if not mp_path.is_file() or not residual_path.is_file():
+        raise FileNotFoundError(f"missing paired training arrays for {clip}")
+    mp_30 = np.load(mp_path).astype(np.float32)
+    residual_30 = np.load(residual_path).astype(np.float32)
+    if mp_30.ndim != 3 or residual_30.shape != (mp_30.shape[0], DELTA_DIM):
+        raise ValueError(f"bad paired shapes mp={mp_30.shape} residual={residual_30.shape}")
+    oracle_30 = np.stack(
+        [apply_saved_training_delta(mp_30[i], residual_30[i]) for i in range(mp_30.shape[0])],
+    ).astype(np.float32)
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
+    fps_src = float(meta.get("fps_src") or CANONICAL_FPS)
+    n_src = int(meta.get("n_frames_src_mp") or 0)
+    if n_src <= 0:
+        n_src = int(round((oracle_30.shape[0] - 1) * fps_src / CANONICAL_FPS)) + 1
+    oracle_src, _ = resample_to_n_frames(oracle_30, CANONICAL_FPS, fps_src, n_src)
+    payload = viewer_payload_dict(
+        video_url=f"/media/teacher_aligned/{clip}/source.mp4",
+        joints=oracle_src,
+        fps=fps_src,
+        bones=LAB_BONES,
+        joint_names=LAB_JOINTS,
+        title="Oraculo de treino: MediaPipe + delta real",
+    )
+    payload["source"] = "training_oracle"
+    payload["prediction"] = False
+    payload["gate"] = False
+    payload["input"] = "data/paired/<clip>/mp_30.npy"
+    payload["delta"] = "data/paired/<clip>/residual_30.npy"
+    payload["target_joints"] = [LAB_JOINTS[i] for i in TARGET_IDX]
+    return payload
 
 
 # ---------------------------------------------------------------------------
@@ -185,8 +259,7 @@ def discover_checkpoints(*, force: bool = False) -> list[dict]:
                     "F": F,
                     "T": T,
                     "hidden": hidden,
-                    "zero_accel": bool(fcfg.get("zero_accel", False)),
-                    "zero_2d": bool(fcfg.get("zero_2d", False)),
+                    **feature_ablation_kwargs(fcfg),
                 }
             )
     out.sort(
@@ -260,8 +333,7 @@ class CorrectorRuntime:
                 "F": F,
                 "T": T,
                 "device": device,
-                "zero_accel": bool(fcfg.get("zero_accel", False)),
-                "zero_2d": bool(fcfg.get("zero_2d", False)),
+                **feature_ablation_kwargs(fcfg),
                 "include_2d": include_2d,
                 "gate_conf": float(ig.get("conf_high", 0.85)),
                 "gate_eps": float(ig.get("delta_eps", 0.02)),
@@ -376,7 +448,15 @@ class CorrectorRuntime:
             fps=float(fps) or CANONICAL_FPS,
         )
         feats = apply_feature_ablation(
-            feats, zero_accel=entry["zero_accel"], zero_2d=entry["zero_2d"]
+            feats,
+            zero_accel=bool(entry.get("zero_accel", False)),
+            zero_2d=bool(entry.get("zero_2d", False)),
+            zero_ipsi=bool(entry.get("zero_ipsi", False)),
+            zero_bones=bool(entry.get("zero_bones", False)),
+            zero_inv_conf=bool(entry.get("zero_inv_conf", False)),
+            multilag=bool(entry.get("multilag", False)),
+            multilag_steps=tuple(entry.get("multilag_steps") or (1, 3, 6)),
+            multilag_mode=str(entry.get("multilag_mode", "mean")),
         )
         if feats.shape[-1] != entry["F"]:
             raise ValueError(
@@ -393,7 +473,7 @@ class CorrectorRuntime:
         with self._lock:
             with torch.no_grad():
                 x = torch.from_numpy(window[None].astype(np.float32)).to(device)
-                delta = model(x)["delta"][0].cpu().numpy()
+                delta = take_delta_last(model(x)["delta"])[0].cpu().numpy()
 
         gated = False
         pose_in = model_joints[t]
@@ -438,6 +518,220 @@ RUNTIME = CorrectorRuntime()
 
 
 # ---------------------------------------------------------------------------
+# Live NLF-S (TorchScript fast path)
+# ---------------------------------------------------------------------------
+
+
+class NlfRuntime:
+    """Lazy NLF-S fast path: YOLOv8n sticky crop + estimate_poses_batched (no NLF YOLO-x / fit)."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._model = None
+        self._weights = None
+        self._device = "cpu"
+        self._model_path = LAB_ROOT / "data" / "models" / "nlf" / "nlf_s_multi_0.2.2.torchscript"
+        self._ready = False
+        self._error: str | None = None
+        self._tracker = None
+        self._detector = None
+        self._ws_url: str | None = None
+
+    @property
+    def ready(self) -> bool:
+        return self._ready
+
+    def status(self) -> dict:
+        return {
+            "ready": self._ready,
+            "device": self._device,
+            "model": str(self._model_path.relative_to(LAB_ROOT).as_posix())
+            if self._model_path.is_file()
+            else str(self._model_path),
+            "error": self._error,
+            "ws_url": self._ws_url,
+            "crop": "yolov8n_sticky",
+        }
+
+    def load(self, device: str | None = None) -> dict:
+        import torch
+
+        with self._lock:
+            if self._ready and self._model is not None:
+                return self.status()
+            if not self._model_path.is_file():
+                self._error = f"missing model {self._model_path}"
+                raise FileNotFoundError(self._error)
+            sys.path.insert(0, str(LAB_ROOT / "scripts"))
+            from nlf_bbox_track import StickyBBox, YoloNanoPerson  # type: ignore
+            from nlf_fast_path import get_joint_weights, load_nlf  # type: ignore
+
+            want = device or ("cuda" if torch.cuda.is_available() else "cpu")
+            self._device = want
+            self._model = load_nlf(self._model_path, want)
+            self._weights, _ = get_joint_weights(self._model, "joints24")
+            self._tracker = StickyBBox(detect_every=6, expand=1.25)
+            self._detector = YoloNanoPerson(device=want, imgsz=320)
+            self._detector.load()
+            self._ready = True
+            self._error = None
+            sys.stderr.write(f"[lab] NLF-S + YOLOv8n sticky crop on {want}\n")
+            return self.status()
+
+    def infer_rgb(self, rgb_u8: np.ndarray) -> dict:
+        """rgb HWC uint8 → lab joints metres, OpenCV-ish (same as MediaPipe disk)."""
+        import torch
+
+        from pose_lab.skeleton import JOINT_TO_IDX, smpl24_avatar_aux_json, smpl24_to_lab
+
+        if not self._ready:
+            self.load()
+        assert self._model is not None and self._weights is not None
+        assert self._tracker is not None and self._detector is not None
+        sys.path.insert(0, str(LAB_ROOT / "scripts"))
+        from nlf_fast_path import estimate_joints24  # type: ignore
+
+        h, w = rgb_u8.shape[:2]
+        t0 = time.perf_counter()
+        det_ms = 0.0
+        detected = None
+        ran_det = False
+        if self._tracker.needs_detect():
+            ran_det = True
+            td = time.perf_counter()
+            detected = self._detector.detect_xywh(rgb_u8)
+            if self._device.startswith("cuda"):
+                torch.cuda.synchronize()
+            det_ms = (time.perf_counter() - td) * 1000.0
+        xywh = self._tracker.update(h, w, detected)
+        box = self._tracker.as_torch(xywh, self._device)
+
+        with torch.inference_mode():
+            j24 = estimate_joints24(
+                self._model,
+                rgb_u8,
+                self._weights,
+                device=self._device,
+                num_aug=1,
+                box=box,
+            )
+        if self._device.startswith("cuda"):
+            torch.cuda.synchronize()
+        ms = (time.perf_counter() - t0) * 1000.0
+        if j24 is None:
+            return {
+                "ok": False,
+                "error": "no person",
+                "ms": round(ms, 2),
+                "det_ms": round(det_ms, 2),
+                "detected": ran_det,
+                "box": xywh.tolist(),
+            }
+
+        j24_m = np.asarray(j24, dtype=np.float64) / 1000.0
+        # Hip-center (NLF is absolute camera metres) — same origin for lab + aux.
+        j24_m = j24_m - j24_m[0:1]
+        lab = smpl24_to_lab(j24_m).astype(np.float32)
+        aux_smpl = smpl24_avatar_aux_json(j24_m)
+        return {
+            "ok": True,
+            "joints": lab.tolist(),
+            "aux_smpl": aux_smpl,
+            "joint_names": LAB_JOINTS,
+            "ms": round(ms, 2),
+            "nlf_ms": round(ms - det_ms, 2),
+            "det_ms": round(det_ms, 2),
+            "detected": ran_det,
+            "box": [float(x) for x in xywh.tolist()],
+            "device": self._device,
+            "units": "metres",
+            "space": "opencv_ish_root",
+            "crop": "yolov8n_sticky",
+        }
+
+
+NLF_RUNTIME = NlfRuntime()
+
+# Binary WS frame: magic "NLF1" + u32 LE frame_id + JPEG bytes
+NLF_WS_MAGIC = b"NLF1"
+
+
+def _decode_nlf_ws_frame(payload: bytes) -> tuple[int | None, bytes]:
+    if len(payload) >= 8 and payload[:4] == NLF_WS_MAGIC:
+        frame_id = int.from_bytes(payload[4:8], "little", signed=False)
+        return frame_id, payload[8:]
+    return None, payload
+
+
+def start_nlf_websocket(host: str, port: int) -> str:
+    """Background asyncio websockets server; returns ws URL."""
+    import asyncio
+
+    import cv2
+    import websockets
+    from websockets.asyncio.server import serve
+
+    ws_url = f"ws://{host}:{port}/nlf"
+    NLF_RUNTIME._ws_url = ws_url
+
+    async def handler(websocket):
+        path = getattr(websocket, "request", None)
+        req_path = getattr(path, "path", "/") if path is not None else "/"
+        if req_path not in ("/nlf", "/", "/nlf/"):
+            await websocket.close(1008, "use /nlf")
+            return
+        try:
+            async for message in websocket:
+                if isinstance(message, str):
+                    if message.strip().lower() in ("ping", "warmup"):
+                        try:
+                            st = NLF_RUNTIME.load()
+                            await websocket.send(json.dumps({"ok": True, "type": "warmup", **st}))
+                        except Exception as e:
+                            await websocket.send(json.dumps({"ok": False, "error": str(e)}))
+                    continue
+                frame_id, jpeg = _decode_nlf_ws_frame(message)
+                if not jpeg:
+                    await websocket.send(json.dumps({"ok": False, "error": "empty frame"}))
+                    continue
+                arr = np.frombuffer(jpeg, dtype=np.uint8)
+                bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                if bgr is None:
+                    await websocket.send(json.dumps({"ok": False, "error": "jpeg decode failed"}))
+                    continue
+                # Soft clamp only for absurd sizes; Live should send ~720–1080.
+                h, w = bgr.shape[:2]
+                max_side = 1280
+                m = max(h, w)
+                if m > max_side:
+                    s = max_side / float(m)
+                    bgr = cv2.resize(bgr, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA)
+                rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                try:
+                    result = NLF_RUNTIME.infer_rgb(rgb)
+                except Exception as e:
+                    sys.stderr.write("[lab] nlf ws infer error:\n" + traceback.format_exc())
+                    result = {"ok": False, "error": str(e)}
+                result["frame_id"] = frame_id
+                result["type"] = "pose"
+                await websocket.send(json.dumps(result))
+        except websockets.exceptions.ConnectionClosed:
+            return
+
+    async def runner():
+        async with serve(handler, host, port, max_size=8 * 1024 * 1024):
+            sys.stderr.write(f"[lab] NLF WebSocket {ws_url}\n")
+            await asyncio.Future()
+
+    def thread_main():
+        asyncio.run(runner())
+
+    t = threading.Thread(target=thread_main, name="nlf-ws", daemon=True)
+    t.start()
+    return ws_url
+
+
+# ---------------------------------------------------------------------------
 # HTTP handler
 # ---------------------------------------------------------------------------
 
@@ -455,6 +749,8 @@ class Handler(SimpleHTTPRequestHandler):
             return str(VIEWER_DIR / "live.html")
         if p.startswith("/static/"):
             return str(VIEWER_DIR / p[len("/static/") :])
+        if p.startswith("/assets/"):
+            return str(ASSETS_DIR / p[len("/assets/") :])
         # /media/<source>/<clip>/file
         if p.startswith("/media/"):
             rel = unquote(p[len("/media/") :])
@@ -474,11 +770,15 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _json(self, obj: dict | list, status: int = 200) -> None:
         body = json.dumps(obj).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            # Client navigated away / aborted a slow NLF pose request.
+            return
 
     def _read_json(self) -> dict:
         n = int(self.headers.get("Content-Length") or 0)
@@ -505,7 +805,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Frame-Id")
         self.end_headers()
 
     def do_POST(self):
@@ -576,6 +876,74 @@ class Handler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self._json({"error": str(e)}, 500)
             return
+        if parsed.path == "/api/nlf_warmup":
+            try:
+                body = self._read_json() if int(self.headers.get("Content-Length") or 0) else {}
+                device = (body or {}).get("device")
+                self._json({"ok": True, **NLF_RUNTIME.load(device)})
+            except Exception as e:
+                sys.stderr.write("[lab] /api/nlf_warmup error:\n" + traceback.format_exc())
+                self._json({"error": str(e), **NLF_RUNTIME.status()}, 500)
+            return
+        if parsed.path == "/api/nlf_pose":
+            try:
+                import base64
+
+                import cv2
+
+                n = int(self.headers.get("Content-Length") or 0)
+                frame_id = self.headers.get("X-Frame-Id")
+                payload = self.rfile.read(n) if n else b""
+                # Prefer raw JPEG (blob upload). Sniff SOI marker — do not UTF-8-decode binary.
+                if len(payload) >= 3 and payload[:2] == b"\xff\xd8":
+                    raw = payload
+                else:
+                    try:
+                        body = json.loads(payload.decode("utf-8") if payload else "{}")
+                    except UnicodeDecodeError:
+                        self._json(
+                            {"error": "expected image/jpeg body or JSON with image_b64"},
+                            400,
+                        )
+                        return
+                    frame_id = body.get("frame_id", frame_id)
+                    b64 = body.get("image_b64") or body.get("jpeg_b64") or ""
+                    if not b64:
+                        self._json({"error": "missing image (raw jpeg or image_b64)"}, 400)
+                        return
+                    if "," in b64:
+                        b64 = b64.split(",", 1)[1]
+                    raw = base64.b64decode(b64)
+                if not raw:
+                    self._json({"error": "empty image body"}, 400)
+                    return
+                arr = np.frombuffer(raw, dtype=np.uint8)
+                bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                if bgr is None:
+                    self._json({"error": "jpeg decode failed"}, 400)
+                    return
+                # Client already downscales; clamp again if a huge frame sneaks in.
+                h, w = bgr.shape[:2]
+                max_side = 512
+                m = max(h, w)
+                if m > max_side:
+                    s = max_side / float(m)
+                    bgr = cv2.resize(
+                        bgr, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA
+                    )
+                rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                result = NLF_RUNTIME.infer_rgb(rgb)
+                result["frame_id"] = frame_id
+                self._json(result)
+            except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+                return
+            except Exception as e:
+                sys.stderr.write("[lab] /api/nlf_pose error:\n" + traceback.format_exc())
+                try:
+                    self._json({"error": str(e)}, 500)
+                except Exception:
+                    return
+            return
         self.send_error(404)
 
     def do_GET(self):
@@ -587,11 +955,66 @@ class Handler(SimpleHTTPRequestHandler):
             self._send_overlay(clip, SOURCE_ROOTS["mediapipe"], "mediapipe", "shadow")
             return
 
+        if parsed.path in ("/api/corrected_shadow.json", "/api/corrected_shadow"):
+            clip = qs.get("clip", [Handler.default_clip])[0]
+            self._send_overlay(clip, SOURCE_ROOTS["corrected"], "corrected", "corrected_shadow")
+            return
+
+        if parsed.path == "/api/nlf_status":
+            self._json(NLF_RUNTIME.status())
+            return
+
         if parsed.path in ("/api/teacher.json", "/api/teacher_shadow.json"):
             clip = qs.get("clip", [Handler.default_clip])[0]
             self._send_overlay(
                 clip, SOURCE_ROOTS["teacher_aligned"], "teacher_aligned", "teacher"
             )
+            return
+
+        if parsed.path == "/api/training-oracle.json":
+            clip = qs.get("clip", [Handler.default_clip])[0]
+            try:
+                self._json(training_oracle_payload(clip))
+            except FileNotFoundError as e:
+                self._json({"error": str(e)}, 404)
+            except Exception as e:
+                sys.stderr.write("[lab] training oracle error:\n" + traceback.format_exc())
+                self._json({"error": str(e)}, 500)
+            return
+
+        if parsed.path == "/api/pose-aux.json":
+            # Pose-33 subset (head + palms) from MediaPipe landmarks33_world, viewer YZ flip.
+            clip = qs.get("clip", [Handler.default_clip])[0]
+            mp_dir = SOURCE_ROOTS["mediapipe"] / clip
+            npy = mp_dir / "landmarks33_world.npy"
+            if not npy.is_file():
+                self._json({"error": f"no landmarks33_world for {clip}"}, 404)
+                return
+            try:
+                full = np.load(npy)
+                if full.ndim != 3 or full.shape[-1] != 3 or full.shape[1] < 23:
+                    self._json({"error": f"bad landmarks33 shape {full.shape}"}, 500)
+                    return
+                names = [
+                    "nose", "left_eye", "right_eye", "left_ear", "right_ear",
+                    "left_wrist", "right_wrist",
+                    "left_pinky", "right_pinky", "left_index", "right_index",
+                    "left_thumb", "right_thumb",
+                ]
+                idx = [0, 2, 5, 7, 8, 15, 16, 17, 18, 19, 20, 21, 22]
+                pts = full[:, idx, :].astype(np.float64).copy()
+                pts[..., 1] *= -1.0
+                pts[..., 2] *= -1.0
+                self._json({
+                    "source": "mediapipe",
+                    "names": names,
+                    "indices": idx,
+                    "n_frames": int(pts.shape[0]),
+                    "frames": pts.astype(np.float32).tolist(),
+                })
+            except Exception as e:
+                sys.stderr.write("[lab] pose-aux error:\n" + traceback.format_exc())
+                self._json({"error": str(e)}, 500)
             return
 
         if parsed.path == "/api/sources":
@@ -696,6 +1119,7 @@ def main() -> None:
         help="Default offline source",
     )
     ap.add_argument("--port", type=int, default=8780)
+    ap.add_argument("--ws-port", type=int, default=0, help="NLF WebSocket port (default: HTTP+1)")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--warmup", action="store_true", help="Preload preferred checkpoint")
     args = ap.parse_args()
@@ -718,15 +1142,19 @@ def main() -> None:
             except Exception as e:
                 print(f"[lab] warmup failed: {e}", file=sys.stderr)
 
+    ws_port = args.ws_port or (args.port + 1)
+    ws_url = start_nlf_websocket(args.host, ws_port)
+
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     base = f"http://{args.host}:{args.port}"
-    print("=" * 60)
-    print("Pose Corrector Lab — unified server")
-    print(f"  Offline:  {base}/?source={args.source}" + (f"&clip={clip}" if clip else ""))
-    print(f"  Live:     {base}/live")
-    print(f"  Default source: {args.source} ({len(clips)} clips)")
-    print(f"  Checkpoints: {len(discover_checkpoints())} under runs/")
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("Pose Corrector Lab — unified server", flush=True)
+    print(f"  Offline:  {base}/?source={args.source}" + (f"&clip={clip}" if clip else ""), flush=True)
+    print(f"  Live:     {base}/live", flush=True)
+    print(f"  NLF WS:   {ws_url}  (binary JPEG)", flush=True)
+    print(f"  Default source: {args.source} ({len(clips)} clips)", flush=True)
+    print("  Checkpoints: lazy via /api/checkpoints", flush=True)
+    print("=" * 60, flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

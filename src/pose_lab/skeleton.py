@@ -147,3 +147,55 @@ def smpl24_to_lab(joints24):
     for si, name in SMPL24_TO_LAB.items():
         out[:, JOINT_TO_IDX[name]] = x[:, si]
     return out[0] if single else out
+
+
+# Extra SMPL24 keypoints for Mixamo retarget (feet tips / hands) — not in LAB_JOINTS.
+SMPL24_AVATAR_AUX = {
+    "left_ankle": 7,
+    "right_ankle": 8,
+    "left_foot": 10,
+    "right_foot": 11,
+    "neck": 12,
+    "head": 15,
+    "left_shoulder": 16,
+    "right_shoulder": 17,
+    "left_elbow": 18,
+    "right_elbow": 19,
+    "left_wrist": 20,
+    "right_wrist": 21,
+    "left_hand": 22,
+    "right_hand": 23,
+}
+
+
+def smpl24_avatar_aux(joints24):
+    """Extract avatar retarget keypoints from SMPL24.
+
+    Parameters
+    ----------
+    joints24 : (24, 3) or (T, 24, 3)
+        Same space/units as caller (typically metres, pelvis-centered).
+
+    Returns
+    -------
+    dict[str, ndarray]
+        Single frame → each value (3,). Sequence → each value (T, 3).
+    """
+    import numpy as np
+
+    x = np.asarray(joints24, dtype=np.float64)
+    single = x.ndim == 2
+    if single:
+        x = x[None, ...]
+    if x.shape[1] < 24:
+        raise ValueError(f"expected ≥24 SMPL joints, got {x.shape}")
+    out = {name: x[:, idx, :].copy() for name, idx in SMPL24_AVATAR_AUX.items()}
+    if single:
+        return {k: v[0] for k, v in out.items()}
+    return out
+
+
+def smpl24_avatar_aux_json(joints24) -> dict:
+    """JSON-friendly single-frame aux (lists of 3 floats)."""
+    aux = smpl24_avatar_aux(joints24)
+    return {k: [float(c) for c in v.tolist()] for k, v in aux.items()}

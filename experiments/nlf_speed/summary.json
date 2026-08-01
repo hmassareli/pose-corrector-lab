@@ -1,0 +1,361 @@
+{
+  "model": "NLF-S multi 0.2.2",
+  "mode": "fast",
+  "joint_key": "poses3d_joints24",
+  "axis": "identity",
+  "stride": 2,
+  "device": "cuda",
+  "clips": [
+    "burn_500_shots__shot_000__person_009",
+    "burn_500_shots__shot_024__person_005",
+    "shadow_clip_45s__shot_001__person_001"
+  ],
+  "aggregate": {
+    "n_clips": 3,
+    "mp": {
+      "mpjpe_overall_mm": 417.4461975097656,
+      "mpjpe_hard_mm": 565.6175435384115,
+      "mpjpe_easy_mm": 379.86676025390625,
+      "hand_prox_body": 0.7459454778168818,
+      "elbow_mae_deg": 31.857100404433787,
+      "lean_legs_mean": 9.02189503073633
+    },
+    "nlf": {
+      "mpjpe_overall_mm": 261.8672739664714,
+      "mpjpe_hard_mm": 393.2981770833333,
+      "mpjpe_easy_mm": 228.5295206705729,
+      "hand_prox_body": 0.5317304793063293,
+      "elbow_mae_deg": 17.502060725712614,
+      "lean_legs_mean": 10.553037292199207
+    },
+    "nlf_better_pct": {
+      "mpjpe_overall_mm": 37.2692156429703,
+      "mpjpe_hard_mm": 30.465703976767806,
+      "mpjpe_easy_mm": 39.83955834466227,
+      "hand_prox_body": 28.71724608311641,
+      "elbow_mae_deg": 45.06072271638155,
+      "lean_legs_mean": -16.971404081365282
+    },
+    "winner": {
+      "mpjpe_overall_mm": "NLF",
+      "mpjpe_hard_mm": "NLF",
+      "mpjpe_easy_mm": "NLF",
+      "hand_prox_body": "NLF",
+      "elbow_mae_deg": "NLF",
+      "lean_legs_mean": "MediaPipe"
+    },
+    "per_joint": {
+      "left_shoulder": {
+        "mp_mae_body": 0.2823219100634257,
+        "nlf_mae_body": 0.18921739359696707,
+        "nlf_better_pct": 32.97814060748669,
+        "winner": "NLF"
+      },
+      "right_shoulder": {
+        "mp_mae_body": 0.23095031082630157,
+        "nlf_mae_body": 0.18114556868871054,
+        "nlf_better_pct": 21.565133192242957,
+        "winner": "NLF"
+      },
+      "left_elbow": {
+        "mp_mae_body": 0.490275780359904,
+        "nlf_mae_body": 0.2990028460820516,
+        "nlf_better_pct": 39.01333533902936,
+        "winner": "NLF"
+      },
+      "right_elbow": {
+        "mp_mae_body": 0.49626171588897705,
+        "nlf_mae_body": 0.2638274331887563,
+        "nlf_better_pct": 46.837036841306656,
+        "winner": "NLF"
+      },
+      "left_wrist": {
+        "mp_mae_body": 0.47739402453104657,
+        "nlf_mae_body": 0.36453036467234295,
+        "nlf_better_pct": 23.64161553332633,
+        "winner": "NLF"
+      },
+      "right_wrist": {
+        "mp_mae_body": 0.5274734000364939,
+        "nlf_mae_body": 0.27347996334234875,
+        "nlf_better_pct": 48.15284271710617,
+        "winner": "NLF"
+      }
+    }
+  },
+  "latency": {
+    "infer_ms_mean": 29.465227788405098,
+    "infer_ms_p50": 29.142750000270706,
+    "infer_ms_p95": 34.78451660290981,
+    "budget_30fps_ms": 33.333,
+    "p95_under_budget": false
+  },
+  "per_clip": [
+    {
+      "clip_id": "burn_500_shots__shot_000__person_009",
+      "mp": {
+        "mpjpe_overall_mm": 442.551025390625,
+        "mpjpe_hard_mm": 588.8489990234375,
+        "mpjpe_easy_mm": 405.23016357421875,
+        "hard_frac": 0.2032520325203252,
+        "per_joint": {
+          "left_shoulder": {
+            "mae_body_all": 0.250539094209671,
+            "mae_body_hard": 0.3094147741794586
+          },
+          "right_shoulder": {
+            "mae_body_all": 0.2751091718673706,
+            "mae_body_hard": 0.31792593002319336
+          },
+          "left_elbow": {
+            "mae_body_all": 0.544859766960144,
+            "mae_body_hard": 0.6943196654319763
+          },
+          "right_elbow": {
+            "mae_body_all": 0.43741700053215027,
+            "mae_body_hard": 0.6269353628158569
+          },
+          "left_wrist": {
+            "mae_body_all": 0.6810171008110046,
+            "mae_body_hard": 0.8921746015548706
+          },
+          "right_wrist": {
+            "mae_body_all": 0.4663640558719635,
+            "mae_body_hard": 0.6923240423202515
+          }
+        },
+        "hand_prox_body": 0.6623149113766138,
+        "elbow_mae_deg": 24.375592378245877,
+        "lean_legs_mean": 4.784476647932543
+      },
+      "nlf": {
+        "mpjpe_overall_mm": 278.89837646484375,
+        "mpjpe_hard_mm": 389.98870849609375,
+        "mpjpe_easy_mm": 250.5590057373047,
+        "hard_frac": 0.2032520325203252,
+        "per_joint": {
+          "left_shoulder": {
+            "mae_body_all": 0.20353549718856812,
+            "mae_body_hard": 0.24232277274131775
+          },
+          "right_shoulder": {
+            "mae_body_all": 0.18976765871047974,
+            "mae_body_hard": 0.2439357340335846
+          },
+          "left_elbow": {
+            "mae_body_all": 0.2986014485359192,
+            "mae_body_hard": 0.43137770891189575
+          },
+          "right_elbow": {
+            "mae_body_all": 0.24476252496242523,
+            "mae_body_hard": 0.24742107093334198
+          },
+          "left_wrist": {
+            "mae_body_all": 0.4374607801437378,
+            "mae_body_hard": 0.8558275699615479
+          },
+          "right_wrist": {
+            "mae_body_all": 0.29926228523254395,
+            "mae_body_hard": 0.3190472424030304
+          }
+        },
+        "hand_prox_body": 0.41879116609221495,
+        "elbow_mae_deg": 12.98460396785517,
+        "lean_legs_mean": 3.743200437130305
+      },
+      "nlf_better_pct": {
+        "mpjpe_overall_mm": 36.97938532202711,
+        "mpjpe_hard_mm": 33.77101614456997,
+        "mpjpe_easy_mm": 38.168717864603316,
+        "hand_prox_body": 36.76857354430351,
+        "elbow_mae_deg": 46.73112445282214,
+        "lean_legs_mean": 21.763638688720356
+      }
+    },
+    {
+      "clip_id": "burn_500_shots__shot_024__person_005",
+      "mp": {
+        "mpjpe_overall_mm": 403.84283447265625,
+        "mpjpe_hard_mm": 499.6951599121094,
+        "mpjpe_easy_mm": 379.4276428222656,
+        "hard_frac": 0.20300751879699247,
+        "per_joint": {
+          "left_shoulder": {
+            "mae_body_all": 0.2736075818538666,
+            "mae_body_hard": 0.3020496070384979
+          },
+          "right_shoulder": {
+            "mae_body_all": 0.26913881301879883,
+            "mae_body_hard": 0.31849366426467896
+          },
+          "left_elbow": {
+            "mae_body_all": 0.46761029958724976,
+            "mae_body_hard": 0.4186018407344818
+          },
+          "right_elbow": {
+            "mae_body_all": 0.5737312436103821,
+            "mae_body_hard": 0.7283263802528381
+          },
+          "left_wrist": {
+            "mae_body_all": 0.30714312195777893,
+            "mae_body_hard": 0.4186592698097229
+          },
+          "right_wrist": {
+            "mae_body_all": 0.531825840473175,
+            "mae_body_hard": 0.8120396733283997
+          }
+        },
+        "hand_prox_body": NaN,
+        "elbow_mae_deg": NaN,
+        "lean_legs_mean": 13.41888720417847
+      },
+      "nlf": {
+        "mpjpe_overall_mm": 271.5348815917969,
+        "mpjpe_hard_mm": 382.4135437011719,
+        "mpjpe_easy_mm": 243.2921905517578,
+        "hard_frac": 0.20300751879699247,
+        "per_joint": {
+          "left_shoulder": {
+            "mae_body_all": 0.17304100096225739,
+            "mae_body_hard": 0.22559736669063568
+          },
+          "right_shoulder": {
+            "mae_body_all": 0.18470776081085205,
+            "mae_body_hard": 0.23093107342720032
+          },
+          "left_elbow": {
+            "mae_body_all": 0.33366844058036804,
+            "mae_body_hard": 0.47566330432891846
+          },
+          "right_elbow": {
+            "mae_body_all": 0.35427695512771606,
+            "mae_body_hard": 0.47951486706733704
+          },
+          "left_wrist": {
+            "mae_body_all": 0.28719136118888855,
+            "mae_body_hard": 0.3949052393436432
+          },
+          "right_wrist": {
+            "mae_body_all": 0.2963237464427948,
+            "mae_body_hard": 0.48786965012550354
+          }
+        },
+        "hand_prox_body": NaN,
+        "elbow_mae_deg": NaN,
+        "lean_legs_mean": 17.740499621664124
+      },
+      "nlf_better_pct": {
+        "mpjpe_overall_mm": 32.762238570762065,
+        "mpjpe_hard_mm": 23.47063282173195,
+        "mpjpe_easy_mm": 35.87916032103054,
+        "hand_prox_body": NaN,
+        "elbow_mae_deg": NaN,
+        "lean_legs_mean": -32.20544559119597
+      }
+    },
+    {
+      "clip_id": "shadow_clip_45s__shot_001__person_001",
+      "mp": {
+        "mpjpe_overall_mm": 405.9447326660156,
+        "mpjpe_hard_mm": 608.3084716796875,
+        "mpjpe_easy_mm": 354.9424743652344,
+        "hard_frac": 0.2012987012987013,
+        "per_joint": {
+          "left_shoulder": {
+            "mae_body_all": 0.3228190541267395,
+            "mae_body_hard": 0.43945372104644775
+          },
+          "right_shoulder": {
+            "mae_body_all": 0.1486029475927353,
+            "mae_body_hard": 0.2443566769361496
+          },
+          "left_elbow": {
+            "mae_body_all": 0.4583572745323181,
+            "mae_body_hard": 0.8305829167366028
+          },
+          "right_elbow": {
+            "mae_body_all": 0.4776369035243988,
+            "mae_body_hard": 0.5271531939506531
+          },
+          "left_wrist": {
+            "mae_body_all": 0.4440218508243561,
+            "mae_body_hard": 0.9452775716781616
+          },
+          "right_wrist": {
+            "mae_body_all": 0.5842303037643433,
+            "mae_body_hard": 0.6630268692970276
+          }
+        },
+        "hand_prox_body": 0.8295760442571498,
+        "elbow_mae_deg": 39.3386084306217,
+        "lean_legs_mean": 8.862321240097975
+      },
+      "nlf": {
+        "mpjpe_overall_mm": 235.16856384277344,
+        "mpjpe_hard_mm": 407.4922790527344,
+        "mpjpe_easy_mm": 191.73736572265625,
+        "hard_frac": 0.2012987012987013,
+        "per_joint": {
+          "left_shoulder": {
+            "mae_body_all": 0.19107568264007568,
+            "mae_body_hard": 0.26889339089393616
+          },
+          "right_shoulder": {
+            "mae_body_all": 0.1689612865447998,
+            "mae_body_hard": 0.2470095008611679
+          },
+          "left_elbow": {
+            "mae_body_all": 0.26473864912986755,
+            "mae_body_hard": 0.451815664768219
+          },
+          "right_elbow": {
+            "mae_body_all": 0.19244281947612762,
+            "mae_body_hard": 0.23357047140598297
+          },
+          "left_wrist": {
+            "mae_body_all": 0.36893895268440247,
+            "mae_body_hard": 0.9455695152282715
+          },
+          "right_wrist": {
+            "mae_body_all": 0.22485385835170746,
+            "mae_body_hard": 0.29809534549713135
+          }
+        },
+        "hand_prox_body": 0.6446697925204438,
+        "elbow_mae_deg": 22.019517483570056,
+        "lean_legs_mean": 10.175411817803193
+      },
+      "nlf_better_pct": {
+        "mpjpe_overall_mm": 42.068822448238414,
+        "mpjpe_hard_mm": 33.01223013916785,
+        "mpjpe_easy_mm": 45.98072094201967,
+        "hand_prox_body": 22.289246780538576,
+        "elbow_mae_deg": 44.02568275285058,
+        "lean_legs_mean": -14.816553610854003
+      }
+    }
+  ],
+  "hd_cleanup_before_next_test": [
+    "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\data\\nlf_fast",
+    "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\data\\models\\nlf",
+    "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\experiments\\nlf_speed"
+  ],
+  "prior_shortlist_ref": {
+    "InstantHMR_overall": 350.1,
+    "InstantHMR_hard": 557.1,
+    "HybrIK_overall": 387.2,
+    "HybrIK_hard": 610.0,
+    "MP_overall": 417.4,
+    "MP_hard": 565.6,
+    "NLF_full_overall": 260.7,
+    "NLF_full_hard": 390.7
+  },
+  "prior_nlf_full_aggregate": {
+    "mpjpe_overall_mm": 260.7293294270833,
+    "mpjpe_hard_mm": 390.7056172688802,
+    "mpjpe_easy_mm": 227.7678019205729,
+    "hand_prox_body": 0.5362904445547423,
+    "elbow_mae_deg": 16.556637932020728,
+    "lean_legs_mean": 9.908868891904545
+  }
+}
