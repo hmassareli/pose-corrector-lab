@@ -10,17 +10,18 @@ import numpy as np
 import torch
 
 
-def load_nlf(model_path, device: str = "cuda"):
+def load_nlf(model_path, device: str = "cuda", freeze: bool = True):
     import torchvision  # noqa: F401 — TorchScript needs torchvision.ops.nms
 
     if str(device).startswith("cuda"):
         # Auto-tune conv algorithms for the running GPU (first-call warmup cost).
         torch.backends.cudnn.benchmark = True
     model = torch.jit.load(str(model_path), map_location=device).eval()
-    try:
-        model = torch.jit.freeze(model)
-    except Exception as e:  # freeze is best-effort; keep original module on failure
-        sys.stderr.write(f"[nlf_fast_path] freeze skipped: {e}\n")
+    if freeze:
+        try:
+            model = torch.jit.freeze(model)
+        except Exception as e:  # freeze is best-effort; keep original module on failure
+            sys.stderr.write(f"[nlf_fast_path] freeze skipped: {e}\n")
     return model
 
 
