@@ -12,6 +12,9 @@ import torch
 def load_nlf(model_path, device: str = "cuda"):
     import torchvision  # noqa: F401 — TorchScript needs torchvision.ops.nms
 
+    if str(device).startswith("cuda"):
+        # Auto-tune conv algorithms for the running GPU (first-call warmup cost).
+        torch.backends.cudnn.benchmark = True
     model = torch.jit.load(str(model_path), map_location=device).eval()
     return model
 
