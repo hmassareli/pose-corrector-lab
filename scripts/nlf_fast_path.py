@@ -22,6 +22,55 @@ def smpl24_canonical(model) -> torch.Tensor:
     return cano[-24:].contiguous()
 
 
+SMPLX55_JOINT_NAMES = [
+    "pelvis", "left_hip", "right_hip", "spine1", "left_knee", "right_knee",
+    "spine2", "left_ankle", "right_ankle", "spine3", "left_foot", "right_foot",
+    "neck", "left_collar", "right_collar", "head", "left_shoulder", "right_shoulder",
+    "left_elbow", "right_elbow", "left_wrist", "right_wrist", "jaw", "left_eye",
+    "right_eye", "left_index1", "left_index2", "left_index3", "left_middle1",
+    "left_middle2", "left_middle3", "left_pinky1", "left_pinky2", "left_pinky3",
+    "left_ring1", "left_ring2", "left_ring3", "left_thumb1", "left_thumb2",
+    "left_thumb3", "right_index1", "right_index2", "right_index3", "right_middle1",
+    "right_middle2", "right_middle3", "right_pinky1", "right_pinky2", "right_pinky3",
+    "right_ring1", "right_ring2", "right_ring3", "right_thumb1", "right_thumb2",
+    "right_thumb3",
+]
+
+
+def smplx55_canonical(model) -> torch.Tensor:
+    """Last 55 rows of cano_all['smplx'] in the standard SMPL-X joint order."""
+    cano = model.cano_all["smplx"]
+    return cano[-len(SMPLX55_JOINT_NAMES) :].contiguous()
+
+
+def smpl_surface_canonical(model) -> torch.Tensor:
+    """First 1024 rows of cano_all['smpl'] = SMPL surface samples (not joints)."""
+    cano = model.cano_all["smpl"]
+    return cano[:-24].contiguous()
+
+
+def x55_plus_surface_weights(model) -> tuple[dict[str, torch.Tensor], int, int]:
+    """One NLF query: 55 SMPL-X joints followed by 1024 SMPL surface points."""
+    x55 = smplx55_canonical(model)
+    surf = smpl_surface_canonical(model)
+    pts = torch.cat([x55, surf], dim=0)
+    return model.get_weights_for_canonical_points(pts), int(x55.shape[0]), int(surf.shape[0])
+
+
+def smpl24_hand_surface_indices(model) -> dict[str, list[int]]:
+    """Surface-point indices nearest to SMPL-24 wrist/hand joints."""
+    surf = smpl_surface_canonical(model)
+    joints = smpl24_canonical(model)
+    assign = torch.cdist(surf, joints).argmin(dim=1).cpu().numpy()
+    names = {
+        "left_wrist": 20,
+        "right_wrist": 21,
+        "left_hand": 22,
+        "right_hand": 23,
+    }
+    return {name: np.flatnonzero(assign == idx).tolist() for name, idx in names.items()}
+
+
 def lab_joint_indices_smpl24() -> list[int]:
     """SMPL24 indices covering lab trunk/limbs used by residual panel."""
     return [0, 1, 2, 4, 5, 7, 8, 16, 17, 18, 19, 20, 21]
@@ -31,7 +80,8 @@ def get_joint_weights(model, mode: str = "joints24") -> tuple[dict[str, torch.Te
     """
     mode:
       joints24 — all 24 SMPL joints
-      lab13 — subset mapped to lab skeleton coverage
+    lab13 — subset mapped to lab skeleton coverage
+    smplx55 — body, face anchors, and articulated fingers for retarget probing
     Returns (weights_dict, smpl_index_list or None if full 24 in order).
     """
     joints = smpl24_canonical(model)
@@ -41,6 +91,8 @@ def get_joint_weights(model, mode: str = "joints24") -> tuple[dict[str, torch.Te
         idx = lab_joint_indices_smpl24()
         tidx = torch.tensor(idx, device=joints.device, dtype=torch.long)
         return model.get_weights_for_canonical_points(joints.index_select(0, tidx)), idx
+    if mode == "smplx55":
+        return model.get_weights_for_canonical_points(smplx55_canonical(model)), None
     raise ValueError(f"unknown weight mode: {mode}")
 
 

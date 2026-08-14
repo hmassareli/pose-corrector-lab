@@ -529,6 +529,11 @@ class NlfRuntime:
         self._lock = threading.Lock()
         self._model = None
         self._weights = None
+        self._weights_dense = None
+        self._dense = False
+        self._n_x55 = 55
+        self._n_surf = 1024
+        self._hand_surf_idx: dict[str, list[int]] = {}
         self._device = "cpu"
         self._model_path = LAB_ROOT / "data" / "models" / "nlf" / "nlf_s_multi_0.2.2.torchscript"
         self._ready = False
@@ -551,6 +556,8 @@ class NlfRuntime:
             "error": self._error,
             "ws_url": self._ws_url,
             "crop": "yolov8n_sticky",
+            "nlf_query": "x55+surface1024" if self._dense else "smplx55",
+            "dense": self._dense,
         }
 
     def load(self, device: str | None = None) -> dict:
@@ -569,27 +576,48 @@ class NlfRuntime:
             want = device or ("cuda" if torch.cuda.is_available() else "cpu")
             self._device = want
             self._model = load_nlf(self._model_path, want)
-            self._weights, _ = get_joint_weights(self._model, "joints24")
+            # SMPL-X55: body + eyes/jaw + finger knuckles — live default (not the 1024 surface).
+            self._weights, _ = get_joint_weights(self._model, "smplx55")
+            self._weights_dense = None
+            self._dense = False
             self._tracker = StickyBBox(detect_every=6, expand=1.25)
             self._detector = YoloNanoPerson(device=want, imgsz=320)
             self._detector.load()
             self._ready = True
             self._error = None
-            sys.stderr.write(f"[lab] NLF-S + YOLOv8n sticky crop on {want}\n")
+            sys.stderr.write(f"[lab] NLF-S + YOLOv8n sticky crop on {want} (query=smplx55)\n")
+            return self.status()
+
+    def set_dense(self, enabled: bool) -> dict:
+        """Switch live query between 55 SMPL-X joints and 55+1024 surface points."""
+        if not self._ready:
+            self.load()
+        with self._lock:
+            self._dense = bool(enabled)
+            if self._dense and self._weights_dense is None:
+                sys.path.insert(0, str(LAB_ROOT / "scripts"))
+                from nlf_fast_path import smpl24_hand_surface_indices, x55_plus_surface_weights  # type: ignore
+
+                self._weights_dense, self._n_x55, self._n_surf = x55_plus_surface_weights(self._model)
+                self._hand_surf_idx = smpl24_hand_surface_indices(self._model)
+                sys.stderr.write(
+                    f"[lab] NLF dense weights ready x55={self._n_x55} surface={self._n_surf}\n"
+                )
+            sys.stderr.write(f"[lab] NLF query={'x55+surface1024' if self._dense else 'smplx55'}\n")
             return self.status()
 
     def infer_rgb(self, rgb_u8: np.ndarray) -> dict:
         """rgb HWC uint8 → lab joints metres, OpenCV-ish (same as MediaPipe disk)."""
         import torch
 
-        from pose_lab.skeleton import JOINT_TO_IDX, smpl24_avatar_aux_json, smpl24_to_lab
+        from pose_lab.skeleton import JOINT_TO_IDX, smplx55_avatar_aux_json, smplx55_to_lab
 
         if not self._ready:
             self.load()
         assert self._model is not None and self._weights is not None
         assert self._tracker is not None and self._detector is not None
         sys.path.insert(0, str(LAB_ROOT / "scripts"))
-        from nlf_fast_path import estimate_joints24  # type: ignore
+        from nlf_fast_path import SMPLX55_JOINT_NAMES, estimate_joints24  # type: ignore
 
         h, w = rgb_u8.shape[:2]
         t0 = time.perf_counter()
@@ -606,11 +634,13 @@ class NlfRuntime:
         xywh = self._tracker.update(h, w, detected)
         box = self._tracker.as_torch(xywh, self._device)
 
+        dense = self._dense
+        weights = self._weights_dense if dense and self._weights_dense is not None else self._weights
         with torch.inference_mode():
-            j24 = estimate_joints24(
+            pred = estimate_joints24(
                 self._model,
                 rgb_u8,
-                self._weights,
+                weights,
                 device=self._device,
                 num_aug=1,
                 box=box,
@@ -618,7 +648,7 @@ class NlfRuntime:
         if self._device.startswith("cuda"):
             torch.cuda.synchronize()
         ms = (time.perf_counter() - t0) * 1000.0
-        if j24 is None:
+        if pred is None:
             return {
                 "ok": False,
                 "error": "no person",
@@ -628,15 +658,23 @@ class NlfRuntime:
                 "box": xywh.tolist(),
             }
 
-        j24_m = np.asarray(j24, dtype=np.float64) / 1000.0
-        # Hip-center (NLF is absolute camera metres) — same origin for lab + aux.
-        j24_m = j24_m - j24_m[0:1]
-        lab = smpl24_to_lab(j24_m).astype(np.float32)
-        aux_smpl = smpl24_avatar_aux_json(j24_m)
-        return {
+        pts_m = np.asarray(pred, dtype=np.float64) / 1000.0
+        n_x55 = int(self._n_x55) if dense else 55
+        if pts_m.shape[0] < n_x55:
+            return {"ok": False, "error": f"short nlf pred {pts_m.shape}", "ms": round(ms, 2)}
+        j55_m = pts_m[:n_x55] - pts_m[0:1]
+        surf_m = None
+        if dense and pts_m.shape[0] >= n_x55 + int(self._n_surf):
+            surf_m = pts_m[n_x55 : n_x55 + int(self._n_surf)] - pts_m[0:1]
+        lab = smplx55_to_lab(j55_m).astype(np.float32)
+        aux_smpl = smplx55_avatar_aux_json(j55_m)
+        out = {
             "ok": True,
             "joints": lab.tolist(),
             "aux_smpl": aux_smpl,
+            "smplx55": np.round(j55_m, 5).tolist(),
+            "smplx55_names": list(SMPLX55_JOINT_NAMES),
+            "nlf_query": "x55+surface1024" if surf_m is not None else "smplx55",
             "joint_names": LAB_JOINTS,
             "ms": round(ms, 2),
             "nlf_ms": round(ms - det_ms, 2),
@@ -648,6 +686,10 @@ class NlfRuntime:
             "space": "opencv_ish_root",
             "crop": "yolov8n_sticky",
         }
+        if surf_m is not None:
+            out["surface1024"] = np.round(surf_m, 4).tolist()
+            out["surface_hand_idx"] = self._hand_surf_idx
+        return out
 
 
 NLF_RUNTIME = NlfRuntime()
@@ -689,6 +731,12 @@ def start_nlf_websocket(host: str, port: int) -> str:
                             await websocket.send(json.dumps({"ok": True, "type": "warmup", **st}))
                         except Exception as e:
                             await websocket.send(json.dumps({"ok": False, "error": str(e)}))
+                    elif message.strip().lower() in ("dense", "dense_on"):
+                        st = NLF_RUNTIME.set_dense(True)
+                        await websocket.send(json.dumps({"ok": True, "type": "query", **st}))
+                    elif message.strip().lower() in ("x55", "dense_off"):
+                        st = NLF_RUNTIME.set_dense(False)
+                        await websocket.send(json.dumps({"ok": True, "type": "query", **st}))
                     continue
                 frame_id, jpeg = _decode_nlf_ws_frame(message)
                 if not jpeg:
@@ -748,9 +796,9 @@ class Handler(SimpleHTTPRequestHandler):
         if p in ("/live", "/live.html"):
             return str(VIEWER_DIR / "live.html")
         if p.startswith("/static/"):
-            return str(VIEWER_DIR / p[len("/static/") :])
+            return str(VIEWER_DIR / unquote(p[len("/static/") :]))
         if p.startswith("/assets/"):
-            return str(ASSETS_DIR / p[len("/assets/") :])
+            return str(ASSETS_DIR / unquote(p[len("/assets/") :]))
         # /media/<source>/<clip>/file
         if p.startswith("/media/"):
             rel = unquote(p[len("/media/") :])
