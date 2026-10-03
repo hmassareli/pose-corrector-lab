@@ -1,0 +1,1599 @@
+{
+  "avatar": "fighter-web",
+  "dimensions": {
+    "headSize": [
+      0.20045505819895887,
+      0.20014392406143225,
+      0.24070936645166857
+    ],
+    "headSamples": 35760,
+    "headFaces": 158,
+    "headEnvelopeExpansion": 1.0887893305422587,
+    "gloves": [
+      {
+        "side": "left",
+        "radius": 0.0906219648307253,
+        "samples": 10921,
+        "hullVertices": 274
+      },
+      {
+        "side": "right",
+        "radius": 0.08300911130750174,
+        "samples": 10914,
+        "hullVertices": 277
+      }
+    ]
+  },
+  "rows": [
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "z": -0.08,
+      "beforeSkin": [
+        0.06060619640430977,
+        0.09374497360451778
+      ],
+      "afterSkin": [
+        0.06060619640430977,
+        0.09374497360451778
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.036987447494129605,
+          "afterGap": 0.036987447494129605,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.06998484186369741,
+          "afterGap": 0.06998484186369741,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "z": 0.02,
+      "beforeSkin": [
+        0.055683862198778855,
+        0.10152774328709882
+      ],
+      "afterSkin": [
+        0.055683862198778855,
+        0.10152774328709882
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.05479256617942075,
+          "afterGap": 0.05479256617942075,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.0766233676702964,
+          "afterGap": 0.0766233676702964,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "z": 0.1,
+      "beforeSkin": [
+        0.07599020367704923,
+        0.13134911736241978
+      ],
+      "afterSkin": [
+        0.07599020367704923,
+        0.13134911736241978
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.04378657729652599,
+          "afterGap": 0.04378657729652599,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.10406821694995597,
+          "afterGap": 0.10406821694995597,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "z": 0.18,
+      "beforeSkin": [
+        0.12234406870184711,
+        0.1829937316637229
+      ],
+      "afterSkin": [
+        0.12234406870184711,
+        0.1829937316637229
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.08618915026327276,
+          "afterGap": 0.08618915026327276,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.15033022190642895,
+          "afterGap": 0.15033022190642895,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "z": 0.3,
+      "beforeSkin": [
+        0.19797309446646305,
+        0.2572224338247506
+      ],
+      "afterSkin": [
+        0.19797309446646305,
+        0.2572224338247506
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.16044074204630857,
+          "afterGap": 0.16044074204630857,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.2245610160352736,
+          "afterGap": 0.2245610160352736,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "z": 0.55,
+      "beforeSkin": [
+        0.309210727093467,
+        0.355569763688259
+      ],
+      "afterSkin": [
+        0.309210727093467,
+        0.355569763688259
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.26809159778693814,
+          "afterGap": 0.26809159778693814,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.32255784687972244,
+          "afterGap": 0.32255784687972244,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        30,
+        0,
+        0
+      ],
+      "z": -0.08,
+      "beforeSkin": [
+        0.0664873193393918,
+        0.08049112375307024
+      ],
+      "afterSkin": [
+        0.0664873193393918,
+        0.08049112375307024
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.04288713618735421,
+          "afterGap": 0.04288713618735421,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.061300333451486694,
+          "afterGap": 0.061300333451486694,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        30,
+        0,
+        0
+      ],
+      "z": 0.02,
+      "beforeSkin": [
+        0.04362016407709013,
+        0.07638020176595424
+      ],
+      "afterSkin": [
+        0.04362016407709013,
+        0.07638020176595424
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.0411837153265619,
+          "afterGap": 0.0411837153265619,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.046793161731298216,
+          "afterGap": 0.046793161731298216,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        30,
+        0,
+        0
+      ],
+      "z": 0.1,
+      "beforeSkin": [
+        0.05218152961144898,
+        0.09807728143763976
+      ],
+      "afterSkin": [
+        0.05218152961144898,
+        0.09807728143763976
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.04941287453195097,
+          "afterGap": 0.04941287453195097,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.06698057579189778,
+          "afterGap": 0.06698057579189778,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        30,
+        0,
+        0
+      ],
+      "z": 0.18,
+      "beforeSkin": [
+        0.0769047422202418,
+        0.14260608727007823
+      ],
+      "afterSkin": [
+        0.0769047422202418,
+        0.14260608727007823
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.040377404894963526,
+          "afterGap": 0.040377404894963526,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.11208364073022212,
+          "afterGap": 0.11208364073022212,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        30,
+        0,
+        0
+      ],
+      "z": 0.3,
+      "beforeSkin": [
+        0.14619068936947122,
+        0.2088241941369547
+      ],
+      "afterSkin": [
+        0.14619068936947122,
+        0.2088241941369547
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.1060717504377037,
+          "afterGap": 0.1060717504377037,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.17830175256603079,
+          "afterGap": 0.17830175256603079,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        30,
+        0,
+        0
+      ],
+      "z": 0.55,
+      "beforeSkin": [
+        0.246859759592215,
+        0.3098263351892307
+      ],
+      "afterSkin": [
+        0.246859759592215,
+        0.3098263351892307
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.20672362890178878,
+          "afterGap": 0.20672362890178878,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.28226696538006113,
+          "afterGap": 0.28226696538006113,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        -25,
+        0,
+        0
+      ],
+      "z": -0.08,
+      "beforeSkin": [
+        0.06648732614069593,
+        0.08049112170008796
+      ],
+      "afterSkin": [
+        0.06648732614069593,
+        0.08049112170008796
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.042887141101731335,
+          "afterGap": 0.042887141101731335,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.06130034420027794,
+          "afterGap": 0.06130034420027794,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        -25,
+        0,
+        0
+      ],
+      "z": 0.02,
+      "beforeSkin": [
+        0.04362017191736217,
+        0.07638020883337783
+      ],
+      "afterSkin": [
+        0.04362017191736217,
+        0.07638020883337783
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.04118372181259618,
+          "afterGap": 0.04118372181259618,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.046793169337347534,
+          "afterGap": 0.046793169337347534,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        -25,
+        0,
+        0
+      ],
+      "z": 0.1,
+      "beforeSkin": [
+        0.052720575974118444,
+        0.10510272842155606
+      ],
+      "afterSkin": [
+        0.052720575974118444,
+        0.10510272842155606
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.05022916732347098,
+          "afterGap": 0.05022916732347098,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.07261830528218752,
+          "afterGap": 0.07261830528218752,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        -25,
+        0,
+        0
+      ],
+      "z": 0.18,
+      "beforeSkin": [
+        0.12693652917687664,
+        0.1854259759524493
+      ],
+      "afterSkin": [
+        0.12693652917687664,
+        0.1854259759524493
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.09035487604489198,
+          "afterGap": 0.09035487604489198,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.15224862218283128,
+          "afterGap": 0.15224862218283128,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        -25,
+        0,
+        0
+      ],
+      "z": 0.3,
+      "beforeSkin": [
+        0.23094940021900384,
+        0.2724820889495211
+      ],
+      "afterSkin": [
+        0.23094940021900384,
+        0.2724820889495211
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.18957019416190837,
+          "afterGap": 0.18957019416190837,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.24517000851821377,
+          "afterGap": 0.24517000851821377,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        -25,
+        0,
+        0
+      ],
+      "z": 0.55,
+      "beforeSkin": [
+        0.324977199675809,
+        0.3788645869279533
+      ],
+      "afterSkin": [
+        0.324977199675809,
+        0.3788645869279533
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.28265781420661773,
+          "afterGap": 0.28265781420661773,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.35093635777444165,
+          "afterGap": 0.35093635777444165,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        40,
+        0
+      ],
+      "z": -0.08,
+      "beforeSkin": [
+        0.034079415031753324,
+        0.12292156970193778
+      ],
+      "afterSkin": [
+        0.034079415031753324,
+        0.12292156970193778
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.030243401951419488,
+          "afterGap": 0.030243401951419488,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.10177027858695456,
+          "afterGap": 0.10177027858695456,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        40,
+        0
+      ],
+      "z": 0.02,
+      "beforeSkin": [
+        0.046022644979268834,
+        0.12542524030013522
+      ],
+      "afterSkin": [
+        0.046022644979268834,
+        0.12542524030013522
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.04316410236568371,
+          "afterGap": 0.04316410236568371,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.10052240069314233,
+          "afterGap": 0.10052240069314233,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        40,
+        0
+      ],
+      "z": 0.1,
+      "beforeSkin": [
+        0.08698940571450642,
+        0.14703579538644634
+      ],
+      "afterSkin": [
+        0.08698940571450642,
+        0.14703579538644634
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.04877155102374506,
+          "afterGap": 0.04877155102374506,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.11909088114032104,
+          "afterGap": 0.11909088114032104,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        40,
+        0
+      ],
+      "z": 0.18,
+      "beforeSkin": [
+        0.14393305648141583,
+        0.17946329105314723
+      ],
+      "afterSkin": [
+        0.14393305648141583,
+        0.17946329105314723
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.0998148265208357,
+          "afterGap": 0.0998148265208357,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.15022494411895823,
+          "afterGap": 0.15022494411895823,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        40,
+        0
+      ],
+      "z": 0.3,
+      "beforeSkin": [
+        0.21986586295021512,
+        0.26095155826020205
+      ],
+      "afterSkin": [
+        0.21986586295021512,
+        0.26095155826020205
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.18467280122611965,
+          "afterGap": 0.18467280122611965,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.22794214980444658,
+          "afterGap": 0.22794214980444658,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        40,
+        0
+      ],
+      "z": 0.55,
+      "beforeSkin": [
+        0.33254632459686084,
+        0.3702117631832869
+      ],
+      "afterSkin": [
+        0.33254632459686084,
+        0.3702117631832869
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.29817698398246306,
+          "afterGap": 0.29817698398246306,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.34025335364565745,
+          "afterGap": 0.34025335364565745,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        25
+      ],
+      "z": -0.08,
+      "beforeSkin": [
+        0.11316185030804296,
+        0.05476054501168996
+      ],
+      "afterSkin": [
+        0.11316185030804296,
+        0.05476054501168996
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.0846251594643524,
+          "afterGap": 0.0846251594643524,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.031209078813872734,
+          "afterGap": 0.031209078813872734,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        25
+      ],
+      "z": 0.02,
+      "beforeSkin": [
+        0.10551933982352285,
+        0.0634318655254424
+      ],
+      "afterSkin": [
+        0.10551933982352285,
+        0.0634318655254424
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.07539277269415706,
+          "afterGap": 0.07539277269415706,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.035006516166113846,
+          "afterGap": 0.035006516166113846,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        25
+      ],
+      "z": 0.1,
+      "beforeSkin": [
+        0.12258158708144434,
+        0.09751343389996563
+      ],
+      "afterSkin": [
+        0.12258158708144434,
+        0.09751343389996563
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.08541731780424541,
+          "afterGap": 0.08541731780424541,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.0668539321969863,
+          "afterGap": 0.0668539321969863,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        25
+      ],
+      "z": 0.18,
+      "beforeSkin": [
+        0.1610486607277482,
+        0.14983312585182862
+      ],
+      "afterSkin": [
+        0.1610486607277482,
+        0.14983312585182862
+      ],
+      "headDelta": 0,
+      "palmDelta": 0,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.12195042097927247,
+          "afterGap": 0.12195042097927247,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.11917363095380992,
+          "afterGap": 0.11917363095380992,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        25
+      ],
+      "z": 0.3,
+      "beforeSkin": [
+        0.2291920330108188,
+        0.2293151407290025
+      ],
+      "afterSkin": [
+        0.2291920330108188,
+        0.2293151407290025
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.18858116225196483,
+          "afterGap": 0.18858116225196483,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.19845020464313387,
+          "afterGap": 0.19845020464313387,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        25
+      ],
+      "z": 0.55,
+      "beforeSkin": [
+        0.32705991276823115,
+        0.3411197632976176
+      ],
+      "afterSkin": [
+        0.32705991276823115,
+        0.3411197632976176
+      ],
+      "headDelta": 0,
+      "palmDelta": 1.7075472925031877e-06,
+      "lengthDelta": 0,
+      "hands": [
+        {
+          "side": "left",
+          "beforeGap": 0.27962712007507584,
+          "afterGap": 0.27962712007507584,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        },
+        {
+          "side": "right",
+          "beforeGap": 0.3100306296604407,
+          "afterGap": 0.3100306296604407,
+          "correction": 0,
+          "swept": false,
+          "contact": false
+        }
+      ]
+    }
+  ],
+  "trajectory": [
+    {
+      "z": 0.6,
+      "hand": [
+        0.22290419282420051,
+        1.5281132918560179,
+        0.4590066656468412
+      ],
+      "gap": 0.16358027653742938,
+      "correction": 0
+    },
+    {
+      "z": 0.585,
+      "hand": [
+        0.22190674163218402,
+        1.5310469697985047,
+        0.4552226082331613
+      ],
+      "gap": 0.15951604210323164,
+      "correction": 0
+    },
+    {
+      "z": 0.57,
+      "hand": [
+        0.22090297483594729,
+        1.5339992250203855,
+        0.4512777640425185
+      ],
+      "gap": 0.15532881806337348,
+      "correction": 0
+    },
+    {
+      "z": 0.5549999999999999,
+      "hand": [
+        0.21989450363847401,
+        1.5369653166913257,
+        0.447166715328325
+      ],
+      "gap": 0.1510169743811268,
+      "correction": 0
+    },
+    {
+      "z": 0.54,
+      "hand": [
+        0.21888312453076367,
+        1.5399399610361493,
+        0.4428842011294466
+      ],
+      "gap": 0.1465792473086436,
+      "correction": 0
+    },
+    {
+      "z": 0.525,
+      "hand": [
+        0.2178708277542481,
+        1.5429173044033342,
+        0.4384251785381495
+      ],
+      "gap": 0.1420147950964866,
+      "correction": 0
+    },
+    {
+      "z": 0.51,
+      "hand": [
+        0.2168598046596042,
+        1.545890901643388,
+        0.43378489303633383
+      ],
+      "gap": 0.13732325812360688,
+      "correction": 0
+    },
+    {
+      "z": 0.495,
+      "hand": [
+        0.21585245335388314,
+        1.5488536994998032,
+        0.42895895609210366
+      ],
+      "gap": 0.13250482183439158,
+      "correction": 0
+    },
+    {
+      "z": 0.48,
+      "hand": [
+        0.21485138220309496,
+        1.5517980263073474,
+        0.42394342978273625
+      ],
+      "gap": 0.1275602817147045,
+      "correction": 0
+    },
+    {
+      "z": 0.46499999999999997,
+      "hand": [
+        0.21385941071515302,
+        1.5547155893951825,
+        0.4187349179719075
+      ],
+      "gap": 0.1224911093165654,
+      "correction": 0
+    },
+    {
+      "z": 0.44999999999999996,
+      "hand": [
+        0.21287956730466245,
+        1.5575974816610172,
+        0.4133306632735611
+      ],
+      "gap": 0.11729951809887348,
+      "correction": 0
+    },
+    {
+      "z": 0.435,
+      "hand": [
+        0.21191508343210808,
+        1.5604341988088162,
+        0.40772864869738495
+      ],
+      "gap": 0.11201779800427733,
+      "correction": 0
+    },
+    {
+      "z": 0.42,
+      "hand": [
+        0.2109693836198559,
+        1.5632156687135144,
+        0.4019277024975475
+      ],
+      "gap": 0.1066226101071732,
+      "correction": 0
+    },
+    {
+      "z": 0.40499999999999997,
+      "hand": [
+        0.21004607088060695,
+        1.5659312942785288,
+        0.3959276043472588
+      ],
+      "gap": 0.10111818216750659,
+      "correction": 0
+    },
+    {
+      "z": 0.39,
+      "hand": [
+        0.2091489071547339,
+        1.568570010973035,
+        0.3897291905516719
+      ],
+      "gap": 0.09551031406641033,
+      "correction": 0
+    },
+    {
+      "z": 0.375,
+      "hand": [
+        0.20828178844490547,
+        1.5711203599654489,
+        0.383334455610447
+      ],
+      "gap": 0.08984099590457731,
+      "correction": 0
+    },
+    {
+      "z": 0.36,
+      "hand": [
+        0.2074487144619538,
+        1.5735705774003246,
+        0.37674664707365374
+      ],
+      "gap": 0.08490158454121652,
+      "correction": 0
+    },
+    {
+      "z": 0.345,
+      "hand": [
+        0.2066537527556767,
+        1.575908699896031,
+        0.3699703503295223
+      ],
+      "gap": 0.0799226159202944,
+      "correction": 0
+    },
+    {
+      "z": 0.32999999999999996,
+      "hand": [
+        0.20590099749651425,
+        1.5781226857751491,
+        0.3630115597517394
+      ],
+      "gap": 0.07491406509441742,
+      "correction": 0
+    },
+    {
+      "z": 0.315,
+      "hand": [
+        0.20519452329427817,
+        1.5802005508917738,
+        0.35587773255030936
+      ],
+      "gap": 0.06988666789527362,
+      "correction": 0
+    },
+    {
+      "z": 0.3,
+      "hand": [
+        0.2045383346806649,
+        1.5821305172123943,
+        0.34857782174450613
+      ],
+      "gap": 0.06485185581644856,
+      "correction": 0
+    },
+    {
+      "z": 0.285,
+      "hand": [
+        0.20393631213223706,
+        1.583901171571856,
+        0.3411222849350333
+      ],
+      "gap": 0.059821672095192874,
+      "correction": 0
+    },
+    {
+      "z": 0.27,
+      "hand": [
+        0.20339215575602165,
+        1.5855016313039747,
+        0.3335230660125352
+      ],
+      "gap": 0.05480866928482156,
+      "correction": 0
+    },
+    {
+      "z": 0.255,
+      "hand": [
+        0.20290932798458425,
+        1.586921712785448,
+        0.3257935476061243
+      ],
+      "gap": 0.0498257893398569,
+      "correction": 0
+    },
+    {
+      "z": 0.24,
+      "hand": [
+        0.20249099681388955,
+        1.5881520983833133,
+        0.3179484729385707
+      ],
+      "gap": 0.04488622801010636,
+      "correction": 0
+    },
+    {
+      "z": 0.22499999999999998,
+      "hand": [
+        0.20213998124810859,
+        1.5891844969113809,
+        0.3100038367871206
+      ],
+      "gap": 0.04000328611436613,
+      "correction": 0
+    },
+    {
+      "z": 0.20999999999999996,
+      "hand": [
+        0.20185870067526845,
+        1.5900117925253359,
+        0.3019767464060278
+      ],
+      "gap": 0.03750865734319081,
+      "correction": 0
+    },
+    {
+      "z": 0.195,
+      "hand": [
+        0.20164912987448552,
+        1.5906281770543342,
+        0.2938852544885306
+      ],
+      "gap": 0.03591123620519615,
+      "correction": 0
+    },
+    {
+      "z": 0.18,
+      "hand": [
+        0.20151276124291614,
+        1.5910292610981056,
+        0.2857481674597739
+      ],
+      "gap": 0.034481759768176884,
+      "correction": 0
+    },
+    {
+      "z": 0.16499999999999998,
+      "hand": [
+        0.20145057562858873,
+        1.5912121598126023,
+        0.27758483351915825
+      ],
+      "gap": 0.033225188947504675,
+      "correction": 0
+    },
+    {
+      "z": 0.15000000000000002,
+      "hand": [
+        0.20146302287117335,
+        1.5911755501428366,
+        0.26941491581235266
+      ],
+      "gap": 0.03214526424199865,
+      "correction": 0
+    },
+    {
+      "z": 0.135,
+      "hand": [
+        0.2015500128008595,
+        1.5909196972965076,
+        0.26125815683939385
+      ],
+      "gap": 0.03124445232662479,
+      "correction": 0
+    },
+    {
+      "z": 0.12,
+      "hand": [
+        0.201710917046296,
+        1.5904464494261643,
+        0.2531341406408948
+      ],
+      "gap": 0.03052391805662999,
+      "correction": 0
+    },
+    {
+      "z": 0.10499999999999998,
+      "hand": [
+        0.20194458158087752,
+        1.589759200727857,
+        0.2450620594157091
+      ],
+      "gap": 0.029983522618480002,
+      "correction": 0
+    },
+    {
+      "z": 0.08999999999999997,
+      "hand": [
+        0.20224934951951423,
+        1.5888628243910699,
+        0.23706049100173512
+      ],
+      "gap": 0.0296218475405694,
+      "correction": 0
+    },
+    {
+      "z": 0.07499999999999996,
+      "hand": [
+        0.2026230932919961,
+        1.5877635779700987,
+        0.22914719311417767
+      ],
+      "gap": 0.029436243285393543,
+      "correction": 0
+    },
+    {
+      "z": 0.05999999999999994,
+      "hand": [
+        0.20306325498773448,
+        1.5864689847214155,
+        0.22133891942387596
+      ],
+      "gap": 0.02942290024651778,
+      "correction": 0
+    },
+    {
+      "z": 0.04500000000000004,
+      "hand": [
+        0.20356689340870068,
+        1.584987695209975,
+        0.21365126153246136
+      ],
+      "gap": 0.02960226222823331,
+      "correction": 0
+    },
+    {
+      "z": 0.030000000000000027,
+      "hand": [
+        0.20413073619835526,
+        1.5833293339823908,
+        0.20609851971363422
+      ],
+      "gap": 0.03031962092403362,
+      "correction": 0
+    },
+    {
+      "z": 0.015000000000000013,
+      "hand": [
+        0.20475123532412332,
+        1.5815043364012782,
+        0.19869360416263565
+      ],
+      "gap": 0.031195235934580956,
+      "correction": 0
+    },
+    {
+      "z": 0,
+      "hand": [
+        0.20542462420039287,
+        1.5795237806357574,
+        0.19144796713365636
+      ],
+      "gap": 0.032220608572495923,
+      "correction": 0
+    }
+  ],
+  "release": [
+    0,
+    0
+  ],
+  "crossing": {
+    "before": 0.10536096650529539,
+    "side": "left",
+    "beforeGap": 0.10536096650529539,
+    "afterGap": 0.004000004206871688,
+    "correction": 0.5033974856353094,
+    "swept": true,
+    "contact": false
+  },
+  "inside": {
+    "before": -0.15011021226432048,
+    "side": "left",
+    "beforeGap": -0.15011021226432048,
+    "afterGap": 0.004000022147873011,
+    "correction": 0.1541102385902406,
+    "swept": false,
+    "contact": true,
+    "skinAfter": 0.005000015532082958
+  },
+  "millisecondsPerApply": 0.059000000059604644,
+  "heldDrift": 1.2299748038333639e-08,
+  "worstSkinBefore": 0.034079415031753324,
+  "worstSkinAfter": 0.034079415031753324,
+  "worstGapAfter": 0.030243401951419488,
+  "maximumHeadDelta": 0,
+  "maximumPalmDelta": 1.7075472925031877e-06,
+  "maximumLengthDelta": 0,
+  "maximumTrajectoryStep": 0.00817000921283102,
+  "errors": [],
+  "checks": {
+    "native_scale": true,
+    "guard_no_skin_penetration": true,
+    "hard_contact": true,
+    "head_unchanged": true,
+    "palm_orientation_preserved": true,
+    "native_arm_lengths": true,
+    "no_boundary_snap": true,
+    "held_guard_no_drift": true,
+    "immediate_withdrawal": true,
+    "swept_no_tunneling": true,
+    "deep_contact": true,
+    "unrestricted_outside_band": true,
+    "no_page_errors": true
+  }
+}

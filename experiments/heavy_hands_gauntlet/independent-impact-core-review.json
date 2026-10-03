@@ -1,0 +1,181 @@
+{
+  "result": "PASS",
+  "rows": [
+    {
+      "fps": 15,
+      "force": 180,
+      "hits": 1,
+      "initialSpeed": 0.05617307692307692,
+      "distanceAfter1s": 0.007832830076504798
+    },
+    {
+      "fps": 15,
+      "force": 180,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036923830489418774
+    },
+    {
+      "fps": 15,
+      "force": 800,
+      "hits": 1,
+      "initialSpeed": 0.11101923076923077,
+      "distanceAfter1s": 0.015622061909382918
+    },
+    {
+      "fps": 15,
+      "force": 800,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036923830489418774
+    },
+    {
+      "fps": 15,
+      "force": 2500,
+      "hits": 1,
+      "initialSpeed": 0.253,
+      "distanceAfter1s": 0.0359297273608575
+    },
+    {
+      "fps": 15,
+      "force": 2500,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036923830489418774
+    },
+    {
+      "fps": 30,
+      "force": 180,
+      "hits": 1,
+      "initialSpeed": 0.05617307692307692,
+      "distanceAfter1s": 0.007782399568745626
+    },
+    {
+      "fps": 30,
+      "force": 180,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036866269771651396
+    },
+    {
+      "fps": 30,
+      "force": 800,
+      "hits": 1,
+      "initialSpeed": 0.11101923076923077,
+      "distanceAfter1s": 0.015622061909382921
+    },
+    {
+      "fps": 30,
+      "force": 800,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036866269771651396
+    },
+    {
+      "fps": 30,
+      "force": 2500,
+      "hits": 1,
+      "initialSpeed": 0.253,
+      "distanceAfter1s": 0.035873716354722314
+    },
+    {
+      "fps": 30,
+      "force": 2500,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036866269771651396
+    },
+    {
+      "fps": 60,
+      "force": 180,
+      "hits": 1,
+      "initialSpeed": 0.05617307692307692,
+      "distanceAfter1s": 0.0077524130261997235
+    },
+    {
+      "fps": 60,
+      "force": 180,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.03686626977165137
+    },
+    {
+      "fps": 60,
+      "force": 800,
+      "hits": 1,
+      "initialSpeed": 0.11101923076923077,
+      "distanceAfter1s": 0.015592631909687705
+    },
+    {
+      "fps": 60,
+      "force": 800,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.03686626977165137
+    },
+    {
+      "fps": 60,
+      "force": 2500,
+      "hits": 1,
+      "initialSpeed": 0.253,
+      "distanceAfter1s": 0.03587371635472231
+    },
+    {
+      "fps": 60,
+      "force": 2500,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.03686626977165137
+    },
+    {
+      "fps": 120,
+      "force": 180,
+      "hits": 1,
+      "initialSpeed": 0.05617307692307692,
+      "distanceAfter1s": 0.007752413026199723
+    },
+    {
+      "fps": 120,
+      "force": 180,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036866269771651396
+    },
+    {
+      "fps": 120,
+      "force": 800,
+      "hits": 1,
+      "initialSpeed": 0.11101923076923077,
+      "distanceAfter1s": 0.015576578165832196
+    },
+    {
+      "fps": 120,
+      "force": 800,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036866269771651396
+    },
+    {
+      "fps": 120,
+      "force": 2500,
+      "hits": 1,
+      "initialSpeed": 0.253,
+      "distanceAfter1s": 0.03585754952702341
+    },
+    {
+      "fps": 120,
+      "force": 2500,
+      "hits": 20,
+      "initialSpeed": 0.26,
+      "distanceAfter1s": 0.036866269771651396
+    }
+  ],
+  "maxLinearSpeed": 0.29996694214875885,
+  "maxAngularSpeed": 2.3362379355591134,
+  "last": {
+    "t": 1.2000000000000006,
+    "angle": 1.48,
+    "distance": 0.22000000000000003
+  },
+  "limitation": "Independent pure-production helper measurement; rendered mesh grounding and visual impact assessed separately."
+}

@@ -541,6 +541,20 @@ class NlfRuntime:
         self._tracker = None
         self._detector = None
         self._ws_url: str | None = None
+        self._engine = None
+        self._backend = "auto"
+        self._backend_forced = False
+        self._no_cache = False
+        self._calibrated = False
+        self._rebalanced = 0
+        self._last_rebal = 0.0
+        self._rebal_lock = threading.Lock()
+        self._rebalancing = False
+        self._native_lock = threading.RLock()
+        # Server-level latency baseline (JPEG decode + box plumbing + infer) used
+        # by the runtime rebalance monitor — the calibration baseline measures
+        # only the bare pose path and would false-positive on steady-state.
+        self._monitor_baseline: dict = {}
 
     @property
     def ready(self) -> bool:
@@ -558,12 +572,29 @@ class NlfRuntime:
             "crop": "yolov8n_sticky",
             "nlf_query": "x55+surface1024" if self._dense else "smplx55",
             "dense": self._dense,
+            "backend": self._engine.backend if self._engine is not None else "torch",
+            "backend_calibrated": self._calibrated,
+            "backend_baseline": (self._engine.baseline if self._engine is not None else {}),
+            "backend_candidates": self._measured_backends(),
+            "backend_rebalanced": self._rebalanced,
         }
 
-    def load(self, device: str | None = None) -> dict:
+    def _measured_backends(self) -> dict:
+        """The full measured table (backend -> p50/p95) from the calibration cache,
+        so the viewer can show how the winner was chosen."""
+        try:
+            from nlf_engine import load_backend_choice  # type: ignore
+
+            c = load_backend_choice()
+            bl = (c or {}).get("baseline") or {}
+            return {k: v for k, v in bl.items() if isinstance(v, dict) and v.get("p50")}
+        except Exception:
+            return {}
+
+    def load(self, device: str | None = None, backend: str | None = None) -> dict:
         import torch
 
-        with self._lock:
+        with self._lock, self._native_lock:
             if self._ready and self._model is not None:
                 return self.status()
             if not self._model_path.is_file():
@@ -583,16 +614,171 @@ class NlfRuntime:
             self._tracker = StickyBBox(detect_every=6, expand=1.25)
             self._detector = YoloNanoPerson(device=want, imgsz=320)
             self._detector.load()
+            # Pay predictor/CUDA initialization once, before publishing readiness.
+            import numpy as np
+            self._detector.detect_xywh(np.zeros((320, 320, 3), dtype=np.uint8))
+            # Accelerated features backend (trt/dml/ov/ort/torch) — build failure
+            # is non-fatal: the server keeps working on the reference torch path.
+            self._backend = backend or self._backend
+            self._backend_forced = self._backend != "auto"
+            self._engine = None
+            try:
+                from nlf_engine import NlfFeatureEngine, calibrate_backend
+
+                if self._backend == "auto":
+                    name, engine, baseline = calibrate_backend(
+                        self._model, self._weights, want, use_cache=not self._no_cache
+                    )
+                    self._engine = engine
+                    self._calibrated = True
+                    sys.stderr.write(
+                        f"[lab] NLF features backend: {name} (measured; baseline p50 {baseline.get('p50', float('nan')):.1f} ms)\n"
+                    )
+                else:
+                    self._engine = NlfFeatureEngine(self._model, self._weights, backend=self._backend, device=want)
+                    sys.stderr.write(f"[lab] NLF features backend: {self._engine.backend} (device={self._engine.device})\n")
+                # Warm the engine (CUDA context, TRT first run, decode kernels) so
+                # the first live frame doesn't pay a ~1s cold start.
+                import numpy as np
+
+                self._engine.infer(np.zeros((256, 256, 3), dtype=np.uint8))
+            except Exception as e:
+                self._engine = None
+                sys.stderr.write(f"[lab] NLF engine unavailable ({type(e).__name__}: {e}); using torch path\n")
             self._ready = True
             self._error = None
+            # Server-level monitor baseline: full pose path incl. JPEG decode, so
+            # steady-state never trips the rebalance (calibration p50 is the bare
+            # engine path, ~4-5 ms lower). Also give the system a 2 min grace
+            # window after load before any rebalance can fire (cold start noise).
+            self._monitor_baseline = {}
+            self._last_rebal = time.time()
+            if self._engine is not None:
+                try:
+                    import cv2
+                    import numpy as np
+
+                    dummy = np.zeros((540, 960, 3), dtype=np.uint8)
+                    okj, buf = cv2.imencode(".jpg", dummy, [int(cv2.IMWRITE_JPEG_QUALITY), 82])
+                    box = torch.tensor([[100.0, 100.0, 760.0, 340.0]])
+                    # Warm first (one-time CUDA/decode init) so the measured
+                    # window reflects steady state, not a 470 ms cold spike.
+                    for _ in range(2):
+                        bgr = cv2.imdecode(buf, cv2.IMREAD_COLOR)
+                        self._engine.infer(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), box)
+                    ms = []
+                    for _ in range(6):
+                        t0 = time.perf_counter()
+                        bgr = cv2.imdecode(buf, cv2.IMREAD_COLOR)
+                        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                        self._engine.infer(rgb, box)
+                        ms.append((time.perf_counter() - t0) * 1000.0)
+                    a = np.asarray(ms)
+                    self._monitor_baseline = {
+                        "p50": float(np.median(a)),
+                        "p95": float(np.percentile(a, 95)),
+                    }
+                    sys.stderr.write(
+                        f"[lab] NLF monitor baseline (server path): p50 {self._monitor_baseline['p50']:.1f} ms | "
+                        f"p95 {self._monitor_baseline['p95']:.1f} ms\n"
+                    )
+                except Exception as e:
+                    sys.stderr.write(f"[lab] monitor baseline failed: {e}\n")
             sys.stderr.write(f"[lab] NLF-S + YOLOv8n sticky crop on {want} (query=smplx55)\n")
             return self.status()
+
+    def rebalance_if_degraded(self, mean_ms: float, p95_ms: float, drop_rate: float) -> None:
+        """Runtime backend rebalancing: if the active engine is degraded vs its
+        server-level baseline (thermal throttling, another app on the GPU, driver
+        fallback), trigger an async re-bench + hot-swap. Guarded by a lock + 120 s
+        backoff so a single hiccup never swaps. mean_ms is the rolling median
+        supplied by the worker. Drops alone do not diagnose a slow engine.
+        Native execution pauses during a legitimate re-bench to avoid racing
+        shared model/providers. HTTP remains available."""
+        if self._backend_forced or self._engine is None:
+            return
+        with self._rebal_lock:
+            if self._rebalancing:
+                return
+            now = time.time()
+            if now - self._last_rebal < 120.0:
+                return
+            bl = self._monitor_baseline or (self._engine.baseline if self._engine is not None else {})
+            bl_p50 = float(bl.get("p50") or mean_ms)
+            bl_p95 = float(bl.get("p95") or p95_ms)
+            if mean_ms <= 1.5 * bl_p50 or p95_ms <= 1.6 * bl_p95:
+                self._last_rebal = now
+                return
+            self._last_rebal = now
+            self._rebalancing = True
+            sys.stderr.write(
+                f"[lab] NLF backend degraded (mean {mean_ms:.1f} ms vs baseline {bl_p50:.1f}, "
+                f"p95 {p95_ms:.1f} vs {bl_p95:.1f}, drop {drop_rate:.0%}) — rebalancing async\n"
+            )
+            threading.Thread(target=self._do_rebalance, daemon=True, name="nlf-rebalance").start()
+
+    def _do_rebalance(self) -> None:
+        try:
+            with self._native_lock:
+                self._do_rebalance_serial()
+        finally:
+            with self._rebal_lock:
+                self._rebalancing = False
+
+    def _do_rebalance_serial(self) -> None:
+        """Re-bench all loadable backends (fresh engines) and hot-swap the live
+        engine if a different backend is now meaningfully faster."""
+        try:
+            from nlf_engine import NlfFeatureEngine, available_backends
+
+            weights = self._weights_dense if self._dense and self._weights_dense is not None else self._weights
+            results: dict[str, dict] = {}
+            engines: dict[str, NlfFeatureEngine] = {}
+            for name in available_backends(self._device):
+                # Reference TorchScript can pay minutes of cold optimization;
+                # do not interrupt a live camera to bench that fallback.
+                if name == "torch" and self._engine.backend != "torch":
+                    continue
+                try:
+                    e = NlfFeatureEngine(self._model, weights, name, self._device)
+                    engines[name] = e
+                    results[name] = e.bench_ms(n=3, warmup=1)
+                except Exception as ex:
+                    sys.stderr.write(f"[lab] rebalance {name} failed: {ex}\n")
+            if not results:
+                return
+            best = min(results, key=lambda k: results[k]["p50"])
+            # Match boot calibration: preserve CUDA/TRT robustness when its
+            # timings are within 20% of the fastest measured provider.
+            if "trt" in results and results["trt"]["p50"] <= 1.2 * results[best]["p50"]:
+                best = "trt"
+            eng = self._engine
+            if eng is None:
+                return
+            cur = eng.backend
+            if best != cur and results[best]["p50"] < 0.95 * results.get(cur, results[best])["p50"]:
+                eng.set_backend(best)
+                eng.baseline = dict(results[best])
+                self._rebalanced += 1
+                sys.stderr.write(
+                    f"[lab] NLF backend rebalanced: {cur} -> {best} (p50 {results[best]['p50']:.1f} ms)\n"
+                )
+            else:
+                sys.stderr.write(
+                    f"[lab] NLF backend recheck: keeping {cur} (p50 {results[cur]['p50']:.1f} ms)\n"
+                )
+            if self._device.startswith("cuda"):
+                import torch
+                torch.cuda.synchronize()
+            engines.clear()  # native gate held; all GPU work completed
+        except Exception as e:
+            sys.stderr.write(f"[lab] rebalance failed: {e}\n")
 
     def set_dense(self, enabled: bool) -> dict:
         """Switch live query between 55 SMPL-X joints and 55+1024 surface points."""
         if not self._ready:
             self.load()
-        with self._lock:
+        with self._lock, self._native_lock:
             self._dense = bool(enabled)
             if self._dense and self._weights_dense is None:
                 sys.path.insert(0, str(LAB_ROOT / "scripts"))
@@ -600,14 +786,26 @@ class NlfRuntime:
 
                 self._weights_dense, self._n_x55, self._n_surf = x55_plus_surface_weights(self._model)
                 self._hand_surf_idx = smpl24_hand_surface_indices(self._model)
+                if self._engine is not None:
+                    self._engine.update_weights(self._weights_dense)
                 sys.stderr.write(
                     f"[lab] NLF dense weights ready x55={self._n_x55} surface={self._n_surf}\n"
                 )
             sys.stderr.write(f"[lab] NLF query={'x55+surface1024' if self._dense else 'smplx55'}\n")
             return self.status()
 
-    def infer_rgb(self, rgb_u8: np.ndarray) -> dict:
-        """rgb HWC uint8 → lab joints metres, OpenCV-ish (same as MediaPipe disk)."""
+    def infer_rgb(
+        self,
+        rgb_u8: np.ndarray,
+        *,
+        box: torch.Tensor | None = None,
+        skip_detect: bool = False,
+    ) -> dict:
+        """rgb HWC uint8 → lab joints metres, OpenCV-ish (same as MediaPipe disk).
+
+        box=xywh [1,4] tensor + skip_detect=True is the async-path entry: the
+        caller (AsyncPoseWorker) already ran the sticky tracker / detection.
+        """
         import torch
 
         from pose_lab.skeleton import JOINT_TO_IDX, smplx55_avatar_aux_json, smplx55_to_lab
@@ -624,27 +822,34 @@ class NlfRuntime:
         det_ms = 0.0
         detected = None
         ran_det = False
-        if self._tracker.needs_detect():
-            ran_det = True
-            td = time.perf_counter()
-            detected = self._detector.detect_xywh(rgb_u8)
-            if self._device.startswith("cuda"):
-                torch.cuda.synchronize()
-            det_ms = (time.perf_counter() - td) * 1000.0
-        xywh = self._tracker.update(h, w, detected)
-        box = self._tracker.as_torch(xywh, self._device)
+        if skip_detect:
+            assert box is not None, "skip_detect requires a caller-supplied box"
+            box = box.detach().to(self._device).float()
+        else:
+            if self._tracker.needs_detect():
+                ran_det = True
+                td = time.perf_counter()
+                detected = self._detector.detect_xywh(rgb_u8)
+                if self._device.startswith("cuda"):
+                    torch.cuda.synchronize()
+                det_ms = (time.perf_counter() - td) * 1000.0
+            xywh = self._tracker.update(h, w, detected)
+            box = self._tracker.as_torch(xywh, self._device)
 
         dense = self._dense
         weights = self._weights_dense if dense and self._weights_dense is not None else self._weights
-        with torch.inference_mode():
-            pred = estimate_joints24(
-                self._model,
-                rgb_u8,
-                weights,
-                device=self._device,
-                num_aug=1,
-                box=box,
-            )
+        with self._native_lock, torch.inference_mode():
+            if self._engine is not None:
+                pred = self._engine.infer(rgb_u8, box)
+            else:
+                pred = estimate_joints24(
+                    self._model,
+                    rgb_u8,
+                    weights,
+                    device=self._device,
+                    num_aug=1,
+                    box=box,
+                )
         if self._device.startswith("cuda"):
             torch.cuda.synchronize()
         ms = (time.perf_counter() - t0) * 1000.0
@@ -655,7 +860,7 @@ class NlfRuntime:
                 "ms": round(ms, 2),
                 "det_ms": round(det_ms, 2),
                 "detected": ran_det,
-                "box": xywh.tolist(),
+                "box": [float(x) for x in box[0, :4].tolist()],
             }
 
         pts_m = np.asarray(pred, dtype=np.float64) / 1000.0
@@ -671,6 +876,11 @@ class NlfRuntime:
         out = {
             "ok": True,
             "joints": lab.tolist(),
+            # Preserve camera translation separately from the established
+            # root-relative retarget payload. Locomotion needs this information.
+            "camera_joints": smplx55_to_lab(pts_m[:n_x55]).astype(np.float32).tolist(),
+            "image_size": [w, h],
+            "camera_fov": 55.0,
             "aux_smpl": aux_smpl,
             "smplx55": np.round(j55_m, 5).tolist(),
             "smplx55_names": list(SMPLX55_JOINT_NAMES),
@@ -680,7 +890,7 @@ class NlfRuntime:
             "nlf_ms": round(ms - det_ms, 2),
             "det_ms": round(det_ms, 2),
             "detected": ran_det,
-            "box": [float(x) for x in xywh.tolist()],
+            "box": [float(x) for x in box[0, :4].tolist()],
             "device": self._device,
             "units": "metres",
             "space": "opencv_ish_root",
@@ -706,15 +916,31 @@ def _decode_nlf_ws_frame(payload: bytes) -> tuple[int | None, bytes]:
 
 
 def start_nlf_websocket(host: str, port: int) -> str:
-    """Background asyncio websockets server; returns ws URL."""
+    """Background asyncio websockets server; returns ws URL.
+
+    Pose frames go through an AsyncPoseWorker (decode/detect/infer off the event
+    loop, latest-frame-wins) — the WS handler only enqueues and a background
+    sender task drains results.
+    """
     import asyncio
 
-    import cv2
     import websockets
     from websockets.asyncio.server import serve
 
+    from nlf_engine import AsyncPoseWorker
+
     ws_url = f"ws://{host}:{port}/nlf"
     NLF_RUNTIME._ws_url = ws_url
+
+    async def _send_result(websocket, worker: AsyncPoseWorker) -> None:
+        try:
+            while True:
+                result = await worker.get()
+                await websocket.send(json.dumps(result))
+        except websockets.exceptions.ConnectionClosed:
+            return
+        except Exception:
+            return
 
     async def handler(websocket):
         path = getattr(websocket, "request", None)
@@ -722,6 +948,10 @@ def start_nlf_websocket(host: str, port: int) -> str:
         if req_path not in ("/nlf", "/", "/nlf/"):
             await websocket.close(1008, "use /nlf")
             return
+        worker = AsyncPoseWorker(NLF_RUNTIME)
+        worker.attach_loop(asyncio.get_running_loop())
+        worker.start()
+        sender = asyncio.create_task(_send_result(websocket, worker))
         try:
             async for message in websocket:
                 if isinstance(message, str):
@@ -742,29 +972,12 @@ def start_nlf_websocket(host: str, port: int) -> str:
                 if not jpeg:
                     await websocket.send(json.dumps({"ok": False, "error": "empty frame"}))
                     continue
-                arr = np.frombuffer(jpeg, dtype=np.uint8)
-                bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-                if bgr is None:
-                    await websocket.send(json.dumps({"ok": False, "error": "jpeg decode failed"}))
-                    continue
-                # Soft clamp only for absurd sizes; Live should send ~720–1080.
-                h, w = bgr.shape[:2]
-                max_side = 1280
-                m = max(h, w)
-                if m > max_side:
-                    s = max_side / float(m)
-                    bgr = cv2.resize(bgr, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA)
-                rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-                try:
-                    result = NLF_RUNTIME.infer_rgb(rgb)
-                except Exception as e:
-                    sys.stderr.write("[lab] nlf ws infer error:\n" + traceback.format_exc())
-                    result = {"ok": False, "error": str(e)}
-                result["frame_id"] = frame_id
-                result["type"] = "pose"
-                await websocket.send(json.dumps(result))
+                worker.submit(frame_id, jpeg)
         except websockets.exceptions.ConnectionClosed:
             return
+        finally:
+            sender.cancel()
+            worker.stop()
 
     async def runner():
         async with serve(handler, host, port, max_size=8 * 1024 * 1024):
@@ -795,8 +1008,21 @@ class Handler(SimpleHTTPRequestHandler):
             return str(VIEWER_DIR / "index.html")
         if p in ("/live", "/live.html"):
             return str(VIEWER_DIR / "live.html")
+        if p in ("/bake", "/bake_seq"):
+            return str(VIEWER_DIR / "avatar_bake_seq.html")
         if p.startswith("/static/"):
             return str(VIEWER_DIR / unquote(p[len("/static/") :]))
+        # Baked pose sequences + the /watch preview page and its videos. Without
+        # these, /bake_seq?pose=/poses/... fell through to the index.html
+        # fallback below and the viewer died parsing HTML as JSON.
+        if p.startswith("/poses/"):
+            return str(LAB_ROOT / "experiments" / "bake_top" / unquote(p[len("/poses/") :]))
+        if p in ("/watch", "/watch.html"):
+            return str(LAB_ROOT / "experiments" / "watch.html")
+        if p.startswith("/experiments/"):
+            return str(LAB_ROOT / "experiments" / unquote(p[len("/experiments/") :]))
+        if p.startswith("/compare/"):
+            return str(LAB_ROOT / "data" / "compare" / unquote(p[len("/compare/") :]))
         if p.startswith("/assets/"):
             return str(ASSETS_DIR / unquote(p[len("/assets/") :]))
         # /media/<source>/<clip>/file
@@ -812,7 +1038,11 @@ class Handler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         path = urlparse(self.path).path
-        if path in ("/", "/index.html", "/live", "/live.html") or path.startswith("/api/"):
+        if (
+            path in ("/", "/index.html", "/live", "/live.html")
+            or path.startswith("/api/")
+            or path.startswith("/static/")
+        ):
             self.send_header("Cache-Control", "no-store")
         super().end_headers()
 
@@ -1169,10 +1399,22 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8780)
     ap.add_argument("--ws-port", type=int, default=0, help="NLF WebSocket port (default: HTTP+1)")
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument(
+        "--backend",
+        default="auto",
+        help="NLF features backend: auto (measured) | torch | trt | dml | ov | ort",
+    )
+    ap.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Skip the per-hardware backend cache and re-measure on this boot",
+    )
     ap.add_argument("--warmup", action="store_true", help="Preload preferred checkpoint")
     args = ap.parse_args()
 
     Handler.default_source = args.source
+    NLF_RUNTIME._backend = args.backend
+    NLF_RUNTIME._no_cache = args.no_cache
     root = SOURCE_ROOTS[args.source]
     clips = list_ready_clips(root)
     clip = args.clip or (clips[0] if clips else "")

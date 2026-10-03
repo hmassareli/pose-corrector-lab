@@ -1,0 +1,91 @@
+{
+  "T": 24,
+  "F": 113,
+  "include_2d": true,
+  "fps": 30.0,
+  "target_joints": [
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist"
+  ],
+  "target_idx": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "delta_dim": 18,
+  "joint_to_idx": {
+    "pelvis": 0,
+    "left_hip": 1,
+    "right_hip": 2,
+    "left_knee": 3,
+    "right_knee": 4,
+    "left_ankle": 5,
+    "right_ankle": 6,
+    "spine": 7,
+    "left_shoulder": 8,
+    "right_shoulder": 9,
+    "left_elbow": 10,
+    "right_elbow": 11,
+    "left_wrist": 12,
+    "right_wrist": 13,
+    "neck": 14,
+    "head": 15
+  },
+  "splits": {
+    "train": {
+      "n_clips": 221,
+      "n_windows": 90605,
+      "hours_pose": 1.723814814814815,
+      "stride": 2,
+      "path": "data\\datasets\\T24\\train.npz",
+      "x_shape": [
+        90605,
+        24,
+        113
+      ],
+      "y_shape": [
+        90605,
+        18
+      ]
+    },
+    "val": {
+      "n_clips": 30,
+      "n_windows": 12520,
+      "hours_pose": 0.1223148148148148,
+      "stride": 1,
+      "path": "data\\datasets\\T24\\val.npz",
+      "x_shape": [
+        12520,
+        24,
+        113
+      ],
+      "y_shape": [
+        12520,
+        18
+      ]
+    },
+    "test": {
+      "n_clips": 18,
+      "n_windows": 48433,
+      "hours_pose": 0.45228703703703704,
+      "stride": 1,
+      "path": "data\\datasets\\T24\\test.npz",
+      "x_shape": [
+        48433,
+        24,
+        113
+      ],
+      "y_shape": [
+        48433,
+        18
+      ]
+    }
+  }
+}

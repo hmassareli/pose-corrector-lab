@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Oswald:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1280px;height:720px;overflow:hidden;font-family:Inter,sans-serif;color:#fff;background:#07090d}
+.bg{position:absolute;inset:0;background:url(fighter_bg.png) center/cover}
+.v{display:none;position:absolute;inset:0}
+body.a .va,body.b .vb,body.c .vc{display:block}
+.ico{width:18px;height:18px;display:inline-block;vertical-align:-3px;margin-right:8px}
+
+/* A — Fight Night: noite de luta, holofote, vermelho + dourado */
+.va .shade{position:absolute;inset:0;background:radial-gradient(ellipse 30% 70% at 50% 35%,transparent 40%,rgba(5,6,10,.55) 75%),linear-gradient(90deg,rgba(6,7,11,.92) 0,rgba(6,7,11,.55) 34%,transparent 52%,transparent 70%,rgba(6,7,11,.85) 100%)}
+.va .beam{position:absolute;left:470px;top:-40px;width:340px;height:620px;background:linear-gradient(180deg,rgba(255,236,190,.28),transparent 80%);clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);mix-blend-mode:screen}
+.va .logo{position:absolute;left:64px;top:70px;font-family:Anton;line-height:.86;letter-spacing:1px}
+.va .logo b{display:block;font-size:112px;color:#f3ead7;text-shadow:0 6px 0 #7a0f12,0 14px 30px rgba(0,0,0,.6)}
+.va .logo b+b{color:#e01f26;text-shadow:0 6px 0 #3a0507,0 14px 30px rgba(0,0,0,.6)}
+.va .tag{margin-top:18px;font:600 14px Oswald;letter-spacing:6px;color:#d8b25a}
+.va .menu{position:absolute;left:64px;top:390px;display:flex;flex-direction:column;gap:14px;width:340px}
+.va .btn{font:700 30px Oswald;letter-spacing:3px;padding:16px 26px;border:0;text-align:left;cursor:pointer;color:#fff;background:linear-gradient(90deg,#c4151c,#8e0d12);clip-path:polygon(0 0,100% 0,94% 100%,0 100%);box-shadow:0 10px 30px rgba(196,21,28,.35)}
+.va .btn.alt{background:rgba(255,255,255,.07);border-left:4px solid #d8b25a;font-size:24px}
+.va .cam{display:flex;align-items:center;gap:10px;margin-top:6px;font:600 14px Inter;color:#cfd5de}
+.va .cam i{width:10px;height:10px;border-radius:50%;background:#3ddc84;box-shadow:0 0 12px #3ddc84}
+.va .card{position:absolute;right:56px;top:120px;width:300px;padding:22px 24px;background:linear-gradient(180deg,rgba(18,20,28,.92),rgba(10,11,16,.92));border-top:4px solid #e01f26}
+.va .card small{font:600 12px Oswald;letter-spacing:4px;color:#d8b25a}
+.va .card h2{font:400 64px 'Bebas Neue';line-height:.9;margin:4px 0 2px}
+.va .card em{font-style:normal;color:#9aa3b2;font-size:14px}
+.va .stat{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font:600 13px Inter;color:#cfd5de}
+.va .bar{width:150px;height:6px;background:#262a35}.va .bar i{display:block;height:100%;background:#e01f26}
+.va .arrows{display:flex;justify-content:space-between;margin-top:18px}
+.va .arrows span{width:44px;height:44px;display:grid;place-items:center;font:700 22px Oswald;border:1px solid #3a3f4c;color:#d8b25a}
+.va .peak{position:absolute;right:56px;bottom:56px;width:300px;padding:14px 24px;background:#d8b25a;color:#14110a;display:flex;justify-content:space-between;align-items:baseline}
+.va .peak small{font:700 13px Oswald;letter-spacing:4px}.va .peak b{font:400 44px 'Bebas Neue'}
+
+/* B — Cartaz de luta: papel envelhecido, tipografia de pôster */
+.vb .shade{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0,transparent 52%,rgba(0,0,0,.35) 56%)}
+.vb .poster{position:absolute;right:0;top:0;bottom:0;width:560px;background:#efe3c8;color:#1c1410;padding:46px 54px;box-shadow:-20px 0 60px rgba(0,0,0,.6)}
+.vb .poster:before{content:"";position:absolute;inset:0;opacity:.35;background:repeating-radial-gradient(circle at 30% 20%,rgba(120,80,40,.08) 0 2px,transparent 2px 6px)}
+.vb .top{font:700 14px Oswald;letter-spacing:8px;color:#a3141a;border-top:3px solid #1c1410;border-bottom:1px solid #1c1410;padding:8px 0;display:flex;justify-content:space-between}
+.vb h1{font-family:Anton;font-size:118px;line-height:.84;margin:22px 0 6px;color:#1c1410;letter-spacing:1px}
+.vb h1 span{color:#a3141a}
+.vb .vs{font:600 18px Oswald;letter-spacing:5px;margin-bottom:22px}
+.vb .row{display:flex;gap:14px}
+.vb .btn{flex:1;font:700 26px Oswald;letter-spacing:3px;padding:16px 0;text-align:center;background:#a3141a;color:#f6ecd6;border:3px solid #1c1410;box-shadow:6px 6px 0 #1c1410}
+.vb .btn.alt{background:#efe3c8;color:#1c1410}
+.vb .info{display:flex;justify-content:space-between;margin-top:28px;border-top:3px solid #1c1410;padding-top:14px}
+.vb .info div small{display:block;font:700 11px Oswald;letter-spacing:4px;color:#7a5c44}
+.vb .info div b{font:400 40px 'Bebas Neue'}
+.vb .cam{margin-top:16px;font:600 14px Inter;display:flex;align-items:center;gap:8px}
+.vb .cam i{width:10px;height:10px;border-radius:50%;background:#1f8f4e}
+.vb .name{position:absolute;left:40px;bottom:40px;font-family:Anton;font-size:84px;line-height:.9;color:#efe3c8;text-shadow:0 4px 0 #a3141a}
+.vb .name small{display:block;font:600 16px Oswald;letter-spacing:6px;color:#efe3c8;text-shadow:none}
+.vb .chev{position:absolute;bottom:58px;display:flex;gap:10px;left:330px}
+.vb .chev span{width:46px;height:46px;display:grid;place-items:center;font:700 24px Oswald;background:#efe3c8;color:#1c1410;border:3px solid #1c1410}
+
+/* C — Transmissão de TV: grafismo esportivo, faixas inclinadas */
+.vc .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,6,12,.9) 0,rgba(4,6,12,.2) 38%,transparent 55%),linear-gradient(180deg,rgba(4,6,12,.7),transparent 22%)}
+.vc .brand{position:absolute;left:48px;top:34px;display:flex;align-items:center;gap:14px}
+.vc .brand b{font:700 40px Oswald;letter-spacing:2px;padding:4px 16px;background:#fff;color:#0b0d14;transform:skewX(-12deg)}
+.vc .brand b+b{background:#ff2d3a;color:#fff}
+.vc .live{position:absolute;right:48px;top:40px;font:700 14px Inter;letter-spacing:3px;display:flex;gap:10px;align-items:center;padding:8px 14px;background:rgba(0,0,0,.55);border:1px solid #2b3140}
+.vc .live i{width:9px;height:9px;border-radius:50%;background:#3ddc84;box-shadow:0 0 10px #3ddc84}
+.vc .lower{position:absolute;left:48px;right:48px;bottom:40px;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px;align-items:end}
+.vc .nameplate{transform:skewX(-10deg);background:linear-gradient(90deg,#ff2d3a,#b3121c);padding:14px 26px}
+.vc .nameplate>*{transform:skewX(10deg)}
+.vc .nameplate small{font:700 12px Inter;letter-spacing:4px;opacity:.85}
+.vc .nameplate h2{font:700 54px Oswald;line-height:1;letter-spacing:1px}
+.vc .nameplate em{font:600 13px Inter;font-style:normal;opacity:.9}
+.vc .btn{transform:skewX(-10deg);padding:22px 0;text-align:center;font:700 28px Oswald;letter-spacing:3px;background:#fff;color:#0b0d14}
+.vc .btn.alt{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.4)}
+.vc .btn span{display:inline-block;transform:skewX(10deg)}
+.vc .peak{position:absolute;right:48px;top:96px;text-align:right}
+.vc .peak small{font:700 12px Inter;letter-spacing:4px;color:#ff2d3a}
+.vc .peak b{display:block;font:700 56px Oswald;line-height:1}
+.vc .peak em{font:600 13px Inter;font-style:normal;color:#9aa3b2}
+.vc .ticker{position:absolute;left:0;right:0;bottom:0;height:28px;background:#ff2d3a;font:700 12px Inter;letter-spacing:3px;display:flex;align-items:center;padding-left:48px;gap:40px}
+</style></head>
+<body>
+<div class="bg"></div>
+
+<div class="v va">
+ <div class="beam"></div><div class="shade"></div>
+ <div class="logo"><b>HEAVY</b><b>HANDS</b><div class="tag">BOXE COM O SEU CORPO</div></div>
+ <div class="menu">
+  <button class="btn">TREINO</button>
+  <button class="btn alt">ONLINE</button>
+  <div class="cam"><i></i>Webcam pronta · rastreando você</div>
+ </div>
+ <div class="card"><small>SEU LUTADOR</small><h2>BETO</h2><em>"Mão de pilão" · peso médio</em>
+  <div class="stat">Alcance<div class="bar"><i style="width:62%"></i></div></div>
+  <div class="stat">Guarda<div class="bar"><i style="width:80%"></i></div></div>
+  <div class="stat">Queixo<div class="bar"><i style="width:55%"></i></div></div>
+  <div class="arrows"><span>‹</span><span>›</span></div></div>
+ <div class="peak"><small>SEU PEAK</small><b>1.468 N</b></div>
+</div>
+
+<div class="v vb">
+ <div class="shade"></div>
+ <div class="name"><small>NO CORNER AZUL</small>BETO</div>
+ <div class="chev"><span>‹</span><span>›</span></div>
+ <div class="poster">
+  <div class="top"><span>NOITE DE LUTA</span><span>3 ROUNDS</span></div>
+  <h1>HEAVY<br><span>HANDS</span></h1>
+  <div class="vs">VOCÊ · CONTRA · O SPARRING</div>
+  <div class="row"><div class="btn">TREINO</div><div class="btn alt">ONLINE</div></div>
+  <div class="cam"><i></i>Webcam pronta</div>
+  <div class="info"><div><small>SEU PEAK</small><b>1.468 N</b></div><div><small>MELHOR COMBO</small><b>7 HITS</b></div><div><small>LUTAS</small><b>12</b></div></div>
+ </div>
+</div>
+
+<div class="v vc">
+ <div class="shade"></div>
+ <div class="brand"><b>HEAVY</b><b>HANDS</b></div>
+ <div class="live"><i></i>WEBCAM · AO VIVO</div>
+ <div class="peak"><small>RECORDE PESSOAL</small><b>1.468 N</b><em>≈ 150 kgf · soco mais forte</em></div>
+ <div class="lower">
+  <div class="nameplate"><small>CORNER AZUL · ‹ TROCAR ›</small><h2>BETO</h2><em>Alcance 1,82 m · 78 kg · peso médio</em></div>
+  <div class="btn"><span>TREINO</span></div>
+  <div class="btn alt"><span>ONLINE</span></div>
+ </div>
+ <div class="ticker"><span>ROUND 1 DE 3</span><span>FIQUE INTEIRO NA CÂMERA</span><span>GOLPE NO QUEIXO DEIXA TONTO</span></div>
+</div>
+<script>document.body.className=new URLSearchParams(location.search).get('v')||'a'</script>
+</body></html>

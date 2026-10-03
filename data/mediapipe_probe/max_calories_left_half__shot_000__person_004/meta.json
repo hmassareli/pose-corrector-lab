@@ -1,0 +1,37 @@
+{
+  "clip_id": "max_calories_left_half__shot_000__person_004",
+  "source_video": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\data\\teacher_aligned\\max_calories_left_half__shot_000__person_004\\source.mp4",
+  "backend": "mediapipe_tasks_pose_landmarker",
+  "model_complexity": 1,
+  "fps": 24.0,
+  "n_frames": 409,
+  "width": 268,
+  "height": 582,
+  "joint_names": [
+    "pelvis",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle",
+    "spine",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "neck",
+    "head"
+  ],
+  "full_landmarks": {
+    "count": 33,
+    "world_file": "landmarks33_world.npy",
+    "world_axes": "MediaPipe Pose world landmarks (raw task coordinates)",
+    "image_file": "landmarks33_image.npy",
+    "image_axes": "MediaPipe normalized image x,y,z",
+    "confidence_file": "landmarks33_conf.npy"
+  },
+  "created_unix": 1785522936.0850666
+}

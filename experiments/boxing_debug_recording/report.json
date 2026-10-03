@@ -1,0 +1,41 @@
+{
+  "result": "PASS",
+  "frames": 26,
+  "poses": 12,
+  "playback": [
+    {
+      "name": "webcam.webm",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "name": "comparacao.webm",
+      "width": 1600,
+      "height": 900
+    }
+  ],
+  "decodedFrames": {
+    "comparacao.webm": 27,
+    "webcam.webm": 38
+  },
+  "streamedFiles": 6,
+  "checks": [
+    "no-camera feedback",
+    "cancel picker",
+    "visible button start/stop",
+    "ZIP CRC integrity",
+    "both videos decode",
+    "raw input timestamp/ID",
+    "all native bones for both avatars",
+    "five independent retarget stages",
+    "snapshot JPEG",
+    "streaming appends and closes",
+    "repeat recording",
+    "webcam survives stop",
+    "real iframe JPEG/WS/pose adapter path with mocked inference",
+    "raw NLF output and capture timestamp preserved",
+    "first and third person capture",
+    "webcam overlay reflection with both selfie calibration modes"
+  ],
+  "errors": []
+}

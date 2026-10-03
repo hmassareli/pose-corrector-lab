@@ -1,0 +1,377 @@
+{
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "dpr": 1.5,
+    "viewport": [
+      1366,
+      768
+    ],
+    "assets": [
+      {
+        "id": "boxer-prism31",
+        "meshes": 1,
+        "vertices": 763162,
+        "triangles": 1494256,
+        "materials": 1,
+        "bones": 20
+      },
+      {
+        "id": "boxeador",
+        "meshes": 1,
+        "vertices": 730862,
+        "triangles": 294525,
+        "materials": 1,
+        "bones": 20
+      }
+    ]
+  },
+  "scope": "Synthetic neutral pose + procedural sparring; no live inference; headless Chromium; sampling profile collected separately.",
+  "runs": [
+    {
+      "quality": "high",
+      "durationMs": 5006.5999999940395,
+      "frames": 300,
+      "fps": 59.920904406255175,
+      "frameMs": {
+        "p50": 16.69999999999891,
+        "p95": 16.799999999999272,
+        "max": 33.30000000000109
+      },
+      "renderSubmitMs": {
+        "p50": 0.5999999940395355,
+        "p95": 1.199999988079071,
+        "max": 38.599999994039536
+      },
+      "calls": 68,
+      "triangles": 1920779,
+      "memory": {
+        "geometries": 88,
+        "textures": 9
+      },
+      "programs": 17,
+      "resolution": [
+        2049,
+        1152
+      ]
+    },
+    {
+      "quality": "balanced",
+      "durationMs": 5000.79999997616,
+      "frames": 301,
+      "fps": 60.19036954116041,
+      "frameMs": {
+        "p50": 16.69999999999709,
+        "p95": 16.700000000000728,
+        "max": 16.80000000000291
+      },
+      "renderSubmitMs": {
+        "p50": 0.5999999940395355,
+        "p95": 1,
+        "max": 2.0999999940395355
+      },
+      "calls": 70,
+      "triangles": 1879721,
+      "memory": {
+        "geometries": 88,
+        "textures": 9
+      },
+      "programs": 17,
+      "resolution": [
+        1707,
+        960
+      ]
+    },
+    {
+      "quality": "low",
+      "durationMs": 5002.099999982118,
+      "frames": 301,
+      "fps": 60.174726615036896,
+      "frameMs": {
+        "p50": 16.700000000000728,
+        "p95": 16.700000000000728,
+        "max": 16.80000000000291
+      },
+      "renderSubmitMs": {
+        "p50": 0.4000000059604645,
+        "p95": 0.699999988079071,
+        "max": 27.5
+      },
+      "calls": 62,
+      "triangles": 1838335,
+      "memory": {
+        "geometries": 88,
+        "textures": 9
+      },
+      "programs": 29,
+      "resolution": [
+        1161,
+        652
+      ]
+    },
+    {
+      "quality": "low",
+      "durationMs": 5003.099999976155,
+      "frames": 301,
+      "fps": 60.16269912682828,
+      "frameMs": {
+        "p50": 16.69999999999709,
+        "p95": 16.700000000004366,
+        "max": 16.80000000000291
+      },
+      "renderSubmitMs": {
+        "p50": 0.30000001192092896,
+        "p95": 0.699999988079071,
+        "max": 0.9000000059604645
+      },
+      "calls": 64,
+      "triangles": 1838349,
+      "memory": {
+        "geometries": 88,
+        "textures": 9
+      },
+      "programs": 29,
+      "resolution": [
+        1161,
+        652
+      ]
+    },
+    {
+      "quality": "balanced",
+      "durationMs": 5003.999999976157,
+      "frames": 301,
+      "fps": 60.15187849748885,
+      "frameMs": {
+        "p50": 16.69999999999709,
+        "p95": 16.799999999995634,
+        "max": 16.80000000000291
+      },
+      "renderSubmitMs": {
+        "p50": 0.5,
+        "p95": 0.9000000059604645,
+        "max": 1.800000011920929
+      },
+      "calls": 66,
+      "triangles": 1879631,
+      "memory": {
+        "geometries": 88,
+        "textures": 9
+      },
+      "programs": 29,
+      "resolution": [
+        1707,
+        960
+      ]
+    },
+    {
+      "quality": "high",
+      "durationMs": 5002,
+      "frames": 301,
+      "fps": 60.175929628148744,
+      "frameMs": {
+        "p50": 16.69999999999709,
+        "p95": 16.799999999995634,
+        "max": 16.80000000000291
+      },
+      "renderSubmitMs": {
+        "p50": 0.5999999940395355,
+        "p95": 1,
+        "max": 1.4000000059604645
+      },
+      "calls": 66,
+      "triangles": 1920703,
+      "memory": {
+        "geometries": 88,
+        "textures": 9
+      },
+      "programs": 29,
+      "resolution": [
+        2049,
+        1152
+      ]
+    }
+  ],
+  "cpuTopSelfSamples": [
+    {
+      "name": "(idle)",
+      "url": "",
+      "line": 0,
+      "samples": 2402
+    },
+    {
+      "name": "(program)",
+      "url": "",
+      "line": 0,
+      "samples": 113
+    },
+    {
+      "name": "soleBottom",
+      "url": "http://127.0.0.1:8780/static/boxing_feet.js",
+      "line": 74,
+      "samples": 11
+    },
+    {
+      "name": "reviewPose",
+      "url": "http://127.0.0.1:8780/static/boxing.js",
+      "line": 2104,
+      "samples": 9
+    },
+    {
+      "name": "updateWorldMatrix",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 7760,
+      "samples": 9
+    },
+    {
+      "name": "applyBoneTransform",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 32257,
+      "samples": 7
+    },
+    {
+      "name": "renderObject",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 22581,
+      "samples": 7
+    },
+    {
+      "name": "updateWorldMatrix",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 7760,
+      "samples": 7
+    },
+    {
+      "name": "frame",
+      "url": "http://127.0.0.1:8780/static/boxing.js",
+      "line": 1895,
+      "samples": 6
+    },
+    {
+      "name": "WebGLRenderer.renderBufferDirect",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 29173,
+      "samples": 6
+    },
+    {
+      "name": "distance",
+      "url": "http://127.0.0.1:8780/static/avatar_self_contact.js",
+      "line": 68,
+      "samples": 6
+    },
+    {
+      "name": "updateAvatarPose",
+      "url": "http://127.0.0.1:8780/static/mikapo_mixamo_solver.js",
+      "line": 1319,
+      "samples": 6
+    },
+    {
+      "name": "updateWorldMatrix",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 7760,
+      "samples": 6
+    },
+    {
+      "name": "distance",
+      "url": "http://127.0.0.1:8780/static/avatar_self_contact.js",
+      "line": 128,
+      "samples": 6
+    },
+    {
+      "name": "updateWorldMatrix",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 7760,
+      "samples": 5
+    },
+    {
+      "name": "setProgram",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 30131,
+      "samples": 5
+    },
+    {
+      "name": "copyArray",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 18319,
+      "samples": 5
+    },
+    {
+      "name": "WebGLRenderer.render",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 29530,
+      "samples": 4
+    },
+    {
+      "name": "neutralPose",
+      "url": "http://127.0.0.1:8780/static/boxing_core.mjs",
+      "line": 87,
+      "samples": 4
+    },
+    {
+      "name": "closestPointToPoint",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 8405,
+      "samples": 4
+    },
+    {
+      "name": "uniformMatrix4fv",
+      "url": "",
+      "line": 0,
+      "samples": 4
+    },
+    {
+      "name": "fromBufferAttribute",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 2878,
+      "samples": 4
+    },
+    {
+      "name": "clearanceOf",
+      "url": "http://127.0.0.1:8780/static/boxing_feet.js",
+      "line": 4,
+      "samples": 4
+    },
+    {
+      "name": "",
+      "url": "",
+      "line": 4,
+      "samples": 3
+    },
+    {
+      "name": "copyArray",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 18319,
+      "samples": 3
+    },
+    {
+      "name": "updateWorldMatrix",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 7760,
+      "samples": 3
+    },
+    {
+      "name": "getParameters",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 20598,
+      "samples": 3
+    },
+    {
+      "name": "bindVertexArray",
+      "url": "",
+      "line": 0,
+      "samples": 3
+    },
+    {
+      "name": "getProgramCacheKey",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 20925,
+      "samples": 3
+    },
+    {
+      "name": "multiplyMatrices",
+      "url": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "line": 6224,
+      "samples": 3
+    }
+  ],
+  "errors": []
+}

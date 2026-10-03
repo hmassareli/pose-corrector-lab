@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SMPL-X fit sequence render</title>
+  <style>
+    html, body { margin: 0; background: #222a31; overflow: hidden; }
+    canvas { display: block; width: 720px; height: 960px; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="stage" style="position:relative;width:720px;height:960px">
+  <canvas id="canvas"></canvas>
+  <div id="label" style="position:absolute;top:16px;left:18px;color:#ffffff;font:bold 30px Arial,sans-serif;text-shadow:0 0 6px rgba(0,0,0,0.9);pointer-events:none"></div>
+  </div>
+  <script type="module">
+    import * as THREE from "three";
+
+    const query = new URLSearchParams(location.search);
+    const dataBase = query.get("data") || "/data";
+    const mode = query.get("mode") || "mesh"; // mesh | skeleton
+    const camSide = query.get("side") === "1";
+    const canvas = document.getElementById("canvas");
+    window.__BAKE_READY__ = false;
+    window.__BAKE_ERROR__ = null;
+    window.__BAKE_SEQ_FRAME__ = -1;
+    window.__BAKE_SEQ_TOTAL__ = 0;
+
+    function fail(error) {
+      window.__BAKE_ERROR__ = error?.message || String(error);
+      console.error(error);
+    }
+
+    function toViewer(pts, center) {
+      // Same convention as avatar_bake_seq: y up, z flipped, centered per frame.
+      const out = new Float32Array(pts.length);
+      for (let i = 0; i < pts.length; i += 3) {
+        out[i] = (pts[i] - center[0]) / 1000;
+        out[i + 1] = -(pts[i + 1] - center[1]) / 1000;
+        out[i + 2] = -(pts[i + 2] - center[2]) / 1000;
+      }
+      return out;
+    }
+
+    const FINGER_CHAINS = [
+      ["index", 1], ["middle", 1], ["pinky", 1], ["ring", 1], ["thumb", 1],
+    ];
+
+    async function main() {
+      const meta = await fetch(`${dataBase}/meta.json`).then((r) => r.json());
+      const { T, V, F, n_joints } = meta;
+      window.__BAKE_SEQ_TOTAL__ = T;
+
+      const vertsBuf = mode === "mesh"
+        ? new Float32Array(await fetch(`${dataBase}/verts.bin`).then((r) => r.arrayBuffer()))
+        : null;
+      const jointsBuf = new Float32Array(await fetch(`${dataBase}/joints.bin`).then((r) => r.arrayBuffer()));
+      const joints = new Float32Array(T * n_joints * 3);
+      joints.set(jointsBuf);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(1);
+      renderer.setSize(720, 960, false);
+      renderer.setClearColor(0x222a31, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(48, 720 / 960, 0.01, 100);
+      if (camSide) {
+        camera.position.set(2.9, 1.2, 1.35);
+        camera.lookAt(0, 0.1, 0);
+      } else {
+        camera.position.set(2.9, 1.4, 2.7);
+        camera.lookAt(0, 0.1, 0);
+      }
+      scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+      scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+      const key = new THREE.DirectionalLight(0xffffff, 3.2);
+      key.position.set(2, 3, 2);
+      scene.add(key);
+      scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+
+      // Exposed so a driver can frame a close-up (e.g. on the punching hand)
+      // and re-render without reloading. Same hooks as avatar_bake_seq.html so
+      // the two panels can be shot with a matched camera.
+      window.__BAKE_THREE__ = THREE;
+      window.__BAKE_CAMERA__ = camera;
+      window.__bakeRender = () => renderer.render(scene, camera);
+      window.__bakeLookAt = (eye, target) => {
+        camera.position.set(eye[0], eye[1], eye[2]);
+        camera.lookAt(target[0], target[1], target[2]);
+        camera.updateProjectionMatrix();
+        renderer.render(scene, camera);
+      };
+      window.__bakeSetLabel = (t) => { document.getElementById("label").textContent = t; };
+
+      const labelText = query.get("label");
+      if (labelText) {
+        document.getElementById("label").textContent = labelText;
+      }
+
+      let object;
+      let spheres = [];
+      let lines = null;
+      if (mode === "mesh") {
+        const faces = new Uint32Array(await fetch(`${dataBase}/faces.bin`).then((r) => r.arrayBuffer()));
+        const geo = new THREE.BufferGeometry();
+        geo.setIndex(new THREE.BufferAttribute(faces, 1));
+        geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(V * 3), 3));
+        geo.computeVertexNormals();
+        const mat = new THREE.MeshStandardMaterial({
+          color: 0x3ddea5,
+          roughness: 0.65,
+          metalness: 0.05,
+          side: THREE.DoubleSide,
+          flatShading: false,
+        });
+        object = new THREE.Mesh(geo, mat);
+        window.__BAKE_MESH__ = object;
+      } else {
+        // Skeleton: x55 joints as spheres + bones.
+        const group = new THREE.Group();
+        const names = meta.joint_names;
+        const nameToI = Object.fromEntries(names.map((n, i) => [n, i]));
+        const boneDefs = [];
+        const spine = ["pelvis", "spine1", "spine2", "spine3", "neck", "head"];
+        for (let i = 0; i < spine.length - 1; i++) boneDefs.push([spine[i], spine[i + 1]]);
+        for (const s of ["left", "right"]) {
+          boneDefs.push(["pelvis", `${s}_hip`], [`${s}_hip`, `${s}_knee`], [`${s}_knee`, `${s}_ankle`], [`${s}_ankle`, `${s}_foot`]);
+          boneDefs.push(["neck", `${s}_collar`], [`${s}_collar`, `${s}_shoulder`], [`${s}_shoulder`, `${s}_elbow`], [`${s}_elbow`, `${s}_wrist`]);
+          for (const [finger] of FINGER_CHAINS) {
+            const base = `${s}_${finger}`;
+            boneDefs.push([`${s}_wrist`, `${base}1`], [`${base}1`, `${base}2`], [`${base}2`, `${base}3`]);
+          }
+        }
+        for (let i = 0; i < n_joints; i++) {
+          const s = new THREE.Mesh(
+            new THREE.SphereGeometry(0.018, 12, 12),
+            new THREE.MeshBasicMaterial({ color: 0x3de0ff }),
+          );
+          group.add(s);
+          spheres.push(s);
+        }
+        const lineGeo = new THREE.BufferGeometry();
+        const linePos = new Float32Array(boneDefs.length * 6);
+        lineGeo.setAttribute("position", new THREE.BufferAttribute(linePos, 3));
+        lines = new THREE.LineSegments(
+          lineGeo,
+          new THREE.LineBasicMaterial({ color: 0x9fb0c4 }),
+        );
+        group.add(lines);
+        object = group;
+        window.__BAKE_SPHERES__ = spheres;
+        window.__BAKE_LINES__ = lines;
+        window.__BAKE_BONES__ = boneDefs.map(([a, b]) => [nameToI[a], nameToI[b]]);
+      }
+      scene.add(object);
+
+      const VERT_STRIDE = V * 3;
+      let frameIndex = 0;
+      window.__bakeSeqStep = () => {
+        if (frameIndex >= T) return null;
+        const c = [joints[frameIndex * n_joints * 3], joints[frameIndex * n_joints * 3 + 1], joints[frameIndex * n_joints * 3 + 2]];
+        if (mode === "mesh") {
+          const attr = object.geometry.attributes.position;
+          const view = toViewer(vertsBuf.subarray(frameIndex * VERT_STRIDE, (frameIndex + 1) * VERT_STRIDE), c);
+          attr.array.set(view);
+          attr.needsUpdate = true;
+          object.geometry.computeVertexNormals();
+        } else {
+          const base = frameIndex * n_joints * 3;
+          for (let i = 0; i < n_joints; i++) {
+            const p = toViewer(joints.subarray(base + i * 3, base + i * 3 + 3), c);
+            spheres[i].position.set(p[0], p[1], p[2]);
+          }
+          const pos = lines.geometry.attributes.position.array;
+          let o = 0;
+          for (const [a, b] of window.__BAKE_BONES__) {
+            const pa = toViewer(joints.subarray(base + a * 3, base + a * 3 + 3), c);
+            const pb = toViewer(joints.subarray(base + b * 3, base + b * 3 + 3), c);
+            pos[o++] = pa[0]; pos[o++] = pa[1]; pos[o++] = pa[2];
+            pos[o++] = pb[0]; pos[o++] = pb[1]; pos[o++] = pb[2];
+          }
+          lines.geometry.attributes.position.needsUpdate = true;
+        }
+        // Viewer-space joints for the frame just drawn, so a driver can aim the
+        // camera at a specific joint without re-deriving the space convention.
+        {
+          const base = frameIndex * n_joints * 3;
+          window.__BAKE_JOINTS_VIEW__ = Array.from(
+            toViewer(joints.subarray(base, base + n_joints * 3), c),
+          );
+        }
+        renderer.render(scene, camera);
+        window.__BAKE_SEQ_FRAME__ = frameIndex;
+        frameIndex += 1;
+        return frameIndex;
+      };
+      window.__BAKE_READY__ = true;
+    }
+
+    main().catch(fail);
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Spine A/B renders</title>
+<style>
+  body { background: #0f1215; color: #e7ecf3; font: 14px/1.4 Arial, sans-serif; margin: 16px; }
+  h2 { font-size: 16px; margin: 22px 0 8px; }
+  img { display: block; max-width: 100%; border: 1px solid #38465a; border-radius: 6px; }
+  .legend { margin: 6px 0 18px; color: #9fb0c3; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>Coluna — fighter-web SEM fix | COM fix | boxeador (mesmo frame, fonte real)</h1>
+  <p class="legend">Cada linha é o mesmo frame real do NLF (fit_smplx.npz). Painéis: (1) fighter-web solver antigo, (2) fighter-web solver corrigido, (3) boxeador referência.</p>
+
+  <h2>Frame 67 — fonte ereta (~0° de inclinação)</h2>
+  <img src="cmp_frame_0067.png" alt="frame 67" />
+  <h2>Frame 500 — postura média (~8°)</h2>
+  <img src="cmp_frame_0500.png" alt="frame 500" />
+  <h2>Frame 1052 — fonte realmente inclinada (~57°)</h2>
+  <img src="cmp_frame_1052.png" alt="frame 1052" />
+</body>
+</html>

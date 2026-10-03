@@ -1,0 +1,130 @@
+{
+  "events": 65,
+  "matched": 64,
+  "totalReference": 67,
+  "falseEvents": [
+    {
+      "t": 65.66812169312169,
+      "hand": 1,
+      "forceN": 223.67122237703248,
+      "extension": 1.0336137669621777
+    }
+  ],
+  "phases": [
+    {
+      "start": 0,
+      "end": 12,
+      "moves": 12,
+      "detected": 12,
+      "events": 12,
+      "meanForceN": 224.2110778141223,
+      "meanPowerPct": 18.684256484510197,
+      "referenceMeanForce": 270.5
+    },
+    {
+      "start": 14,
+      "end": 26,
+      "moves": 11,
+      "detected": 10,
+      "events": 10,
+      "meanForceN": 449.9598979464678,
+      "meanPowerPct": 37.49665816220565,
+      "referenceMeanForce": 613.3636363636364
+    },
+    {
+      "start": 30,
+      "end": 40,
+      "moves": 11,
+      "detected": 10,
+      "events": 10,
+      "meanForceN": 411.5270623778953,
+      "meanPowerPct": 34.29392186482461,
+      "referenceMeanForce": 598.9090909090909
+    },
+    {
+      "start": 43,
+      "end": 55,
+      "moves": 16,
+      "detected": 16,
+      "events": 16,
+      "meanForceN": 542.9914916540621,
+      "meanPowerPct": 44.82157820534152,
+      "referenceMeanForce": 682.5
+    },
+    {
+      "start": 58,
+      "end": 66,
+      "moves": 17,
+      "detected": 16,
+      "events": 17,
+      "meanForceN": 126.62478874189479,
+      "meanPowerPct": 10.55206572849123,
+      "referenceMeanForce": 136.05882352941177
+    }
+  ]
+}
+{
+  "events": 65,
+  "matched": 64,
+  "totalReference": 67,
+  "falseEvents": [
+    {
+      "t": 65.66812169312169,
+      "hand": 1,
+      "forceN": 219.98210339981384,
+      "extension": 1.0357390515535014
+    }
+  ],
+  "phases": [
+    {
+      "start": 0,
+      "end": 12,
+      "moves": 12,
+      "detected": 12,
+      "events": 12,
+      "meanForceN": 299.13988412357565,
+      "meanPowerPct": 24.928323676964627,
+      "referenceMeanForce": 270.5
+    },
+    {
+      "start": 14,
+      "end": 26,
+      "moves": 11,
+      "detected": 10,
+      "events": 10,
+      "meanForceN": 801.2128321339926,
+      "meanPowerPct": 66.05059996413527,
+      "referenceMeanForce": 613.3636363636364
+    },
+    {
+      "start": 30,
+      "end": 40,
+      "moves": 11,
+      "detected": 10,
+      "events": 10,
+      "meanForceN": 411.880941757577,
+      "meanPowerPct": 34.323411813131415,
+      "referenceMeanForce": 598.9090909090909
+    },
+    {
+      "start": 43,
+      "end": 55,
+      "moves": 16,
+      "detected": 16,
+      "events": 16,
+      "meanForceN": 542.7150397514921,
+      "meanPowerPct": 44.79467099308315,
+      "referenceMeanForce": 682.5
+    },
+    {
+      "start": 58,
+      "end": 66,
+      "moves": 17,
+      "detected": 16,
+      "events": 17,
+      "meanForceN": 126.30051150239551,
+      "meanPowerPct": 10.525042625199625,
+      "referenceMeanForce": 136.05882352941177
+    }
+  ]
+}

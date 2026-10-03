@@ -1,0 +1,3 @@
+[0:v]drawtext=fontfile='C\:/Windows/Fonts/arialbd.ttf':text='GVHMR TEACHER (offline)':fontcolor=white:fontsize=26:box=1:boxcolor=black@0.55:boxborderw=8:x=24:y=24[v0];
+[1:v]drawtext=fontfile='C\:/Windows/Fonts/arialbd.ttf':text='NLF-S (live ~14ms)':fontcolor=white:fontsize=26:box=1:boxcolor=black@0.55:boxborderw=8:x=24:y=24[v1];
+[v0][v1]hstack=inputs=2

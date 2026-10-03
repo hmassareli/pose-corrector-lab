@@ -1,0 +1,139 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/test_boxing_core.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.09
+  },
+  {
+    "command": [
+      "node",
+      "scripts/test_sparring_mocap.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.07
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_backend_stability.py"
+    ],
+    "code": 0,
+    "seconds": 3.39
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_startup.py"
+    ],
+    "code": 0,
+    "seconds": 63.46
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/benchmark_heavy_runtime.py"
+    ],
+    "code": 0,
+    "seconds": 0.49
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_ui_review.py"
+    ],
+    "code": 0,
+    "seconds": 12.67
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_audio.py"
+    ],
+    "code": 0,
+    "seconds": 4.64
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_footwork.py"
+    ],
+    "code": 0,
+    "seconds": 4.76
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_combat_e2e.py"
+    ],
+    "code": 0,
+    "seconds": 20.97
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_network.py"
+    ],
+    "code": 0,
+    "seconds": 0.18
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_browser.py"
+    ],
+    "code": 0,
+    "seconds": 18.26
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_browser.py",
+      "p2p"
+    ],
+    "code": 0,
+    "seconds": 18.36
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_debug_recording.py"
+    ],
+    "code": 0,
+    "seconds": 8.65
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_hands_geometry_review.py"
+    ],
+    "code": 0,
+    "seconds": 19.72
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_live_replay.py"
+    ],
+    "code": 0,
+    "seconds": 37.73
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_heavy_backend_rebalance.py"
+    ],
+    "code": 0,
+    "seconds": 35.3
+  },
+  {
+    "command": [
+      "C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "scripts/test_boxing_recorded_webcam.py"
+    ],
+    "code": 0,
+    "seconds": 42.43
+  }
+]

@@ -9,6 +9,7 @@ Use with estimate_poses_batched when the frame is not a tight person crop:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import threading
 
 import numpy as np
 import torch
@@ -95,6 +96,8 @@ class YoloNanoPerson:
     conf: float = 0.35
     imgsz: int = 320
     _model: object = field(default=None, repr=False)
+    _predict_lock: object = field(default_factory=threading.Lock, repr=False)
+    _executor: object = field(default=None, repr=False)
 
     def load(self) -> None:
         if self._model is not None:
@@ -112,21 +115,31 @@ class YoloNanoPerson:
         weights = next((p for p in candidates if p.is_file()), candidates[0])
         weights.parent.mkdir(parents=True, exist_ok=True)
         self._model = YOLO(str(weights))
+        # Warm on the prediction thread with webcam (16:9) and square letterbox shapes.
+        for shape in ((540, 960, 3), (720, 1280, 3), (self.imgsz, self.imgsz, 3)):
+            self.detect_xywh(np.zeros(shape, dtype=np.uint8))
 
     def detect_xywh(self, rgb_u8: np.ndarray) -> np.ndarray | None:
         """Largest-area person box as xywh, or None."""
         self.load()
+        # First CUDA conv on a fresh thread costs ~25 s; every WS connection
+        # spawns new threads, so all predictions run on one long-lived thread.
+        if self._executor is None:
+            from concurrent.futures import ThreadPoolExecutor
+
+            self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="yolo")
+        return self._executor.submit(self._detect, rgb_u8).result()
+
+    def _detect(self, rgb_u8: np.ndarray) -> np.ndarray | None:
         assert self._model is not None
         # Ultralytics expects BGR ndarray.
         bgr = rgb_u8[:, :, ::-1]
-        res = self._model.predict(
-            bgr,
-            classes=[0],
-            conf=self.conf,
-            imgsz=self.imgsz,
-            device=self.device if self.device != "cpu" else "cpu",
-            verbose=False,
-        )
+        # Ultralytics keeps mutable predictor state; WS sessions share weights.
+        with self._predict_lock:
+            res = self._model.predict(
+                bgr, classes=[0], conf=self.conf, imgsz=self.imgsz,
+                device=self.device if self.device != "cpu" else "cpu", verbose=False,
+            )
         if not res:
             return None
         boxes = res[0].boxes

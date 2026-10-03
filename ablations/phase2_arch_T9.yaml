@@ -1,0 +1,6 @@
+# One-factor architecture ablation: shorter causal context (0.3 s at 30 Hz).
+team: phase2_arch
+notes: "GRU hidden=256; layers=2; T=9; otherwise baseline"
+
+logging:
+  run_name: abl2_arch_T9

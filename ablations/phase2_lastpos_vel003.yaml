@@ -1,0 +1,14 @@
+# Preserve the deployed last-frame objective; add a weak trajectory velocity loss.
+team: phase2
+notes: "last-frame position + full-window velocity; w_vel=0.003"
+
+model:
+  predict_sequence: true
+
+loss:
+  sequence_position_mode: last
+  w_vel: 0.003
+  w_dir: 0.0
+
+logging:
+  run_name: abl2_lastpos_vel003

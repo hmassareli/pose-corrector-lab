@@ -1,0 +1,1361 @@
+{
+  "cases": [
+    {
+      "viewport": [
+        1280,
+        800
+      ],
+      "view": "third",
+      "boundsHashBefore": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "boundsHashAfter": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "cold": [
+        {
+          "avatar": null,
+          "ms": 2.4000000059604645,
+          "regions": 76
+        },
+        {
+          "avatar": null,
+          "ms": 1.300000011920929,
+          "regions": 105
+        }
+      ],
+      "hotBoundsBothActors": {
+        "mean": 0.8599999997764826,
+        "p50": 0.7000000178813934,
+        "p95": 2,
+        "max": 2.5
+      },
+      "hotBoundsAndLayout": {
+        "mean": 1.0387499995529652,
+        "p50": 0.699999988079071,
+        "p95": 1.100000023841858,
+        "max": 26
+      },
+      "frames": [
+        {
+          "pose": 0,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 12.635726928710938,
+            "y": 384.4016418457031,
+            "width": 152.79612731933594,
+            "height": 45.58734130859375
+          }
+        },
+        {
+          "pose": 1,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 16.371936798095703,
+            "y": 209.2347412109375,
+            "width": 273.537353515625,
+            "height": 47.921142578125
+          }
+        },
+        {
+          "pose": 2,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 3,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 264.801025390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 4,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 12.635726928710938,
+            "y": 210.40164184570312,
+            "width": 152.79612731933594,
+            "height": 45.58734130859375
+          }
+        },
+        {
+          "pose": 5,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 16.371936798095703,
+            "y": 209.2347412109375,
+            "width": 273.537353515625,
+            "height": 47.921142578125
+          }
+        },
+        {
+          "pose": 6,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 7,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 264.801025390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 8,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 12.635726928710938,
+            "y": 210.40164184570312,
+            "width": 152.79612731933594,
+            "height": 45.58734130859375
+          }
+        },
+        {
+          "pose": 9,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 16.371936798095703,
+            "y": 209.2347412109375,
+            "width": 273.537353515625,
+            "height": 47.921142578125
+          }
+        },
+        {
+          "pose": 10,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 11,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 264.801025390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 12,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 12.635726928710938,
+            "y": 210.40164184570312,
+            "width": 152.79612731933594,
+            "height": 45.58734130859375
+          }
+        },
+        {
+          "pose": 13,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 16.371936798095703,
+            "y": 209.2347412109375,
+            "width": 273.537353515625,
+            "height": 47.921142578125
+          }
+        },
+        {
+          "pose": 14,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 384,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 15,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 384,
+            "width": 264.801025390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 16,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 12.635726928710938,
+            "y": 384.4016418457031,
+            "width": 152.79612731933594,
+            "height": 45.58734130859375
+          }
+        },
+        {
+          "pose": 17,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 16.371936798095703,
+            "y": 383.2347412109375,
+            "width": 273.537353515625,
+            "height": 47.921142578125
+          }
+        },
+        {
+          "pose": 18,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 384,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 19,
+          "visible": true,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 384,
+            "width": 264.801025390625,
+            "height": 46.390625
+          }
+        }
+      ],
+      "sampleCount": 1030380,
+      "outsideRegions": 0,
+      "visibleFrames": 20
+    },
+    {
+      "viewport": [
+        1280,
+        800
+      ],
+      "view": "first",
+      "boundsHashBefore": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "boundsHashAfter": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "cold": [
+        {
+          "avatar": null,
+          "ms": 355.80000001192093,
+          "regions": 203
+        },
+        {
+          "avatar": null,
+          "ms": 0.4000000059604645,
+          "regions": 97
+        }
+      ],
+      "hotBoundsBothActors": {
+        "mean": 260.1300000000745,
+        "p50": 257.40000000596046,
+        "p95": 303,
+        "max": 329.80000001192093
+      },
+      "hotBoundsAndLayout": {
+        "mean": 227.44875000044703,
+        "p50": 240.90000000596046,
+        "p95": 284.09999999403954,
+        "max": 331.5
+      },
+      "frames": [
+        {
+          "pose": 0,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 20567,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 1,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 19668,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 2,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 18477,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 3,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 15867,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 4,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 14980,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 5,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 13730,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 6,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 14559,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 7,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 16969,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 8,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 13302,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 9,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 12732,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 10,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 9725,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 11,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 10140,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 12,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 12661,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 13,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 9691,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 14,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 10054,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 20.7401123046875,
+            "y": 210,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 15,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 11788,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 16,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 12085,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 12.635726928710938,
+            "y": 210.40164184570312,
+            "width": 152.79612731933594,
+            "height": 45.58734130859375
+          }
+        },
+        {
+          "pose": 17,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 17343,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 18,
+          "visible": true,
+          "text": "GUARD UP",
+          "samples": 19690,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 1103.7401123046875,
+            "y": 210,
+            "width": 155.488525390625,
+            "height": 46.390625
+          }
+        },
+        {
+          "pose": 19,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 22161,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        }
+      ],
+      "sampleCount": 296189,
+      "outsideRegions": 0,
+      "visibleFrames": 4
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "view": "third",
+      "boundsHashBefore": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "boundsHashAfter": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "cold": [
+        {
+          "avatar": null,
+          "ms": 1.300000011920929,
+          "regions": 76
+        },
+        {
+          "avatar": null,
+          "ms": 0.699999988079071,
+          "regions": 105
+        }
+      ],
+      "hotBoundsBothActors": {
+        "mean": 0.5837499998509884,
+        "p50": 0.5,
+        "p95": 1.5999999940395355,
+        "max": 1.899999976158142
+      },
+      "hotBoundsAndLayout": {
+        "mean": 0.4337499994784594,
+        "p50": 0.3999999761581421,
+        "p95": 0.5999999940395355,
+        "max": 4.299999982118607
+      },
+      "frames": [
+        {
+          "pose": 0,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 1,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 2,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 3,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 4,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 5,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 6,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 7,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 8,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 9,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 10,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 11,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 12,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 13,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 14,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 15,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 16,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 17,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 18,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 19,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 51519,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        }
+      ],
+      "sampleCount": 1030380,
+      "outsideRegions": 0,
+      "visibleFrames": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "view": "first",
+      "boundsHashBefore": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "boundsHashAfter": "623e82144d5c46dac75655d3dc4418a7af934a4f481b78fafe36ce6a46d78254",
+      "cold": [
+        {
+          "avatar": null,
+          "ms": 271.90000000596046,
+          "regions": 131
+        },
+        {
+          "avatar": null,
+          "ms": 0.4000000059604645,
+          "regions": 98
+        }
+      ],
+      "hotBoundsBothActors": {
+        "mean": 273.9362500000745,
+        "p50": 275.80000001192093,
+        "p95": 336.39999997615814,
+        "max": 389.5
+      },
+      "hotBoundsAndLayout": {
+        "mean": 242.703750000149,
+        "p50": 257.10000002384186,
+        "p95": 315.59999999403954,
+        "max": 347.2000000178814
+      },
+      "frames": [
+        {
+          "pose": 0,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 17722,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 1,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 19239,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 2,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 16408,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 3,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 15868,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 4,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 15488,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 5,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 12082,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 6,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 11202,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 7,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 14821,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 8,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 14918,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 9,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 8314,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 10,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 5473,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 11,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 6178,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 12,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 10343,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 13,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 5028,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 14,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 6723,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 15,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 9496,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 16,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 9590,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 17,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 18659,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 18,
+          "visible": false,
+          "text": "GUARD UP",
+          "samples": 16051,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "pose": 19,
+          "visible": false,
+          "text": "PERFECT COUNTER",
+          "samples": 18443,
+          "missed": 0,
+          "covered": 0,
+          "overlaps": [],
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        }
+      ],
+      "sampleCount": 252046,
+      "outsideRegions": 0,
+      "visibleFrames": 0
+    }
+  ],
+  "errors": [],
+  "geometryPass": true,
+  "presentationVisibleInEveryCase": false,
+  "result": "GEOMETRY_PASS_PRESENTATION_PARTIAL",
+  "limitations": "Every29th native vertex; 20 moving cached NLF poses and moving roots per viewport. Visibility measured explicitly; hidden captions do not count as presentation success. No live human camera."
+}

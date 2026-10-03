@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8" />
+<title>NLF-S fit vs fast — comparação</title>
+<style>
+  body { margin: 0; background: #0e1116; color: #e7ecf3; font-family: Arial, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p.note { color: #8b98a8; font-size: 13px; margin: 0 0 18px; }
+  video { width: 100%; border-radius: 8px; background: #000; display: block; }
+  .row { display: flex; gap: 16px; margin-top: 20px; }
+  .row figure { flex: 1; margin: 0; }
+  .row figcaption { font-size: 13px; color: #8b98a8; margin-top: 6px; text-align: center; }
+  a.dl { color: #3ddea5; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>NLF-S — FIT (SMPL-X, rotações) vs FAST x55 (o que o jogo usa)</h1>
+  <p class="note">henrique_webcam_1.mp4 · 528 frames @30fps (2x) · lado a lado: esquerda = fit com rotações e dedos, direita = esqueleto rápido</p>
+  <video controls autoplay loop muted playsinline src="henrique_webcam_1_nlf_fit_vs_fast.mp4"></video>
+  <div class="row">
+    <figure>
+      <video controls muted playsinline src="henrique_webcam_1_nlf_fit_mesh.mp4"></video>
+      <figcaption>NLF-S FIT SMPL-X (rotações)</figcaption>
+    </figure>
+    <figure>
+      <video controls muted playsinline src="henrique_webcam_1_nlf_x55_fast.mp4"></video>
+      <figcaption>NLF-S FAST x55 (caminho do jogo)</figcaption>
+    </figure>
+  </div>
+  <p class="note" style="margin-top:14px">
+    Arquivos: <a class="dl" href="henrique_webcam_1_nlf_fit_vs_fast.mp4">side-by-side</a> ·
+    <a class="dl" href="henrique_webcam_1_nlf_fit_mesh.mp4">fit mesh</a> ·
+    <a class="dl" href="henrique_webcam_1_nlf_x55_fast.mp4">x55 fast</a>
+  </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Avatar benchmark render</title>
+  <style>
+    html, body { margin: 0; background: #222a31; overflow: hidden; }
+    canvas { display: block; width: 720px; height: 960px; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script type="module">
+    import * as THREE from "three";
+    import { DEFAULT_AVATAR_ID, loadAvatar } from "/static/avatar_assets.js";
+    import {
+      auxFromSmpl,
+      buildAvatarRig,
+      computeHandPalmAxes,
+      createAvatarMotion,
+      footDirectionsFromSmplAux,
+      headForwardFromSmplAux,
+      resetAvatarMotion,
+      resetRetargetFilters,
+      updateAvatarPose,
+    } from "/static/mikapo_mixamo_solver.js";
+
+    const JOINT_NAMES = [
+      "pelvis", "left_hip", "right_hip", "left_knee", "right_knee",
+      "left_ankle", "right_ankle", "spine", "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow", "left_wrist", "right_wrist", "neck", "head",
+    ];
+    const JOINT_INDEX = Object.fromEntries(JOINT_NAMES.map((name, index) => [name, index]));
+    const query = new URLSearchParams(location.search);
+    const poseUrl = query.get("pose");
+    const useCollarShoulders = query.get("collars") === "1";
+    const useSurfaceBody = query.get("surface") === "1";
+    const canvas = document.getElementById("canvas");
+    window.__BAKE_READY__ = false;
+    window.__BAKE_ERROR__ = null;
+
+    function toViewerSpace(pose) {
+      const lowestAnkle = Math.min(pose[5][1], pose[6][1]);
+      return pose.map((point) => [point[0], -point[1] + lowestAnkle, -point[2]]);
+    }
+
+    function fail(error) {
+      window.__BAKE_ERROR__ = error?.message || String(error);
+      console.error(error);
+    }
+
+    async function main() {
+      if (!poseUrl) throw new Error("missing pose URL");
+      const data = await fetch(poseUrl).then((response) => {
+        if (!response.ok) throw new Error(`pose fetch failed: ${response.status}`);
+        return response.json();
+      });
+      if (!data.joints || !data.aux_smpl) throw new Error("pose JSON requires joints and aux_smpl");
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(1);
+      renderer.setSize(720, 960, false);
+      renderer.setClearColor(0x222a31, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 720 / 960, 0.01, 100);
+      camera.position.set(1.55, 1.45, 2.35);
+      camera.lookAt(0, 0.9, 0);
+      scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+      scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+      const key = new THREE.DirectionalLight(0xffffff, 3.2);
+      key.position.set(2, 3, 2);
+      key.castShadow = true;
+      scene.add(key);
+      scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+
+      const { root: avatar } = await loadAvatar(query.get("avatar") || DEFAULT_AVATAR_ID);
+      avatar.traverse((node) => {
+        if (!node.isMesh) return;
+        node.castShadow = true;
+        node.receiveShadow = true;
+      });
+      const rig = buildAvatarRig(avatar);
+      if (rig.bones.size < 4) throw new Error("Mixamo rig mapping failed");
+      scene.add(avatar);
+      avatar.updateWorldMatrix(true, true);
+      const restWorldQuats = {};
+      for (const [name, rest] of rig.bones) {
+        const q = rest.bone.getWorldQuaternion(new THREE.Quaternion());
+        restWorldQuats[name] = [q.x, q.y, q.z, q.w];
+      }
+
+      const motion = createAvatarMotion();
+      resetAvatarMotion(avatar, motion);
+      resetRetargetFilters(rig);
+      const aux = auxFromSmpl(data.aux_smpl, true);
+      const surfaceAux = data.surface_smpl ? auxFromSmpl(data.surface_smpl, true) : null;
+      const pose = toViewerSpace(data.joints);
+      const footDirections = footDirectionsFromSmplAux(aux);
+      const headForward = headForwardFromSmplAux(aux);
+      for (const timestampMs of [1000, 1033, 1066]) {
+        updateAvatarPose({
+          model: avatar,
+          rig,
+          pose,
+          nameToIndex: JOINT_INDEX,
+          motion,
+          aux,
+          footDirections,
+          headForward,
+          allowFeet: true,
+          footMode: "yawFromDir",
+          plantGround: true,
+          groundY: 0,
+          timestampMs,
+          useWitness: true,
+          useCollarShoulders,
+          useSurfaceBody,
+          surfaceAux,
+          // Was missing: the flag lives in the pose JSON and avatar_bake_seq.html
+          // forwards it, so this single-frame viewer was silently solving the
+          // hands with the acute-flip mirroring the baker path disables.
+          fitPalm: data.aux_smpl?.fitPalm === true,
+        });
+      }
+      renderer.render(scene, camera);
+      for (let index = 0; index < 3; index++) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        renderer.render(scene, camera);
+      }
+      // Export solved bone world transforms for angle-fidelity measurement.
+      avatar.updateWorldMatrix(true, true);
+      const measure = {};
+      for (const [name, rest] of rig.bones) {
+        const p = rest.bone.getWorldPosition(new THREE.Vector3());
+        const c = rest.child ? rest.child.getWorldPosition(new THREE.Vector3()) : null;
+        const q = rest.bone.getWorldQuaternion(new THREE.Quaternion());
+        measure[name] = {
+          pos: [p.x, p.y, p.z],
+          child: c ? [c.x, c.y, c.z] : null,
+          quat: [q.x, q.y, q.z, q.w],
+          restQuat: restWorldQuats[name] || null,
+          restAcross: rest.restAcrossInRoot
+            ? [rest.restAcrossInRoot.x, rest.restAcrossInRoot.y, rest.restAcrossInRoot.z]
+            : null,
+          restDir: [rest.restDirectionInRoot.x, rest.restDirectionInRoot.y, rest.restDirectionInRoot.z],
+        };
+      }
+      const palm = {};
+      for (const side of ["left", "right"]) {
+        const axes = computeHandPalmAxes(aux, side);
+        palm[side] = axes
+          ? {
+              forward: [axes.forward.x, axes.forward.y, axes.forward.z],
+              across: axes.across
+                ? [axes.across.x, axes.across.y, axes.across.z]
+                : null,
+            }
+          : null;
+      }
+      window.__BAKE_MEASURE__ = measure;
+      window.__BAKE_PALM__ = palm;
+      window.__BAKE_READY__ = true;
+    }
+
+    main().catch(fail);
+  </script>
+</body>
+</html>

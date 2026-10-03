@@ -1,0 +1,22 @@
+{
+  "clip_id": "burn_500_shots__shot_000__person_009",
+  "backend": "NLF_S_multi_0.2.2_fast_joints24",
+  "mode": "fast",
+  "joint_key": "poses3d_joints24",
+  "axis_preset": "identity",
+  "stride": 2,
+  "fps": 23.976,
+  "n_frames": 99,
+  "detect_frames": 50,
+  "elapsed_s": 1.53,
+  "infer_ms_mean": 29.40183999016881,
+  "infer_ms_p50": 29.113900032825768,
+  "infer_ms_p95": 33.63092999206856,
+  "hd_cleanup": [
+    "data/nlf_fast/",
+    "data/models/nlf/",
+    "experiments/nlf_speed/"
+  ],
+  "units": "metres",
+  "viewer_source": "nlf_s"
+}

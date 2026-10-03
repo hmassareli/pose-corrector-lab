@@ -1,0 +1,19 @@
+[fit] FK (1056 frames)...
+[render] abl_fk
+[render] abl_obs
+[render] abl_live
+[render] abl_aimonly
+
+=== O AVATAR SEGUE O SINAL DA PALMA, OU A GEOMETRIA DO REST? ===
+config      lado     erro abs   palma-Y soco    (fit)
+abl_fk      left         8.3°         -0.26    -0.25
+abl_fk      right        8.3°         -0.47    -0.47
+abl_obs     left         8.3°         -0.26    -0.25
+abl_obs     right        8.3°         -0.47    -0.47
+abl_live    left        10.6°         -0.26    -0.25
+abl_live    right       11.2°         -0.45    -0.47
+abl_aimonly left        42.4°         -0.41    -0.25
+abl_aimonly right       47.3°         -0.34    -0.47
+
+Leitura: se abl_aimonly (sem across nenhum) já der palma-Y negativa no
+soco, a palma pra baixo vem do rest, nao do sinal da mao.

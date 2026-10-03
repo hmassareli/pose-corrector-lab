@@ -1,0 +1,23 @@
+{
+  "http": {
+    "routers": {
+      "corner-boxing-http": {
+        "rule": "Host(`corner-relay.lnyx9r.easypanel.host`)",
+        "entryPoints": ["http"],
+        "middlewares": ["redirect-to-https"],
+        "service": "corner-boxing"
+      },
+      "corner-boxing-https": {
+        "rule": "Host(`corner-relay.lnyx9r.easypanel.host`)",
+        "entryPoints": ["https"],
+        "tls": {"certResolver": "letsencrypt"},
+        "service": "corner-boxing"
+      }
+    },
+    "services": {
+      "corner-boxing": {
+        "loadBalancer": {"servers": [{"url": "http://corner-boxing-relay:8790"}]}
+      }
+    }
+  }
+}

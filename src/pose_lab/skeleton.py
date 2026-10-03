@@ -149,13 +149,21 @@ def smpl24_to_lab(joints24):
     return out[0] if single else out
 
 
-# Extra SMPL24 keypoints for Mixamo retarget (feet tips / hands) — not in LAB_JOINTS.
+# Extra SMPL24 keypoints for Mixamo retarget (feet tips / hands / spine / collars) — not in LAB_JOINTS.
 SMPL24_AVATAR_AUX = {
+    "pelvis": 0,
+    "left_hip": 1,
+    "right_hip": 2,
+    "spine1": 3,
+    "spine2": 6,
+    "spine3": 9,
     "left_ankle": 7,
     "right_ankle": 8,
     "left_foot": 10,
     "right_foot": 11,
     "neck": 12,
+    "left_collar": 13,
+    "right_collar": 14,
     "head": 15,
     "left_shoulder": 16,
     "right_shoulder": 17,
@@ -199,3 +207,91 @@ def smpl24_avatar_aux_json(joints24) -> dict:
     """JSON-friendly single-frame aux (lists of 3 floats)."""
     aux = smpl24_avatar_aux(joints24)
     return {k: [float(c) for c in v.tolist()] for k, v in aux.items()}
+
+
+# SMPL-X 55-joint query (see scripts/nlf_fast_path.SMPLX55_JOINT_NAMES): body order
+# matches SMPL24 for 0..21, then jaw/eyes/finger knuckles — no left_hand/right_hand.
+SMPLX55_TO_LAB = {
+    0: "pelvis",
+    1: "left_hip",
+    2: "right_hip",
+    4: "left_knee",
+    5: "right_knee",
+    7: "left_ankle",
+    8: "right_ankle",
+    3: "spine",
+    16: "left_shoulder",
+    17: "right_shoulder",
+    18: "left_elbow",
+    19: "right_elbow",
+    20: "left_wrist",
+    21: "right_wrist",
+    12: "neck",
+    15: "head",
+}
+
+# Aux keys use the viewer solver naming (left_index = index1 knuckle, etc.).
+SMPLX55_AVATAR_AUX = {
+    "pelvis": 0,
+    "left_hip": 1,
+    "right_hip": 2,
+    "spine1": 3,
+    "spine2": 6,
+    "spine3": 9,
+    "left_ankle": 7,
+    "right_ankle": 8,
+    "left_foot": 10,
+    "right_foot": 11,
+    "neck": 12,
+    "left_collar": 13,
+    "right_collar": 14,
+    "head": 15,
+    "left_shoulder": 16,
+    "right_shoulder": 17,
+    "left_elbow": 18,
+    "right_elbow": 19,
+    "left_wrist": 20,
+    "right_wrist": 21,
+    "jaw": 22,
+    "left_eye": 23,
+    "right_eye": 24,
+    "left_index": 25,
+    "left_middle": 28,
+    "left_pinky": 31,
+    "left_thumb": 37,
+    "right_index": 40,
+    "right_middle": 43,
+    "right_pinky": 46,
+    "right_thumb": 52,
+}
+
+
+def smplx55_to_lab(joints55):
+    """Map (55,3) or (T,55,3) SMPL-X joints to lab order."""
+    import numpy as np
+
+    x = np.asarray(joints55)
+    single = x.ndim == 2
+    if single:
+        x = x[None, ...]
+    out = np.zeros((x.shape[0], len(LAB_JOINTS), 3), dtype=np.float64)
+    for si, name in SMPLX55_TO_LAB.items():
+        out[:, JOINT_TO_IDX[name]] = x[:, si]
+    return out[0] if single else out
+
+
+def smplx55_avatar_aux_json(joints55) -> dict:
+    """Single-frame avatar aux from the 55-joint SMPL-X query (lists of 3 floats).
+
+    Adds left_hand/right_hand (mid of index1/pinky1 knuckles) for wrist→hand aim.
+    """
+    import numpy as np
+
+    x = np.asarray(joints55, dtype=np.float64)
+    if x.ndim != 2 or x.shape[0] < 55:
+        raise ValueError(f"expected (55,3) SMPL-X joints, got {x.shape}")
+    out = {k: [float(c) for c in x[i].tolist()] for k, i in SMPLX55_AVATAR_AUX.items()}
+    for side, i_idx, i_pky in (("left", 25, 31), ("right", 40, 46)):
+        hand = 0.5 * (x[i_idx] + x[i_pky])
+        out[f"{side}_hand"] = [float(c) for c in hand.tolist()]
+    return out

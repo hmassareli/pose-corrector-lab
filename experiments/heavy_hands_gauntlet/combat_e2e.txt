@@ -1,0 +1,91 @@
+{
+ "chin_fast_open": {
+  "kind": "chin",
+  "damage": 15.882352941176464,
+  "dizzy": 1.88,
+  "recoil": 0,
+  "power": 0.8333333333333334,
+  "distance": 0.87
+ },
+ "head_slow_open": {
+  "kind": "clean",
+  "damage": 2.117647058823536,
+  "dizzy": 0,
+  "recoil": 0,
+  "power": 0.15,
+  "distance": 0.94
+ },
+ "head_fast_open": {
+  "kind": "clean",
+  "damage": 9.411764705882348,
+  "dizzy": 0,
+  "recoil": 0,
+  "power": 0.6666666666666666,
+  "distance": 0.88
+ },
+ "straight_into_high_guard": {
+  "kind": "arm",
+  "damage": 0,
+  "dizzy": 0,
+  "recoil": 0.15,
+  "power": 0.6666666666666666,
+  "distance": 0.88
+ },
+ "open_face_above_guard": {
+  "kind": "clean",
+  "damage": 9.411764705882355,
+  "dizzy": 0,
+  "recoil": 0,
+  "power": 0.6666666666666666,
+  "distance": 0.86
+ },
+ "body_under_high_guard": {
+  "kind": "body",
+  "damage": 6.666666666666664,
+  "dizzy": 0,
+  "recoil": 0,
+  "power": 0.6666666666666666,
+  "distance": 0.87
+ },
+ "ko": {
+  "kind": "clean",
+  "damage": 4,
+  "dizzy": 0,
+  "recoil": 0,
+  "power": 0.6666666666666666,
+  "distance": 0.87
+ },
+ "result_open": true,
+ "result_stats": "1.000 N | PEAK | \u2248 102 kgf \u00b7 NEW PEAK | 4,4 kN | FOR\u00c7A TOTAL | 730 N | M\u00c9DIA | 86% | PRECIS\u00c3O | 6 de 7",
+ "journal": {
+  "peak": 1000,
+  "total": 4380,
+  "average": 730,
+  "hits": 6,
+  "attempts": 7,
+  "accuracy": 0.8571428571428571,
+  "headPeak": 1000,
+  "bodyPeak": 800,
+  "tiers": {
+   "toque": 0,
+   "leve": 1,
+   "solido": 0,
+   "forte": 4,
+   "pesado": 1,
+   "devastador": 0
+  },
+  "fastest": 5,
+  "maxCombo": 1,
+  "maxComboForce": 1000,
+  "blocked": 1,
+  "perMinute": 0,
+  "damageReceived": 4.149553726126338,
+  "receivedPeak": 497.9464471351605
+ },
+ "peak": {
+  "current": 1000,
+  "previous": 0
+ },
+ "errors": []
+}
+E2E PASS

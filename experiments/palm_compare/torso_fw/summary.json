@@ -1,0 +1,24 @@
+{
+ "side": "right",
+ "tag": "torso_fw",
+ "rows": [
+  {
+   "t": 440,
+   "mesh_palm_y": -0.325,
+   "avatar_palm_y": -0.152,
+   "delta": 0.173
+  },
+  {
+   "t": 470,
+   "mesh_palm_y": -0.051,
+   "avatar_palm_y": -0.026,
+   "delta": 0.025
+  },
+  {
+   "t": 500,
+   "mesh_palm_y": -0.203,
+   "avatar_palm_y": -0.244,
+   "delta": 0.042
+  }
+ ]
+}

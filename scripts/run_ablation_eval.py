@@ -200,7 +200,11 @@ def _append_leaderboard(row: dict[str, Any]) -> None:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def _run_test_hard(ckpt_path: Path, device: str) -> dict[str, float | None]:
+def _run_test_hard(
+    ckpt_path: Path,
+    device: str,
+    dataset_dir: Path,
+) -> dict[str, float | None]:
     """Window-npz hard MPJPE on test split (same mask as train eval)."""
     out_json = ckpt_path.parent.parent / "eval" / f"test_{ckpt_path.stem}.json"
     _run(
@@ -213,6 +217,8 @@ def _run_test_hard(ckpt_path: Path, device: str) -> dict[str, float | None]:
             "test",
             "--device",
             device,
+            "--dataset-dir",
+            str(dataset_dir),
         ]
     )
     if not out_json.is_file():
@@ -308,6 +314,7 @@ def measure_one(
     skip_test_hard: bool,
     device: str,
     force_reexport: bool,
+    dataset_dir: Path,
 ) -> dict[str, Any]:
     corr_dir = run_dir / f"corrected_{ckpt_tag}"
     if force_reexport and corr_dir.is_dir():
@@ -330,7 +337,7 @@ def measure_one(
             "test_hard_impr_pct": None,
         }
     else:
-        test_hard = _run_test_hard(ckpt_path, device)
+        test_hard = _run_test_hard(ckpt_path, device, dataset_dir)
 
     _run(
         [
@@ -447,6 +454,12 @@ def main() -> None:
     ap.add_argument("--skip-test-hard", action="store_true")
     ap.add_argument("--force-reexport", action="store_true")
     ap.add_argument("--device", default="cuda")
+    ap.add_argument(
+        "--dataset-dir",
+        type=Path,
+        default=LAB_ROOT / "data" / "dataset",
+        help="Window dataset matching the checkpoint context length",
+    )
     ap.add_argument("--no-sort", action="store_true")
     ap.add_argument("--reset-leaderboard", action="store_true")
     ap.add_argument(
@@ -498,6 +511,7 @@ def main() -> None:
                 skip_test_hard=args.skip_test_hard,
                 device=args.device,
                 force_reexport=args.force_reexport,
+                dataset_dir=args.dataset_dir,
             )
         )
     if not args.no_sort:

@@ -1,0 +1,2659 @@
+{
+  "per_image": [
+    {
+      "image": "WIN_20260801_13_57_25_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 34.02293249175532,
+        "left_shoulder_elev_deg": -4.811758253682166,
+        "left_shoulder_delta_elev_deg": -4.811758253682166,
+        "left_foot_pitch_deg": -23.599950790404563,
+        "right_shoulder_elev_deg": -2.326319705382069,
+        "right_shoulder_delta_elev_deg": -2.326319705382069,
+        "right_foot_pitch_deg": -39.294499191855046,
+        "head_yaw_rel_deg": 16.454154276997656
+      },
+      "palm_diag": {
+        "left_pronation_deg": -88.46036595781787,
+        "left_wrist_flexion_deg": 5.220567368808837,
+        "left_fist_inward_deg": -48.691332713362534,
+        "left_knuckles_inward_deg": -32.06572597440664,
+        "left_elbow_angle_deg": 46.20875289158499,
+        "left_palm_fwd_err_deg": 7.131318459253949,
+        "left_palm_across_proxy_err_deg": 25.40063317267554,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 103.3943627129115,
+        "right_wrist_flexion_deg": 7.159663334481653,
+        "right_fist_inward_deg": -122.76897740746185,
+        "right_knuckles_inward_deg": -104.79529561818192,
+        "right_elbow_angle_deg": 64.59547113756666,
+        "right_palm_fwd_err_deg": 1.809651060133906,
+        "right_palm_across_proxy_err_deg": 157.43544385869097,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 39.45011625806897,
+          "left_shoulder_elev_deg": -33.25524952188249,
+          "left_shoulder_delta_elev_deg": -0.12143850259564459,
+          "left_foot_pitch_deg": -24.432749777018255,
+          "right_shoulder_elev_deg": -31.037367216509104,
+          "right_shoulder_delta_elev_deg": 2.096434806151507,
+          "right_foot_pitch_deg": -38.50748149184373,
+          "head_yaw_rel_deg": 22.547255999837944,
+          "left_elbow_angle_deg": 46.20875289158499,
+          "left_palm_across_forearm_err_deg": 20.046342661194398,
+          "left_pronation_forearm_deg": -87.64438870889259,
+          "left_fist_inward_forearm_deg": -49.38691330635205,
+          "left_knuckles_inward_forearm_deg": -35.681808588695645,
+          "left_pronation_forearm_err_deg": 0.8159772489252646,
+          "left_fist_inward_forearm_err_deg": 1.52817444456565,
+          "left_palm_across_hand_err_deg": 11.01821676775227,
+          "left_pronation_hand_deg": -78.91197255832276,
+          "left_fist_inward_hand_deg": -42.66696998161816,
+          "left_knuckles_inward_hand_deg": -42.43253952945187,
+          "left_pronation_hand_err_deg": 9.548393399495126,
+          "left_fist_inward_hand_err_deg": 5.19176888016824,
+          "left_palm_across_avatar_err_deg": 11.01821676775227,
+          "left_pronation_err_deg": 0.8159772489252646,
+          "left_fist_inward_err_deg": 1.52817444456565,
+          "right_elbow_angle_deg": 64.59547113756666,
+          "right_palm_across_forearm_err_deg": 19.33899270527549,
+          "right_pronation_forearm_deg": 103.35264998757016,
+          "right_fist_inward_forearm_deg": -125.07557716488866,
+          "right_knuckles_inward_forearm_deg": -107.07309529510366,
+          "right_pronation_forearm_err_deg": 0.041712725341341184,
+          "right_fist_inward_forearm_err_deg": 0.5786729435127995,
+          "right_palm_across_hand_err_deg": 17.284610419020577,
+          "right_pronation_hand_deg": 89.31930110173478,
+          "right_fist_inward_hand_deg": -136.4026049468898,
+          "right_knuckles_inward_hand_deg": -98.90552163657402,
+          "right_pronation_hand_err_deg": 14.075061611176721,
+          "right_fist_inward_hand_err_deg": 11.905700725513952,
+          "right_palm_across_avatar_err_deg": 17.284610419020577,
+          "right_pronation_err_deg": 0.041712725341341184,
+          "right_fist_inward_err_deg": 0.5786729435127995,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.4888545884101885,
+                0.5530017007574648,
+                0.6746927525545657
+              ],
+              "across": [
+                0.09328732123702717,
+                0.9801279253112992,
+                -0.175062062484674
+              ]
+            },
+            "right": {
+              "forward": [
+                -0.033098410065203705,
+                0.23418363245127133,
+                0.9716287982265056
+              ],
+              "across": [
+                0.21233779086223536,
+                -0.9668444227357289,
+                -0.14186093470917516
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 33.22318072813831,
+          "left_shoulder_elev_deg": -33.255249517618374,
+          "left_shoulder_delta_elev_deg": -0.12143849833152842,
+          "left_foot_pitch_deg": -24.432749777018063,
+          "right_shoulder_elev_deg": -31.037367231163007,
+          "right_shoulder_delta_elev_deg": 2.096434791497604,
+          "right_foot_pitch_deg": -38.50748149184428,
+          "head_yaw_rel_deg": 22.4525694009356,
+          "left_elbow_angle_deg": 46.20875289158499,
+          "left_palm_across_forearm_err_deg": 20.046342607062964,
+          "left_pronation_forearm_deg": -87.6443887076218,
+          "left_fist_inward_forearm_deg": -49.38691330594829,
+          "left_knuckles_inward_forearm_deg": -35.68180862319211,
+          "left_pronation_forearm_err_deg": 0.815977250196056,
+          "left_fist_inward_forearm_err_deg": 1.5281744441618912,
+          "left_palm_across_hand_err_deg": 11.01821677140819,
+          "left_pronation_hand_deg": -78.91197254019878,
+          "left_fist_inward_hand_deg": -42.66696997579768,
+          "left_knuckles_inward_hand_deg": -42.43253955280485,
+          "left_pronation_hand_err_deg": 9.548393417619081,
+          "left_fist_inward_hand_err_deg": 5.191768885988722,
+          "left_palm_across_avatar_err_deg": 11.01821677140819,
+          "left_pronation_err_deg": 0.815977250196056,
+          "left_fist_inward_err_deg": 1.5281744441618912,
+          "right_elbow_angle_deg": 64.59547113756666,
+          "right_palm_across_forearm_err_deg": 19.338992692979346,
+          "right_pronation_forearm_deg": 103.3526500274454,
+          "right_fist_inward_forearm_deg": -125.07557713649872,
+          "right_knuckles_inward_forearm_deg": -107.07309524621358,
+          "right_pronation_forearm_err_deg": 0.04171268546610918,
+          "right_fist_inward_forearm_err_deg": 0.5786729151228656,
+          "right_palm_across_hand_err_deg": 17.284610410780186,
+          "right_pronation_hand_deg": 89.31930110787431,
+          "right_fist_inward_hand_deg": -136.40260494113036,
+          "right_knuckles_inward_hand_deg": -98.9055215991994,
+          "right_pronation_hand_err_deg": 14.075061605037206,
+          "right_fist_inward_hand_err_deg": 11.90570071975452,
+          "right_palm_across_avatar_err_deg": 17.284610410780186,
+          "right_pronation_err_deg": 0.04171268546610918,
+          "right_fist_inward_err_deg": 0.5786729151228656,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.4888545884101885,
+                0.5530017007574648,
+                0.6746927525545657
+              ],
+              "across": [
+                0.09328732123702717,
+                0.9801279253112992,
+                -0.175062062484674
+              ]
+            },
+            "right": {
+              "forward": [
+                -0.033098410065203705,
+                0.23418363245127133,
+                0.9716287982265056
+              ],
+              "across": [
+                0.21233779086223536,
+                -0.9668444227357289,
+                -0.14186093470917516
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_30_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 56.20114214222953,
+        "left_shoulder_elev_deg": -21.89717380144913,
+        "left_shoulder_delta_elev_deg": -21.89717380144913,
+        "left_foot_pitch_deg": -31.786981394769008,
+        "right_shoulder_elev_deg": -4.57200895995724,
+        "right_shoulder_delta_elev_deg": -4.57200895995724,
+        "right_foot_pitch_deg": -45.135171568661285,
+        "head_yaw_rel_deg": -60.88552033188137
+      },
+      "palm_diag": {
+        "left_pronation_deg": -101.88159897318333,
+        "left_wrist_flexion_deg": 7.450739290439553,
+        "left_fist_inward_deg": -49.191260237893175,
+        "left_knuckles_inward_deg": -62.37124446815595,
+        "left_elbow_angle_deg": 46.10885900710656,
+        "left_palm_fwd_err_deg": 5.771484168373219,
+        "left_palm_across_proxy_err_deg": 19.487947876945945,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 73.46079822072768,
+        "right_wrist_flexion_deg": 22.02177896964082,
+        "right_fist_inward_deg": -138.73937060756253,
+        "right_knuckles_inward_deg": -137.85410067608794,
+        "right_elbow_angle_deg": 47.359409934132984,
+        "right_palm_fwd_err_deg": 10.654522174520366,
+        "right_palm_across_proxy_err_deg": 167.46186174492343,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 62.64566204175037,
+          "left_shoulder_elev_deg": -41.06373332164631,
+          "left_shoulder_delta_elev_deg": -7.929922302359465,
+          "left_foot_pitch_deg": -31.80239298264829,
+          "right_shoulder_elev_deg": -25.53145459091488,
+          "right_shoulder_delta_elev_deg": 7.602347431745731,
+          "right_foot_pitch_deg": -43.78518501066719,
+          "head_yaw_rel_deg": -68.95102288333169,
+          "left_elbow_angle_deg": 46.10885900710656,
+          "left_palm_across_forearm_err_deg": 26.54794215081957,
+          "left_pronation_forearm_deg": -101.67259100418683,
+          "left_fist_inward_forearm_deg": -48.03718437879843,
+          "left_knuckles_inward_forearm_deg": -64.20817685104082,
+          "left_pronation_forearm_err_deg": 0.2090079689965023,
+          "left_fist_inward_forearm_err_deg": 1.5964618272229814,
+          "left_palm_across_hand_err_deg": 29.370638564097952,
+          "left_pronation_hand_deg": -82.40766156623548,
+          "left_fist_inward_hand_deg": -32.194517330556245,
+          "left_knuckles_inward_hand_deg": -54.186383172474535,
+          "left_pronation_hand_err_deg": 19.47393740694787,
+          "left_fist_inward_hand_err_deg": 14.24620522101921,
+          "left_palm_across_avatar_err_deg": 29.370638564097952,
+          "left_pronation_err_deg": 0.2090079689965023,
+          "left_fist_inward_err_deg": 1.5964618272229814,
+          "right_elbow_angle_deg": 47.359409934132984,
+          "right_palm_across_forearm_err_deg": 20.40840786943488,
+          "right_pronation_forearm_deg": 73.30001393936205,
+          "right_fist_inward_forearm_deg": -138.06625159284798,
+          "right_knuckles_inward_forearm_deg": -135.59256536317253,
+          "right_pronation_forearm_err_deg": 0.16078428136563616,
+          "right_fist_inward_forearm_err_deg": 0.33289569549816633,
+          "right_palm_across_hand_err_deg": 19.502224831016317,
+          "right_pronation_hand_deg": 70.32020035260499,
+          "right_fist_inward_hand_deg": -146.75746313859642,
+          "right_knuckles_inward_hand_deg": -157.86236251754028,
+          "right_pronation_hand_err_deg": 3.140597868122711,
+          "right_fist_inward_hand_err_deg": 8.358315850250278,
+          "right_palm_across_avatar_err_deg": 19.502224831016317,
+          "right_pronation_err_deg": 0.16078428136563616,
+          "right_fist_inward_err_deg": 0.33289569549816633,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                0.4406393760498222,
+                0.5698299334224903,
+                0.6936359183679458
+              ],
+              "across": [
+                0.16001868837247674,
+                0.9833724862542365,
+                -0.08586368644376761
+              ]
+            },
+            "right": {
+              "forward": [
+                0.7402622035601034,
+                0.6606959179989925,
+                0.12446997196034283
+              ],
+              "across": [
+                -0.023076947477880087,
+                -0.9629881133799953,
+                0.26855418072325804
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 54.85100520763771,
+          "left_shoulder_elev_deg": -41.063733191250314,
+          "left_shoulder_delta_elev_deg": -7.929922171963469,
+          "left_foot_pitch_deg": -31.802392982648794,
+          "right_shoulder_elev_deg": -25.531454683118803,
+          "right_shoulder_delta_elev_deg": 7.602347339541808,
+          "right_foot_pitch_deg": -43.785185010667014,
+          "head_yaw_rel_deg": -69.12884532718556,
+          "left_elbow_angle_deg": 46.10885900710656,
+          "left_palm_across_forearm_err_deg": 26.547942262576633,
+          "left_pronation_forearm_deg": -101.67259093549848,
+          "left_fist_inward_forearm_deg": -48.0371842979185,
+          "left_knuckles_inward_forearm_deg": -64.20817673207334,
+          "left_pronation_forearm_err_deg": 0.2090080376848391,
+          "left_fist_inward_forearm_err_deg": 1.5964617463430386,
+          "left_palm_across_hand_err_deg": 29.37063856621215,
+          "left_pronation_hand_deg": -82.40766159885702,
+          "left_fist_inward_hand_deg": -32.194517328563,
+          "left_knuckles_inward_hand_deg": -54.186383248205416,
+          "left_pronation_hand_err_deg": 19.47393737432631,
+          "left_fist_inward_hand_err_deg": 14.246205223012453,
+          "left_palm_across_avatar_err_deg": 29.37063856621215,
+          "left_pronation_err_deg": 0.2090080376848391,
+          "left_fist_inward_err_deg": 1.5964617463430386,
+          "right_elbow_angle_deg": 47.359409934132984,
+          "right_palm_across_forearm_err_deg": 20.408407980400003,
+          "right_pronation_forearm_deg": 73.30001379807563,
+          "right_fist_inward_forearm_deg": -138.06625168352454,
+          "right_knuckles_inward_forearm_deg": -135.59256552926783,
+          "right_pronation_forearm_err_deg": 0.16078442265205695,
+          "right_fist_inward_forearm_err_deg": 0.3328956048216014,
+          "right_palm_across_hand_err_deg": 19.5022248806275,
+          "right_pronation_hand_deg": 70.32020034253108,
+          "right_fist_inward_hand_deg": -146.75746311868312,
+          "right_knuckles_inward_hand_deg": -157.86236240850508,
+          "right_pronation_hand_err_deg": 3.1405978781966155,
+          "right_fist_inward_hand_err_deg": 8.358315830336977,
+          "right_palm_across_avatar_err_deg": 19.5022248806275,
+          "right_pronation_err_deg": 0.16078442265205695,
+          "right_fist_inward_err_deg": 0.3328956048216014,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                0.4406393760498222,
+                0.5698299334224903,
+                0.6936359183679458
+              ],
+              "across": [
+                0.16001868837247674,
+                0.9833724862542365,
+                -0.08586368644376761
+              ]
+            },
+            "right": {
+              "forward": [
+                0.7402622035601034,
+                0.6606959179989925,
+                0.12446997196034283
+              ],
+              "across": [
+                -0.023076947477880087,
+                -0.9629881133799953,
+                0.26855418072325804
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_35_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 64.63134775214458,
+        "left_shoulder_elev_deg": -9.958115834540507,
+        "left_shoulder_delta_elev_deg": -9.958115834540507,
+        "left_foot_pitch_deg": -21.704635175270223,
+        "right_shoulder_elev_deg": -23.412910680512663,
+        "right_shoulder_delta_elev_deg": -23.412910680512663,
+        "right_foot_pitch_deg": -23.89145702900461,
+        "head_yaw_rel_deg": 57.37374249383788
+      },
+      "palm_diag": {
+        "left_pronation_deg": -93.32301958174598,
+        "left_wrist_flexion_deg": 7.460704731005981,
+        "left_fist_inward_deg": -36.27074570017788,
+        "left_knuckles_inward_deg": -59.040975423492945,
+        "left_elbow_angle_deg": 45.05621027812797,
+        "left_palm_fwd_err_deg": 9.091810871840748,
+        "left_palm_across_proxy_err_deg": 21.00291446698777,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 70.22821531512476,
+        "right_wrist_flexion_deg": 19.75988282985308,
+        "right_fist_inward_deg": -171.6117537926969,
+        "right_knuckles_inward_deg": -98.85021873678957,
+        "right_elbow_angle_deg": 70.78690459745222,
+        "right_palm_fwd_err_deg": 10.809360046962828,
+        "right_palm_across_proxy_err_deg": 111.44783048741951,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 71.63612431218567,
+          "left_shoulder_elev_deg": -26.43991869027068,
+          "left_shoulder_delta_elev_deg": 6.693892329016165,
+          "left_foot_pitch_deg": -22.73093752629327,
+          "right_shoulder_elev_deg": -39.07221752873045,
+          "right_shoulder_delta_elev_deg": -5.938415506069838,
+          "right_foot_pitch_deg": -24.702456943256074,
+          "head_yaw_rel_deg": 69.96592958402596,
+          "left_elbow_angle_deg": 45.05621027812797,
+          "left_palm_across_forearm_err_deg": 16.24603756476495,
+          "left_pronation_forearm_deg": -92.83475265967171,
+          "left_fist_inward_forearm_deg": -40.54663944705505,
+          "left_knuckles_inward_forearm_deg": -63.12401634689285,
+          "left_pronation_forearm_err_deg": 0.48826692207427413,
+          "left_fist_inward_forearm_err_deg": 2.690491473290251,
+          "left_palm_across_hand_err_deg": 8.681578285695721,
+          "left_pronation_hand_deg": -89.87079900907878,
+          "left_fist_inward_hand_deg": -38.36651896179593,
+          "left_knuckles_inward_hand_deg": -69.76417530757526,
+          "left_pronation_hand_err_deg": 3.4522205726672155,
+          "left_fist_inward_hand_err_deg": 0.5103709880311271,
+          "left_palm_across_avatar_err_deg": 8.681578285695721,
+          "left_pronation_err_deg": 0.48826692207427413,
+          "left_fist_inward_err_deg": 2.690491473290251,
+          "right_elbow_angle_deg": 70.78690459745222,
+          "right_palm_across_forearm_err_deg": 16.553707465490948,
+          "right_pronation_forearm_deg": 70.93156328335392,
+          "right_fist_inward_forearm_deg": -171.78695869781458,
+          "right_knuckles_inward_forearm_deg": -100.03834390667373,
+          "right_pronation_forearm_err_deg": 0.703347968229167,
+          "right_fist_inward_forearm_err_deg": 0.3140366797980789,
+          "right_palm_across_hand_err_deg": 29.38291456676679,
+          "right_pronation_hand_deg": 70.58080168542006,
+          "right_fist_inward_hand_deg": -179.6612875311834,
+          "right_knuckles_inward_hand_deg": -107.91783566023814,
+          "right_pronation_hand_err_deg": 0.3525863702952847,
+          "right_fist_inward_hand_err_deg": 7.560292153570742,
+          "right_palm_across_avatar_err_deg": 29.38291456676679,
+          "right_pronation_err_deg": 0.703347968229167,
+          "right_fist_inward_err_deg": 0.3140366797980789,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.8612627815049085,
+                0.5074653134057759,
+                0.026558932290396284
+              ],
+              "across": [
+                0.08189587907675668,
+                0.9957780637902264,
+                0.04146218354637101
+              ]
+            },
+            "right": {
+              "forward": [
+                0.1635644572967704,
+                0.1212894484522798,
+                0.9790482817529249
+              ],
+              "across": [
+                -0.2250328477736086,
+                -0.8549992802020486,
+                -0.46726485880801993
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 63.63277810741578,
+          "left_shoulder_elev_deg": -26.439918722581968,
+          "left_shoulder_delta_elev_deg": 6.6938922967048775,
+          "left_foot_pitch_deg": -22.730937526293584,
+          "right_shoulder_elev_deg": -39.072217472706726,
+          "right_shoulder_delta_elev_deg": -5.938415450046115,
+          "right_foot_pitch_deg": -24.702456943261215,
+          "head_yaw_rel_deg": 70.0018430556388,
+          "left_elbow_angle_deg": 45.05621027812797,
+          "left_palm_across_forearm_err_deg": 16.246037638952856,
+          "left_pronation_forearm_deg": -92.83475261657115,
+          "left_fist_inward_forearm_deg": -40.54663942409358,
+          "left_knuckles_inward_forearm_deg": -63.124016310179954,
+          "left_pronation_forearm_err_deg": 0.48826696517483015,
+          "left_fist_inward_forearm_err_deg": 2.6904914503287785,
+          "left_palm_across_hand_err_deg": 8.681578311566431,
+          "left_pronation_hand_deg": -89.87079898688084,
+          "left_fist_inward_hand_deg": -38.36651896422914,
+          "left_knuckles_inward_hand_deg": -69.76417535525218,
+          "left_pronation_hand_err_deg": 3.452220594865139,
+          "left_fist_inward_hand_err_deg": 0.5103709904643381,
+          "left_palm_across_avatar_err_deg": 8.681578311566431,
+          "left_pronation_err_deg": 0.48826696517483015,
+          "left_fist_inward_err_deg": 2.6904914503287785,
+          "right_elbow_angle_deg": 70.78690459745222,
+          "right_palm_across_forearm_err_deg": 16.553707453852475,
+          "right_pronation_forearm_deg": 70.93156333989756,
+          "right_fist_inward_forearm_deg": -171.7869586464129,
+          "right_knuckles_inward_forearm_deg": -100.03834387528435,
+          "right_pronation_forearm_err_deg": 0.7033480247728221,
+          "right_fist_inward_forearm_err_deg": 0.3140367311997636,
+          "right_palm_across_hand_err_deg": 29.382914638102122,
+          "right_pronation_hand_deg": 70.58080159842582,
+          "right_fist_inward_hand_deg": -179.6612876328555,
+          "right_knuckles_inward_hand_deg": -107.91783573198138,
+          "right_pronation_hand_err_deg": 0.3525862833010649,
+          "right_fist_inward_hand_err_deg": 7.560292255242842,
+          "right_palm_across_avatar_err_deg": 29.382914638102122,
+          "right_pronation_err_deg": 0.7033480247728221,
+          "right_fist_inward_err_deg": 0.3140367311997636,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.8612627815049085,
+                0.5074653134057759,
+                0.026558932290396284
+              ],
+              "across": [
+                0.08189587907675668,
+                0.9957780637902264,
+                0.04146218354637101
+              ]
+            },
+            "right": {
+              "forward": [
+                0.1635644572967704,
+                0.1212894484522798,
+                0.9790482817529249
+              ],
+              "across": [
+                -0.2250328477736086,
+                -0.8549992802020486,
+                -0.46726485880801993
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_40_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 3.94509484177902,
+        "left_shoulder_elev_deg": -10.392448247284246,
+        "left_shoulder_delta_elev_deg": -10.392448247284246,
+        "left_foot_pitch_deg": -37.399054578563,
+        "right_shoulder_elev_deg": 16.896591873089772,
+        "right_shoulder_delta_elev_deg": 16.896591873089772,
+        "right_foot_pitch_deg": -21.961708526177116,
+        "head_yaw_rel_deg": -18.72783947427604
+      },
+      "palm_diag": {
+        "left_pronation_deg": -103.04520069208554,
+        "left_wrist_flexion_deg": 4.193849653632098,
+        "left_fist_inward_deg": -38.51629112436653,
+        "left_knuckles_inward_deg": -97.29822250130267,
+        "left_elbow_angle_deg": 70.21974534682379,
+        "left_palm_fwd_err_deg": 5.261219624453348,
+        "left_palm_across_proxy_err_deg": 31.338147763483796,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 62.55641514588307,
+        "right_wrist_flexion_deg": 11.428970960162328,
+        "right_fist_inward_deg": -127.41745433587168,
+        "right_knuckles_inward_deg": -145.61580517201574,
+        "right_elbow_angle_deg": 48.42815744489768,
+        "right_palm_fwd_err_deg": 9.844623456965785,
+        "right_palm_across_proxy_err_deg": 163.16273059945718,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 9.17051440406358,
+          "left_shoulder_elev_deg": -43.52575903727645,
+          "left_shoulder_delta_elev_deg": -10.391948017989606,
+          "left_foot_pitch_deg": -36.8244516193516,
+          "right_shoulder_elev_deg": -16.21813345305331,
+          "right_shoulder_delta_elev_deg": 16.915668569607302,
+          "right_foot_pitch_deg": -22.938370390257095,
+          "head_yaw_rel_deg": -18.476391829098702,
+          "left_elbow_angle_deg": 70.21974534682379,
+          "left_palm_across_forearm_err_deg": 13.067302715668198,
+          "left_pronation_forearm_deg": -103.87699206166336,
+          "left_fist_inward_forearm_deg": -38.43157448579033,
+          "left_knuckles_inward_forearm_deg": -100.26703480576617,
+          "left_pronation_forearm_err_deg": 0.8317913695778145,
+          "left_fist_inward_forearm_err_deg": 1.6797867401451754,
+          "left_palm_across_hand_err_deg": 13.833689850266852,
+          "left_pronation_hand_deg": -92.64415043191018,
+          "left_fist_inward_hand_deg": -28.566151091469905,
+          "left_knuckles_inward_hand_deg": -96.11620008170749,
+          "left_pronation_hand_err_deg": 10.401050260175367,
+          "left_fist_inward_hand_err_deg": 8.185636654175227,
+          "left_palm_across_avatar_err_deg": 13.833689850266852,
+          "left_pronation_err_deg": 0.8317913695778145,
+          "left_fist_inward_err_deg": 1.6797867401451754,
+          "right_elbow_angle_deg": 48.42815744489768,
+          "right_palm_across_forearm_err_deg": 8.125372836561608,
+          "right_pronation_forearm_deg": 62.335300160203644,
+          "right_fist_inward_forearm_deg": -127.58048961015533,
+          "right_knuckles_inward_forearm_deg": -143.89444920720717,
+          "right_pronation_forearm_err_deg": 0.221114985679435,
+          "right_fist_inward_forearm_err_deg": 0.04231197529276187,
+          "right_palm_across_hand_err_deg": 8.5148023457251,
+          "right_pronation_hand_deg": 62.137431521287134,
+          "right_fist_inward_hand_deg": -130.68901094130177,
+          "right_knuckles_inward_hand_deg": -137.44883472219837,
+          "right_pronation_hand_err_deg": 0.4189836245959384,
+          "right_fist_inward_hand_err_deg": 3.0662093558536867,
+          "right_palm_across_avatar_err_deg": 8.5148023457251,
+          "right_pronation_err_deg": 0.221114985679435,
+          "right_fist_inward_err_deg": 0.04231197529276187,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.25320808354586044,
+                0.12739432220219865,
+                0.9589871495998655
+              ],
+              "across": [
+                0.19094406636165817,
+                0.9535369946094612,
+                0.233039832287168
+              ]
+            },
+            "right": {
+              "forward": [
+                0.7433046092198958,
+                0.5744981456510131,
+                0.3427099919115364
+              ],
+              "across": [
+                0.1565840125063893,
+                -0.8113223789676044,
+                0.563238354885164
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 7.2698805462102865,
+          "left_shoulder_elev_deg": -43.525759034185626,
+          "left_shoulder_delta_elev_deg": -10.39194801489878,
+          "left_foot_pitch_deg": -36.82445161935169,
+          "right_shoulder_elev_deg": -16.218133451810683,
+          "right_shoulder_delta_elev_deg": 16.915668570849927,
+          "right_foot_pitch_deg": -22.938370390256974,
+          "head_yaw_rel_deg": -18.616982317437646,
+          "left_elbow_angle_deg": 70.21974534682379,
+          "left_palm_across_forearm_err_deg": 13.067302658108144,
+          "left_pronation_forearm_deg": -103.87699201033378,
+          "left_fist_inward_forearm_deg": -38.431574442839825,
+          "left_knuckles_inward_forearm_deg": -100.26703479779395,
+          "left_pronation_forearm_err_deg": 0.8317913182482357,
+          "left_fist_inward_forearm_err_deg": 1.679786697194686,
+          "left_palm_across_hand_err_deg": 13.833689819383268,
+          "left_pronation_hand_deg": -92.6441504888162,
+          "left_fist_inward_hand_deg": -28.566151144844284,
+          "left_knuckles_inward_hand_deg": -96.1162000909074,
+          "left_pronation_hand_err_deg": 10.401050203269335,
+          "left_fist_inward_hand_err_deg": 8.185636600800848,
+          "left_palm_across_avatar_err_deg": 13.833689819383268,
+          "left_pronation_err_deg": 0.8317913182482357,
+          "left_fist_inward_err_deg": 1.679786697194686,
+          "right_elbow_angle_deg": 48.42815744489768,
+          "right_palm_across_forearm_err_deg": 8.125372867207659,
+          "right_pronation_forearm_deg": 62.33530014704974,
+          "right_fist_inward_forearm_deg": -127.58048960750001,
+          "right_knuckles_inward_forearm_deg": -143.8944492327248,
+          "right_pronation_forearm_err_deg": 0.22111499883334318,
+          "right_fist_inward_forearm_err_deg": 0.042311977948060076,
+          "right_palm_across_hand_err_deg": 8.514802332515174,
+          "right_pronation_hand_deg": 62.13743154281688,
+          "right_fist_inward_hand_deg": -130.68901093023973,
+          "right_knuckles_inward_hand_deg": -137.4488347353415,
+          "right_pronation_hand_err_deg": 0.4189836030661809,
+          "right_fist_inward_hand_err_deg": 3.066209344791673,
+          "right_palm_across_avatar_err_deg": 8.514802332515174,
+          "right_pronation_err_deg": 0.22111499883334318,
+          "right_fist_inward_err_deg": 0.042311977948060076,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.25320808354586044,
+                0.12739432220219865,
+                0.9589871495998655
+              ],
+              "across": [
+                0.19094406636165817,
+                0.9535369946094612,
+                0.233039832287168
+              ]
+            },
+            "right": {
+              "forward": [
+                0.7433046092198958,
+                0.5744981456510131,
+                0.3427099919115364
+              ],
+              "across": [
+                0.1565840125063893,
+                -0.8113223789676044,
+                0.563238354885164
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_44_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 21.258291268867808,
+        "left_shoulder_elev_deg": -13.77310109962802,
+        "left_shoulder_delta_elev_deg": -13.77310109962802,
+        "left_foot_pitch_deg": -21.849443262498056,
+        "right_shoulder_elev_deg": 20.18653135820229,
+        "right_shoulder_delta_elev_deg": 20.18653135820229,
+        "right_foot_pitch_deg": -56.23817639172402,
+        "head_yaw_rel_deg": 19.73946873884657
+      },
+      "palm_diag": {
+        "left_pronation_deg": -110.12262236101064,
+        "left_wrist_flexion_deg": 7.844799884322533,
+        "left_fist_inward_deg": -56.42497814574451,
+        "left_knuckles_inward_deg": -31.47876249636025,
+        "left_elbow_angle_deg": 31.179455732490403,
+        "left_palm_fwd_err_deg": 12.633812732399523,
+        "left_palm_across_proxy_err_deg": 37.369422419046366,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 69.76015190708854,
+        "right_wrist_flexion_deg": 11.018855123308034,
+        "right_fist_inward_deg": -104.25991441263531,
+        "right_knuckles_inward_deg": -133.156249788194,
+        "right_elbow_angle_deg": 34.16604560959599,
+        "right_palm_fwd_err_deg": 6.3113660431080865,
+        "right_palm_across_proxy_err_deg": 161.25330735845515,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 25.664304628096566,
+          "left_shoulder_elev_deg": -45.68438740748803,
+          "left_shoulder_delta_elev_deg": -12.550576388201186,
+          "left_foot_pitch_deg": -22.857769662741145,
+          "right_shoulder_elev_deg": -10.8688752515123,
+          "right_shoulder_delta_elev_deg": 22.26492677114831,
+          "right_foot_pitch_deg": -53.304571193213874,
+          "head_yaw_rel_deg": 19.060206727615395,
+          "left_elbow_angle_deg": 31.179455732490403,
+          "left_palm_across_forearm_err_deg": 39.47673026721131,
+          "left_pronation_forearm_deg": -99.27814763167932,
+          "left_fist_inward_forearm_deg": -57.244063093292496,
+          "left_knuckles_inward_forearm_deg": -36.509451991482216,
+          "left_pronation_forearm_err_deg": 10.844474729331324,
+          "left_fist_inward_forearm_err_deg": 3.093686962949022,
+          "left_palm_across_hand_err_deg": 21.645932892150867,
+          "left_pronation_hand_deg": -84.55353829396995,
+          "left_fist_inward_hand_deg": -41.56832559566089,
+          "left_knuckles_inward_hand_deg": -34.18514937022829,
+          "left_pronation_hand_err_deg": 25.569084067040706,
+          "left_fist_inward_hand_err_deg": 12.582050534682594,
+          "left_palm_across_avatar_err_deg": 21.645932892150867,
+          "left_pronation_err_deg": 10.844474729331324,
+          "left_fist_inward_err_deg": 3.093686962949022,
+          "right_elbow_angle_deg": 34.16604560959599,
+          "right_palm_across_forearm_err_deg": 12.7754768495501,
+          "right_pronation_forearm_deg": 69.84500070952787,
+          "right_fist_inward_forearm_deg": -108.68355819913445,
+          "right_knuckles_inward_forearm_deg": -133.1886787239684,
+          "right_pronation_forearm_err_deg": 0.0848488024393248,
+          "right_fist_inward_forearm_err_deg": 0.04620857878899187,
+          "right_palm_across_hand_err_deg": 7.026888885808579,
+          "right_pronation_hand_deg": 63.710164138664744,
+          "right_fist_inward_hand_deg": -116.27196409443441,
+          "right_knuckles_inward_hand_deg": -133.0014373467938,
+          "right_pronation_hand_err_deg": 6.04998776842379,
+          "right_fist_inward_hand_err_deg": 7.6346144740889486,
+          "right_palm_across_avatar_err_deg": 7.026888885808579,
+          "right_pronation_err_deg": 0.0848488024393248,
+          "right_fist_inward_err_deg": 0.04620857878899187,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.1738326208609769,
+                0.968169977899681,
+                0.180080853558437
+              ],
+              "across": [
+                0.49284092306816535,
+                0.8361325265176399,
+                -0.2408115915992145
+              ]
+            },
+            "right": {
+              "forward": [
+                0.3444367906187159,
+                0.6943832508641785,
+                0.6318189599779149
+              ],
+              "across": [
+                -0.04894225569610038,
+                -0.8342914561200415,
+                0.5491469947586693
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 21.81685555288665,
+          "left_shoulder_elev_deg": -45.68438738717405,
+          "left_shoulder_delta_elev_deg": -12.550576367887203,
+          "left_foot_pitch_deg": -22.85776966274132,
+          "right_shoulder_elev_deg": -10.868875221915898,
+          "right_shoulder_delta_elev_deg": 22.26492680074471,
+          "right_foot_pitch_deg": -53.30457119321451,
+          "head_yaw_rel_deg": 19.261508788982354,
+          "left_elbow_angle_deg": 31.179455732490403,
+          "left_palm_across_forearm_err_deg": 39.47673031546613,
+          "left_pronation_forearm_deg": -99.2781474969458,
+          "left_fist_inward_forearm_deg": -57.24406307710777,
+          "left_knuckles_inward_forearm_deg": -36.509451968310216,
+          "left_pronation_forearm_err_deg": 10.844474864064836,
+          "left_fist_inward_forearm_err_deg": 3.0936869467643078,
+          "left_palm_across_hand_err_deg": 21.645932909824108,
+          "left_pronation_hand_deg": -84.55353825166172,
+          "left_fist_inward_hand_deg": -41.5683255920913,
+          "left_knuckles_inward_hand_deg": -34.18514935745133,
+          "left_pronation_hand_err_deg": 25.56908410934892,
+          "left_fist_inward_hand_err_deg": 12.582050538252162,
+          "left_palm_across_avatar_err_deg": 21.645932909824108,
+          "left_pronation_err_deg": 10.844474864064836,
+          "left_fist_inward_err_deg": 3.0936869467643078,
+          "right_elbow_angle_deg": 34.16604560959599,
+          "right_palm_across_forearm_err_deg": 12.775476745453467,
+          "right_pronation_forearm_deg": 69.84500084251493,
+          "right_fist_inward_forearm_deg": -108.68355817462337,
+          "right_knuckles_inward_forearm_deg": -133.18867867640378,
+          "right_pronation_forearm_err_deg": 0.08484893542640748,
+          "right_fist_inward_forearm_err_deg": 0.04620855427793913,
+          "right_palm_across_hand_err_deg": 7.0268888783209,
+          "right_pronation_hand_deg": 63.71016417255545,
+          "right_fist_inward_hand_deg": -116.27196408822105,
+          "right_knuckles_inward_hand_deg": -133.00143733113683,
+          "right_pronation_hand_err_deg": 6.04998773453309,
+          "right_fist_inward_hand_err_deg": 7.634614467875622,
+          "right_palm_across_avatar_err_deg": 7.0268888783209,
+          "right_pronation_err_deg": 0.08484893542640748,
+          "right_fist_inward_err_deg": 0.04620855427793913,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.1738326208609769,
+                0.968169977899681,
+                0.180080853558437
+              ],
+              "across": [
+                0.49284092306816535,
+                0.8361325265176399,
+                -0.2408115915992145
+              ]
+            },
+            "right": {
+              "forward": [
+                0.3444367906187159,
+                0.6943832508641785,
+                0.6318189599779149
+              ],
+              "across": [
+                -0.04894225569610038,
+                -0.8342914561200415,
+                0.5491469947586693
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_50_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 17.136636167210682,
+        "left_shoulder_elev_deg": 5.221693863662,
+        "left_shoulder_delta_elev_deg": 5.221693863662,
+        "left_foot_pitch_deg": -21.257250639833604,
+        "right_shoulder_elev_deg": 17.593234302784637,
+        "right_shoulder_delta_elev_deg": 17.593234302784637,
+        "right_foot_pitch_deg": -18.016236690463902,
+        "head_yaw_rel_deg": -20.816908083178532
+      },
+      "palm_diag": {
+        "left_pronation_deg": -101.15158386108999,
+        "left_wrist_flexion_deg": 3.7650628839369977,
+        "left_fist_inward_deg": -49.36559993220513,
+        "left_knuckles_inward_deg": -49.4725088547282,
+        "left_elbow_angle_deg": 44.98240819695512,
+        "left_palm_fwd_err_deg": 10.36189300123594,
+        "left_palm_across_proxy_err_deg": 64.24327796064955,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 80.21431347157957,
+        "right_wrist_flexion_deg": 18.272086702482834,
+        "right_fist_inward_deg": -135.30836088636406,
+        "right_knuckles_inward_deg": -133.15129472841522,
+        "right_elbow_angle_deg": 48.75203132902463,
+        "right_palm_fwd_err_deg": 9.499399808713529,
+        "right_palm_across_proxy_err_deg": 156.73164865155115,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 21.58929355053319,
+          "left_shoulder_elev_deg": -27.035200763411602,
+          "left_shoulder_delta_elev_deg": 6.0986102558752435,
+          "left_foot_pitch_deg": -22.353978412712294,
+          "right_shoulder_elev_deg": -14.367660948882364,
+          "right_shoulder_delta_elev_deg": 18.766141073778247,
+          "right_foot_pitch_deg": -19.38754458389538,
+          "head_yaw_rel_deg": -14.599075201509692,
+          "left_elbow_angle_deg": 44.98240819695512,
+          "left_palm_across_forearm_err_deg": 18.262800685465027,
+          "left_pronation_forearm_deg": -99.87128007284065,
+          "left_fist_inward_forearm_deg": -46.943489599026755,
+          "left_knuckles_inward_forearm_deg": -48.37938465838809,
+          "left_pronation_forearm_err_deg": 1.2803037882493413,
+          "left_fist_inward_forearm_err_deg": 0.9507306218582698,
+          "left_palm_across_hand_err_deg": 11.200814900011435,
+          "left_pronation_hand_deg": -84.39086967467372,
+          "left_fist_inward_hand_deg": -39.05924567845244,
+          "left_knuckles_inward_hand_deg": -55.786066452700354,
+          "left_pronation_hand_err_deg": 16.760714186416266,
+          "left_fist_inward_hand_err_deg": 6.933513298716036,
+          "left_palm_across_avatar_err_deg": 11.200814900011435,
+          "left_pronation_err_deg": 1.2803037882493413,
+          "left_fist_inward_err_deg": 0.9507306218582698,
+          "right_elbow_angle_deg": 48.75203132902463,
+          "right_palm_across_forearm_err_deg": 26.094752642019692,
+          "right_pronation_forearm_deg": 80.17436072256218,
+          "right_fist_inward_forearm_deg": -136.98448953824885,
+          "right_knuckles_inward_forearm_deg": -132.07091918417092,
+          "right_pronation_forearm_err_deg": 0.03995274901740231,
+          "right_fist_inward_forearm_err_deg": 0.12203389852490432,
+          "right_palm_across_hand_err_deg": 14.985226704261498,
+          "right_pronation_hand_deg": 74.65605337910691,
+          "right_fist_inward_hand_deg": -148.8803865231888,
+          "right_knuckles_inward_hand_deg": -140.02284068090174,
+          "right_pronation_hand_err_deg": 5.558260092472665,
+          "right_fist_inward_hand_err_deg": 12.017930883464857,
+          "right_palm_across_avatar_err_deg": 14.985226704261498,
+          "right_pronation_err_deg": 0.03995274901740231,
+          "right_fist_inward_err_deg": 0.12203389852490432,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.24256878193868178,
+                0.6602889604170405,
+                0.7107593648909368
+              ],
+              "across": [
+                0.25298905543107963,
+                0.9221695590766307,
+                -0.2925745069969397
+              ]
+            },
+            "right": {
+              "forward": [
+                0.46385072457091914,
+                0.6377578991879227,
+                0.6149043562526133
+              ],
+              "across": [
+                0.025637675182659872,
+                -0.9771639170384208,
+                0.21093456058540772
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 18.228500818316142,
+          "left_shoulder_elev_deg": -27.03520075830223,
+          "left_shoulder_delta_elev_deg": 6.098610260984614,
+          "left_foot_pitch_deg": -22.353978412712454,
+          "right_shoulder_elev_deg": -14.367660954858602,
+          "right_shoulder_delta_elev_deg": 18.76614106780201,
+          "right_foot_pitch_deg": -19.387544583895128,
+          "head_yaw_rel_deg": -14.652142142082198,
+          "left_elbow_angle_deg": 44.98240819695512,
+          "left_palm_across_forearm_err_deg": 18.2628006581618,
+          "left_pronation_forearm_deg": -99.87128006988729,
+          "left_fist_inward_forearm_deg": -46.94348960001969,
+          "left_knuckles_inward_forearm_deg": -48.37938468044045,
+          "left_pronation_forearm_err_deg": 1.280303791202698,
+          "left_fist_inward_forearm_err_deg": 0.9507306228512107,
+          "left_palm_across_hand_err_deg": 11.200814896891206,
+          "left_pronation_hand_deg": -84.39086968199221,
+          "left_fist_inward_hand_deg": -39.059245682775156,
+          "left_knuckles_inward_hand_deg": -55.78606646031894,
+          "left_pronation_hand_err_deg": 16.76071417909776,
+          "left_fist_inward_hand_err_deg": 6.933513294393322,
+          "left_palm_across_avatar_err_deg": 11.200814896891206,
+          "left_pronation_err_deg": 1.280303791202698,
+          "left_fist_inward_err_deg": 0.9507306228512107,
+          "right_elbow_angle_deg": 48.75203132902463,
+          "right_palm_across_forearm_err_deg": 26.094752665413555,
+          "right_pronation_forearm_deg": 80.17436071394172,
+          "right_fist_inward_forearm_deg": -136.9844895394026,
+          "right_knuckles_inward_forearm_deg": -132.07091920306064,
+          "right_pronation_forearm_err_deg": 0.03995275763784889,
+          "right_fist_inward_forearm_err_deg": 0.12203389967865519,
+          "right_palm_across_hand_err_deg": 14.985226699464281,
+          "right_pronation_hand_deg": 74.65605339292142,
+          "right_fist_inward_hand_deg": -148.88038651679832,
+          "right_knuckles_inward_hand_deg": -140.02284068497403,
+          "right_pronation_hand_err_deg": 5.558260078658151,
+          "right_fist_inward_hand_err_deg": 12.017930877074377,
+          "right_palm_across_avatar_err_deg": 14.985226699464281,
+          "right_pronation_err_deg": 0.03995275763784889,
+          "right_fist_inward_err_deg": 0.12203389967865519,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.24256878193868178,
+                0.6602889604170405,
+                0.7107593648909368
+              ],
+              "across": [
+                0.25298905543107963,
+                0.9221695590766307,
+                -0.2925745069969397
+              ]
+            },
+            "right": {
+              "forward": [
+                0.46385072457091914,
+                0.6377578991879227,
+                0.6149043562526133
+              ],
+              "across": [
+                0.025637675182659872,
+                -0.9771639170384208,
+                0.21093456058540772
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_54_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 25.848524720859356,
+        "left_shoulder_elev_deg": -1.8126251770504547,
+        "left_shoulder_delta_elev_deg": -1.8126251770504547,
+        "left_foot_pitch_deg": -48.59062064784818,
+        "right_shoulder_elev_deg": 3.562518388417717,
+        "right_shoulder_delta_elev_deg": 3.562518388417717,
+        "right_foot_pitch_deg": -29.012333146404046,
+        "head_yaw_rel_deg": -3.8280887520756153
+      },
+      "palm_diag": {
+        "left_pronation_deg": -80.3564341712561,
+        "left_wrist_flexion_deg": 9.55946686529714,
+        "left_fist_inward_deg": -46.80323553457423,
+        "left_knuckles_inward_deg": -27.851435397455067,
+        "left_elbow_angle_deg": 47.63396663579622,
+        "left_palm_fwd_err_deg": 13.04785617720568,
+        "left_palm_across_proxy_err_deg": 18.01813105400513,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 71.67390187564483,
+        "right_wrist_flexion_deg": 18.246226918999074,
+        "right_fist_inward_deg": -118.24781206342588,
+        "right_knuckles_inward_deg": -145.71246331756055,
+        "right_elbow_angle_deg": 37.087829126767275,
+        "right_palm_fwd_err_deg": 8.70427475730632,
+        "right_palm_across_proxy_err_deg": 163.73104999442003,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 31.691961282032263,
+          "left_shoulder_elev_deg": -32.521917563793295,
+          "left_shoulder_delta_elev_deg": 0.6118934554935507,
+          "left_foot_pitch_deg": -46.83838956665772,
+          "right_shoulder_elev_deg": -27.154831534378552,
+          "right_shoulder_delta_elev_deg": 5.978970488282059,
+          "right_foot_pitch_deg": -29.28325318469591,
+          "head_yaw_rel_deg": 1.5960070038752292,
+          "left_elbow_angle_deg": 47.63396663579622,
+          "left_palm_across_forearm_err_deg": 19.6908146435276,
+          "left_pronation_forearm_deg": -77.80954920832087,
+          "left_fist_inward_forearm_deg": -44.728180314761644,
+          "left_knuckles_inward_forearm_deg": -28.458211890016724,
+          "left_pronation_forearm_err_deg": 2.5468849629352235,
+          "left_fist_inward_forearm_err_deg": 0.9201543135639554,
+          "left_palm_across_hand_err_deg": 19.20237223615275,
+          "left_pronation_hand_deg": -58.30816380585545,
+          "left_fist_inward_hand_deg": -38.89753494800296,
+          "left_knuckles_inward_hand_deg": -27.281097832810953,
+          "left_pronation_hand_err_deg": 22.04827036540064,
+          "left_fist_inward_hand_err_deg": 4.910491053194733,
+          "left_palm_across_avatar_err_deg": 19.20237223615275,
+          "left_pronation_err_deg": 2.5468849629352235,
+          "left_fist_inward_err_deg": 0.9201543135639554,
+          "right_elbow_angle_deg": 37.087829126767275,
+          "right_palm_across_forearm_err_deg": 18.52276111912364,
+          "right_pronation_forearm_deg": 71.12745085241387,
+          "right_fist_inward_forearm_deg": -121.44269391584824,
+          "right_knuckles_inward_forearm_deg": -145.11996857433545,
+          "right_pronation_forearm_err_deg": 0.5464510232309578,
+          "right_fist_inward_forearm_err_deg": 0.12800345013928904,
+          "right_palm_across_hand_err_deg": 10.421579482063061,
+          "right_pronation_hand_deg": 74.1232679680282,
+          "right_fist_inward_hand_deg": -132.2120298443485,
+          "right_knuckles_inward_hand_deg": -156.31657569386851,
+          "right_pronation_hand_err_deg": 2.4493660923833716,
+          "right_fist_inward_hand_err_deg": 10.641332478360994,
+          "right_palm_across_avatar_err_deg": 10.421579482063061,
+          "right_pronation_err_deg": 0.5464510232309578,
+          "right_fist_inward_err_deg": 0.12800345013928904,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.2030725914644668,
+                0.9485228374952495,
+                0.24303487269498264
+              ],
+              "across": [
+                0.08420469038993166,
+                0.7885385756672038,
+                -0.6091933065957583
+              ]
+            },
+            "right": {
+              "forward": [
+                0.2205905911497662,
+                0.8937125981302335,
+                0.39066300444181384
+              ],
+              "across": [
+                0.28208464706773384,
+                -0.7844578927925645,
+                0.5523169980401845
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 26.296566949932686,
+          "left_shoulder_elev_deg": -32.5219175628022,
+          "left_shoulder_delta_elev_deg": 0.6118934564846441,
+          "left_foot_pitch_deg": -46.83838956665789,
+          "right_shoulder_elev_deg": -27.154831534063803,
+          "right_shoulder_delta_elev_deg": 5.978970488596808,
+          "right_foot_pitch_deg": -29.283253184695674,
+          "head_yaw_rel_deg": 1.6459499453156923,
+          "left_elbow_angle_deg": 47.63396663579622,
+          "left_palm_across_forearm_err_deg": 19.690814674388115,
+          "left_pronation_forearm_deg": -77.809549169829,
+          "left_fist_inward_forearm_deg": -44.72818030194672,
+          "left_knuckles_inward_forearm_deg": -28.45821187531608,
+          "left_pronation_forearm_err_deg": 2.5468850014270856,
+          "left_fist_inward_forearm_err_deg": 0.9201543007490329,
+          "left_palm_across_hand_err_deg": 19.2023722414893,
+          "left_pronation_hand_deg": -58.30816378779604,
+          "left_fist_inward_hand_deg": -38.897534945883024,
+          "left_knuckles_inward_hand_deg": -27.281097830551154,
+          "left_pronation_hand_err_deg": 22.04827038346005,
+          "left_fist_inward_hand_err_deg": 4.910491055314679,
+          "left_palm_across_avatar_err_deg": 19.2023722414893,
+          "left_pronation_err_deg": 2.5468850014270856,
+          "left_fist_inward_err_deg": 0.9201543007490329,
+          "right_elbow_angle_deg": 37.087829126767275,
+          "right_palm_across_forearm_err_deg": 18.52276109765955,
+          "right_pronation_forearm_deg": 71.12745089384812,
+          "right_fist_inward_forearm_deg": -121.44269391073091,
+          "right_knuckles_inward_forearm_deg": -145.11996856733393,
+          "right_pronation_forearm_err_deg": 0.5464509817967098,
+          "right_fist_inward_forearm_err_deg": 0.12800345525661783,
+          "right_palm_across_hand_err_deg": 10.421579482961368,
+          "right_pronation_hand_deg": 74.12326796741019,
+          "right_fist_inward_hand_deg": -132.2120298460011,
+          "right_knuckles_inward_hand_deg": -156.31657569451943,
+          "right_pronation_hand_err_deg": 2.4493660917653415,
+          "right_fist_inward_hand_err_deg": 10.641332480013546,
+          "right_palm_across_avatar_err_deg": 10.421579482961368,
+          "right_pronation_err_deg": 0.5464509817967098,
+          "right_fist_inward_err_deg": 0.12800345525661783,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.2030725914644668,
+                0.9485228374952495,
+                0.24303487269498264
+              ],
+              "across": [
+                0.08420469038993166,
+                0.7885385756672038,
+                -0.6091933065957583
+              ]
+            },
+            "right": {
+              "forward": [
+                0.2205905911497662,
+                0.8937125981302335,
+                0.39066300444181384
+              ],
+              "across": [
+                0.28208464706773384,
+                -0.7844578927925645,
+                0.5523169980401845
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_00_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 30.957350526964724,
+        "left_shoulder_elev_deg": -1.592697892967839,
+        "left_shoulder_delta_elev_deg": -1.592697892967839,
+        "left_foot_pitch_deg": -49.762295383741915,
+        "right_shoulder_elev_deg": 7.037695399590131,
+        "right_shoulder_delta_elev_deg": 7.037695399590131,
+        "right_foot_pitch_deg": -20.959516178877873,
+        "head_yaw_rel_deg": -44.41615653578293
+      },
+      "palm_diag": {
+        "left_pronation_deg": -94.12831589061823,
+        "left_wrist_flexion_deg": 19.012549933196905,
+        "left_fist_inward_deg": -41.16092268792488,
+        "left_knuckles_inward_deg": -80.57392436366962,
+        "left_elbow_angle_deg": 67.37716780778901,
+        "left_palm_fwd_err_deg": 5.53496925410713,
+        "left_palm_across_proxy_err_deg": 173.16680807299608,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 55.961649220770866,
+        "right_wrist_flexion_deg": 5.789937246795588,
+        "right_fist_inward_deg": -179.73571930026668,
+        "right_knuckles_inward_deg": 56.4263280050794,
+        "right_elbow_angle_deg": 141.73194892336295,
+        "right_palm_fwd_err_deg": 2.6454382562399696,
+        "right_palm_across_proxy_err_deg": 129.90171710673104,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 38.08790780343303,
+          "left_shoulder_elev_deg": -30.97973350683251,
+          "left_shoulder_delta_elev_deg": 2.154077512454336,
+          "left_foot_pitch_deg": -47.50942026639915,
+          "right_shoulder_elev_deg": -23.07265989837842,
+          "right_shoulder_delta_elev_deg": 10.061142124282192,
+          "right_foot_pitch_deg": -22.046260288651936,
+          "head_yaw_rel_deg": -40.443163538351484,
+          "left_elbow_angle_deg": 67.37716780778901,
+          "left_palm_across_forearm_err_deg": 11.34087365995738,
+          "left_pronation_forearm_deg": -93.68365940486929,
+          "left_fist_inward_forearm_deg": -40.80890994901715,
+          "left_knuckles_inward_forearm_deg": -81.6183128564492,
+          "left_pronation_forearm_err_deg": 0.44465648574893635,
+          "left_fist_inward_forearm_err_deg": 2.0857955493794407,
+          "left_palm_across_hand_err_deg": 10.47593352094185,
+          "left_pronation_hand_deg": -80.07890689339855,
+          "left_fist_inward_hand_deg": -38.082197904418784,
+          "left_knuckles_inward_hand_deg": -79.01647592336721,
+          "left_pronation_hand_err_deg": 14.049408997219672,
+          "left_fist_inward_hand_err_deg": 0.6409164952189315,
+          "left_palm_across_avatar_err_deg": 10.47593352094185,
+          "left_pronation_err_deg": 0.44465648574893635,
+          "left_fist_inward_err_deg": 2.0857955493794407,
+          "right_elbow_angle_deg": 141.73194892336295,
+          "right_palm_across_forearm_err_deg": 5.55941237204689,
+          "right_pronation_forearm_deg": 55.94222120902953,
+          "right_fist_inward_forearm_deg": -178.55553394878152,
+          "right_knuckles_inward_forearm_deg": 57.36295055652886,
+          "right_pronation_forearm_err_deg": 0.01942801174132569,
+          "right_fist_inward_forearm_err_deg": 1.514797068381995,
+          "right_palm_across_hand_err_deg": 12.223993526343294,
+          "right_pronation_hand_deg": 48.564782681461374,
+          "right_fist_inward_hand_deg": -148.21572237058382,
+          "right_knuckles_inward_hand_deg": 44.57397077520841,
+          "right_pronation_hand_err_deg": 7.396866539309485,
+          "right_fist_inward_hand_err_deg": 31.854608646579663,
+          "right_palm_across_avatar_err_deg": 12.223993526343294,
+          "right_pronation_err_deg": 0.01942801174132569,
+          "right_fist_inward_err_deg": 1.514797068381995,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.23680537504832483,
+                0.33030696831815215,
+                0.9136851323233257
+              ],
+              "across": [
+                0.05000437621238775,
+                0.9929639471419104,
+                -0.10734133423787638
+              ]
+            },
+            "right": {
+              "forward": [
+                -0.23120870003120014,
+                -0.05067214365298384,
+                0.9715836921683556
+              ],
+              "across": [
+                -0.5556750853607906,
+                -0.828281037338499,
+                -0.07194249574999788
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 32.21064628471166,
+          "left_shoulder_elev_deg": -30.979733474135198,
+          "left_shoulder_delta_elev_deg": 2.1540775451516474,
+          "left_foot_pitch_deg": -47.509420266399395,
+          "right_shoulder_elev_deg": -23.072659917917456,
+          "right_shoulder_delta_elev_deg": 10.061142104743155,
+          "right_foot_pitch_deg": -22.04626028865344,
+          "head_yaw_rel_deg": -40.61370071436181,
+          "left_elbow_angle_deg": 67.37716780778901,
+          "left_palm_across_forearm_err_deg": 11.340873677616262,
+          "left_pronation_forearm_deg": -93.68365933630555,
+          "left_fist_inward_forearm_deg": -40.80890989305243,
+          "left_knuckles_inward_forearm_deg": -81.61831281433182,
+          "left_pronation_forearm_err_deg": 0.44465655431267237,
+          "left_fist_inward_forearm_err_deg": 2.0857954934147074,
+          "left_palm_across_hand_err_deg": 10.475933445732545,
+          "left_pronation_hand_deg": -80.07890698592426,
+          "left_fist_inward_hand_deg": -38.08219797739683,
+          "left_knuckles_inward_hand_deg": -79.01647600876295,
+          "left_pronation_hand_err_deg": 14.049408904693962,
+          "left_fist_inward_hand_err_deg": 0.6409164222408776,
+          "left_palm_across_avatar_err_deg": 10.475933445732545,
+          "left_pronation_err_deg": 0.44465655431267237,
+          "left_fist_inward_err_deg": 2.0857954934147074,
+          "right_elbow_angle_deg": 141.73194892336295,
+          "right_palm_across_forearm_err_deg": 5.5594122116984925,
+          "right_pronation_forearm_deg": 55.94222105627173,
+          "right_fist_inward_forearm_deg": -178.55553372646665,
+          "right_knuckles_inward_forearm_deg": 57.36295035686241,
+          "right_pronation_forearm_err_deg": 0.019428164499146305,
+          "right_fist_inward_forearm_err_deg": 1.5147972906968334,
+          "right_palm_across_hand_err_deg": 12.223993268897523,
+          "right_pronation_hand_deg": 48.564782931333696,
+          "right_fist_inward_hand_deg": -148.21572182256537,
+          "right_knuckles_inward_hand_deg": 44.5739709935893,
+          "right_pronation_hand_err_deg": 7.396866289437185,
+          "right_fist_inward_hand_err_deg": 31.854609194598083,
+          "right_palm_across_avatar_err_deg": 12.223993268897523,
+          "right_pronation_err_deg": 0.019428164499146305,
+          "right_fist_inward_err_deg": 1.5147972906968334,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.23680537504832483,
+                0.33030696831815215,
+                0.9136851323233257
+              ],
+              "across": [
+                0.05000437621238775,
+                0.9929639471419104,
+                -0.10734133423787638
+              ]
+            },
+            "right": {
+              "forward": [
+                -0.23120870003120014,
+                -0.05067214365298384,
+                0.9715836921683556
+              ],
+              "across": [
+                -0.5556750853607906,
+                -0.828281037338499,
+                -0.07194249574999788
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_05_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 31.31886207520813,
+        "left_shoulder_elev_deg": 11.340345635374705,
+        "left_shoulder_delta_elev_deg": 11.340345635374705,
+        "left_foot_pitch_deg": -27.866314421666804,
+        "right_shoulder_elev_deg": -6.931719993780798,
+        "right_shoulder_delta_elev_deg": -6.931719993780798,
+        "right_foot_pitch_deg": -42.58615308749322,
+        "head_yaw_rel_deg": 45.463264442269804
+      },
+      "palm_diag": {
+        "left_pronation_deg": -47.801904583848035,
+        "left_wrist_flexion_deg": 18.59954946915504,
+        "left_fist_inward_deg": -32.6242445894086,
+        "left_knuckles_inward_deg": 22.611417958757336,
+        "left_elbow_angle_deg": 56.65484780864717,
+        "left_palm_fwd_err_deg": 15.251645741603593,
+        "left_palm_across_proxy_err_deg": 93.5044739041156,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 101.37994750112426,
+        "right_wrist_flexion_deg": 16.891982486482597,
+        "right_fist_inward_deg": -126.17903371107906,
+        "right_knuckles_inward_deg": -109.53372214944532,
+        "right_elbow_angle_deg": 49.72921127891305,
+        "right_palm_fwd_err_deg": 6.08912503435678,
+        "right_palm_across_proxy_err_deg": 71.54620353770432,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 35.990719908729005,
+          "left_shoulder_elev_deg": -18.634119201679862,
+          "left_shoulder_delta_elev_deg": 14.499691817606983,
+          "left_foot_pitch_deg": -28.279304433198167,
+          "right_shoulder_elev_deg": -37.101854748261125,
+          "right_shoulder_delta_elev_deg": -3.968052725600515,
+          "right_foot_pitch_deg": -41.46751609305298,
+          "head_yaw_rel_deg": 55.98479196784069,
+          "left_elbow_angle_deg": 56.65484780864717,
+          "left_palm_across_forearm_err_deg": 28.115138098167435,
+          "left_pronation_forearm_deg": -43.17341281665967,
+          "left_fist_inward_forearm_deg": -34.35497531484102,
+          "left_knuckles_inward_forearm_deg": 17.14022191398098,
+          "left_pronation_forearm_err_deg": 4.628491767188365,
+          "left_fist_inward_forearm_err_deg": 2.473238566224552,
+          "left_palm_across_hand_err_deg": 32.459040519558336,
+          "left_pronation_hand_deg": -30.018875562764528,
+          "left_fist_inward_hand_deg": -42.59351809040741,
+          "left_knuckles_inward_hand_deg": 2.555179028234808,
+          "left_pronation_hand_err_deg": 17.783029021083507,
+          "left_fist_inward_hand_err_deg": 10.711781341790953,
+          "left_palm_across_avatar_err_deg": 32.459040519558336,
+          "left_pronation_err_deg": 4.628491767188365,
+          "left_fist_inward_err_deg": 2.473238566224552,
+          "right_elbow_angle_deg": 49.72921127891305,
+          "right_palm_across_forearm_err_deg": 15.781565955436495,
+          "right_pronation_forearm_deg": 101.58709644909077,
+          "right_fist_inward_forearm_deg": -130.02501717562447,
+          "right_knuckles_inward_forearm_deg": -111.45700646664639,
+          "right_pronation_forearm_err_deg": 0.20714894796651606,
+          "right_fist_inward_forearm_err_deg": 0.07056909343825168,
+          "right_palm_across_hand_err_deg": 22.94126888019396,
+          "right_pronation_hand_deg": 82.31212493088329,
+          "right_fist_inward_hand_deg": -141.31983735714016,
+          "right_knuckles_inward_hand_deg": -116.2644507770632,
+          "right_pronation_hand_err_deg": 19.067822570240992,
+          "right_fist_inward_hand_err_deg": 11.224251088077438,
+          "right_palm_across_avatar_err_deg": 22.94126888019396,
+          "right_pronation_err_deg": 0.20714894796651606,
+          "right_fist_inward_err_deg": 0.07056909343825168,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.45629253901941846,
+                0.8580396865867997,
+                -0.23572232621718092
+              ],
+              "across": [
+                -0.043102656395272484,
+                0.7301441363509545,
+                -0.6819323288743464
+              ]
+            },
+            "right": {
+              "forward": [
+                0.0497181886553608,
+                0.7788084630257653,
+                0.6252883172075705
+              ],
+              "across": [
+                0.174660880397498,
+                -0.955638821579905,
+                0.2371666493167657
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 29.702470095517622,
+          "left_shoulder_elev_deg": -18.634119223518585,
+          "left_shoulder_delta_elev_deg": 14.49969179576826,
+          "left_foot_pitch_deg": -28.279304433197378,
+          "right_shoulder_elev_deg": -37.101854685987455,
+          "right_shoulder_delta_elev_deg": -3.9680526633268443,
+          "right_foot_pitch_deg": -41.46751609305309,
+          "head_yaw_rel_deg": 56.25440200175285,
+          "left_elbow_angle_deg": 56.65484780864717,
+          "left_palm_across_forearm_err_deg": 28.115138126117376,
+          "left_pronation_forearm_deg": -43.17341271304788,
+          "left_fist_inward_forearm_deg": -34.35497528247932,
+          "left_knuckles_inward_forearm_deg": 17.14022189497868,
+          "left_pronation_forearm_err_deg": 4.628491870800161,
+          "left_fist_inward_forearm_err_deg": 2.4732385338628546,
+          "left_palm_across_hand_err_deg": 32.459040601772756,
+          "left_pronation_hand_deg": -30.018875395617155,
+          "left_fist_inward_hand_deg": -42.593518025944654,
+          "left_knuckles_inward_hand_deg": 2.5551790626614217,
+          "left_pronation_hand_err_deg": 17.78302918823087,
+          "left_fist_inward_hand_err_deg": 10.711781277328186,
+          "left_palm_across_avatar_err_deg": 32.459040601772756,
+          "left_pronation_err_deg": 4.628491870800161,
+          "left_fist_inward_err_deg": 2.4732385338628546,
+          "right_elbow_angle_deg": 49.72921127891305,
+          "right_palm_across_forearm_err_deg": 15.781565997397614,
+          "right_pronation_forearm_deg": 101.58709639563246,
+          "right_fist_inward_forearm_deg": -130.02501722751083,
+          "right_knuckles_inward_forearm_deg": -111.45700649596306,
+          "right_pronation_forearm_err_deg": 0.20714889450817964,
+          "right_fist_inward_forearm_err_deg": 0.07056904155189159,
+          "right_palm_across_hand_err_deg": 22.94126888084798,
+          "right_pronation_hand_deg": 82.31212509112841,
+          "right_fist_inward_hand_deg": -141.31983727522555,
+          "right_knuckles_inward_hand_deg": -116.2644507165813,
+          "right_pronation_hand_err_deg": 19.06782240999587,
+          "right_fist_inward_hand_err_deg": 11.224251006162831,
+          "right_palm_across_avatar_err_deg": 22.94126888084798,
+          "right_pronation_err_deg": 0.20714889450817964,
+          "right_fist_inward_err_deg": 0.07056904155189159,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.45629253901941846,
+                0.8580396865867997,
+                -0.23572232621718092
+              ],
+              "across": [
+                -0.043102656395272484,
+                0.7301441363509545,
+                -0.6819323288743464
+              ]
+            },
+            "right": {
+              "forward": [
+                0.0497181886553608,
+                0.7788084630257653,
+                0.6252883172075705
+              ],
+              "across": [
+                0.174660880397498,
+                -0.955638821579905,
+                0.2371666493167657
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_10_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 55.83348523577772,
+        "left_shoulder_elev_deg": 0.544802860049863,
+        "left_shoulder_delta_elev_deg": 0.544802860049863,
+        "left_foot_pitch_deg": -52.392745433233394,
+        "right_shoulder_elev_deg": 0.5142528985464699,
+        "right_shoulder_delta_elev_deg": 0.5142528985464699,
+        "right_foot_pitch_deg": -30.94268985733831,
+        "head_yaw_rel_deg": 50.276381775211064
+      },
+      "palm_diag": {
+        "left_pronation_deg": -63.28148427069282,
+        "left_wrist_flexion_deg": 19.000359826466077,
+        "left_fist_inward_deg": -32.186052588819926,
+        "left_knuckles_inward_deg": -5.897512728940896,
+        "left_elbow_angle_deg": 67.67778732725063,
+        "left_palm_fwd_err_deg": 17.142448894581253,
+        "left_palm_across_proxy_err_deg": 34.370042874022886,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 68.66744933431461,
+        "right_wrist_flexion_deg": 10.830858430296308,
+        "right_fist_inward_deg": -147.91900342620113,
+        "right_knuckles_inward_deg": -122.28901693518763,
+        "right_elbow_angle_deg": 56.093442399335906,
+        "right_palm_fwd_err_deg": 7.281722733793809,
+        "right_palm_across_proxy_err_deg": 67.59765466739368,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 60.80511614169242,
+          "left_shoulder_elev_deg": -22.150619669148373,
+          "left_shoulder_delta_elev_deg": 10.983191350138473,
+          "left_foot_pitch_deg": -50.24785758644114,
+          "right_shoulder_elev_deg": -19.83821388693879,
+          "right_shoulder_delta_elev_deg": 13.295588135721822,
+          "right_foot_pitch_deg": -31.0208380323381,
+          "head_yaw_rel_deg": 54.384529918280236,
+          "left_elbow_angle_deg": 67.67778732725063,
+          "left_palm_across_forearm_err_deg": 13.060135940011795,
+          "left_pronation_forearm_deg": -61.391302655466745,
+          "left_fist_inward_forearm_deg": -33.3852388117492,
+          "left_knuckles_inward_forearm_deg": -10.367930439676838,
+          "left_pronation_forearm_err_deg": 1.8901816152260835,
+          "left_fist_inward_forearm_err_deg": 1.6141065675045354,
+          "left_palm_across_hand_err_deg": 19.694106757820876,
+          "left_pronation_hand_deg": -46.39816721952896,
+          "left_fist_inward_hand_deg": -37.16748566070284,
+          "left_knuckles_inward_hand_deg": -19.323881564437173,
+          "left_pronation_hand_err_deg": 16.883317051163857,
+          "left_fist_inward_hand_err_deg": 5.396353416458169,
+          "left_palm_across_avatar_err_deg": 19.694106757820876,
+          "left_pronation_err_deg": 1.8901816152260835,
+          "left_fist_inward_err_deg": 1.6141065675045354,
+          "right_elbow_angle_deg": 56.093442399335906,
+          "right_palm_across_forearm_err_deg": 22.072863813933694,
+          "right_pronation_forearm_deg": 68.96811921722934,
+          "right_fist_inward_forearm_deg": -148.46693889780568,
+          "right_knuckles_inward_forearm_deg": -123.46769034028826,
+          "right_pronation_forearm_err_deg": 0.3006698829147467,
+          "right_fist_inward_forearm_err_deg": 0.4105705543883289,
+          "right_palm_across_hand_err_deg": 21.762757128400033,
+          "right_pronation_hand_deg": 65.26485796015338,
+          "right_fist_inward_hand_deg": -157.2544414557343,
+          "right_knuckles_inward_hand_deg": -111.29553605859749,
+          "right_pronation_hand_err_deg": 3.402591374161233,
+          "right_fist_inward_hand_err_deg": 8.376932003540304,
+          "right_palm_across_avatar_err_deg": 21.762757128400033,
+          "right_pronation_err_deg": 0.3006698829147467,
+          "right_fist_inward_err_deg": 0.4105705543883289,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.40914609919822514,
+                0.8750597625872012,
+                -0.25859211397818616
+              ],
+              "across": [
+                0.3116100723434671,
+                0.7477118627781495,
+                -0.5863668928878311
+              ]
+            },
+            "right": {
+              "forward": [
+                0.020035159169296508,
+                0.10895690501899334,
+                0.9938445478271453
+              ],
+              "across": [
+                -0.2490780961840995,
+                -0.9015407993629603,
+                -0.3538139187274845
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 53.95581151937062,
+          "left_shoulder_elev_deg": -22.15061979953539,
+          "left_shoulder_delta_elev_deg": 10.983191219751454,
+          "left_foot_pitch_deg": -50.24785758643986,
+          "right_shoulder_elev_deg": -19.838213657844996,
+          "right_shoulder_delta_elev_deg": 13.295588364815615,
+          "right_foot_pitch_deg": -31.020838032338826,
+          "head_yaw_rel_deg": 54.5794377077043,
+          "left_elbow_angle_deg": 67.67778732725063,
+          "left_palm_across_forearm_err_deg": 13.060136047892037,
+          "left_pronation_forearm_deg": -61.391302375649275,
+          "left_fist_inward_forearm_deg": -33.38523862999832,
+          "left_knuckles_inward_forearm_deg": -10.367930290587962,
+          "left_pronation_forearm_err_deg": 1.890181895043554,
+          "left_fist_inward_forearm_err_deg": 1.6141063857536722,
+          "left_palm_across_hand_err_deg": 19.694106874353306,
+          "left_pronation_hand_deg": -46.398167037154664,
+          "left_fist_inward_hand_deg": -37.16748563874254,
+          "left_knuckles_inward_hand_deg": -19.32388155724627,
+          "left_pronation_hand_err_deg": 16.88331723353815,
+          "left_fist_inward_hand_err_deg": 5.396353394497879,
+          "left_palm_across_avatar_err_deg": 19.694106874353306,
+          "left_pronation_err_deg": 1.890181895043554,
+          "left_fist_inward_err_deg": 1.6141063857536722,
+          "right_elbow_angle_deg": 56.093442399335906,
+          "right_palm_across_forearm_err_deg": 22.0728638335762,
+          "right_pronation_forearm_deg": 68.96811941303099,
+          "right_fist_inward_forearm_deg": -148.46693869022633,
+          "right_knuckles_inward_forearm_deg": -123.46769026772164,
+          "right_pronation_forearm_err_deg": 0.3006700787163936,
+          "right_fist_inward_forearm_err_deg": 0.4105707619676764,
+          "right_palm_across_hand_err_deg": 21.762757232780483,
+          "right_pronation_hand_deg": 65.26485788712374,
+          "right_fist_inward_hand_deg": -157.25444157932893,
+          "right_knuckles_inward_hand_deg": -111.29553603916693,
+          "right_pronation_hand_err_deg": 3.402591447190872,
+          "right_fist_inward_hand_err_deg": 8.376932127134921,
+          "right_palm_across_avatar_err_deg": 21.762757232780483,
+          "right_pronation_err_deg": 0.3006700787163936,
+          "right_fist_inward_err_deg": 0.4105707619676764,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.40914609919822514,
+                0.8750597625872012,
+                -0.25859211397818616
+              ],
+              "across": [
+                0.3116100723434671,
+                0.7477118627781495,
+                -0.5863668928878311
+              ]
+            },
+            "right": {
+              "forward": [
+                0.020035159169296508,
+                0.10895690501899334,
+                0.9938445478271453
+              ],
+              "across": [
+                -0.2490780961840995,
+                -0.9015407993629603,
+                -0.3538139187274845
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_15_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 30.496370061976922,
+        "left_shoulder_elev_deg": -1.0761651464975626,
+        "left_shoulder_delta_elev_deg": -1.0761651464975626,
+        "left_foot_pitch_deg": -47.6493944959485,
+        "right_shoulder_elev_deg": 25.975640010256193,
+        "right_shoulder_delta_elev_deg": 25.975640010256193,
+        "right_foot_pitch_deg": -38.78618698450378,
+        "head_yaw_rel_deg": -50.255512047456364
+      },
+      "palm_diag": {
+        "left_pronation_deg": -69.83348045348403,
+        "left_wrist_flexion_deg": 33.802244396239146,
+        "left_fist_inward_deg": -24.425977230426607,
+        "left_knuckles_inward_deg": -152.93430270192133,
+        "left_elbow_angle_deg": 85.6400773037399,
+        "left_palm_fwd_err_deg": 8.350086337631446,
+        "left_palm_across_proxy_err_deg": 147.8890001639863,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 53.13798174964959,
+        "right_wrist_flexion_deg": 17.270174884623483,
+        "right_fist_inward_deg": -148.07054489125835,
+        "right_knuckles_inward_deg": 88.19037044434707,
+        "right_elbow_angle_deg": 133.12552749219282,
+        "right_palm_fwd_err_deg": 18.156544189232108,
+        "right_palm_across_proxy_err_deg": 107.97788472475752,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 34.46364519740112,
+          "left_shoulder_elev_deg": -30.178345450363814,
+          "left_shoulder_delta_elev_deg": 2.9554655689230316,
+          "left_foot_pitch_deg": -45.29044182025686,
+          "right_shoulder_elev_deg": -2.9033008518505534,
+          "right_shoulder_delta_elev_deg": 30.230501170810058,
+          "right_foot_pitch_deg": -38.055367857841816,
+          "head_yaw_rel_deg": -42.38901215679044,
+          "left_elbow_angle_deg": 85.6400773037399,
+          "left_palm_across_forearm_err_deg": 4.572205165196071,
+          "left_pronation_forearm_deg": -75.50398476861041,
+          "left_fist_inward_forearm_deg": -24.652629534840838,
+          "left_knuckles_inward_forearm_deg": -153.74211032853773,
+          "left_pronation_forearm_err_deg": 5.670504315126379,
+          "left_fist_inward_forearm_err_deg": 3.1131077940666216,
+          "left_palm_across_hand_err_deg": 28.301035855854423,
+          "left_pronation_hand_deg": -87.76531869734046,
+          "left_fist_inward_hand_deg": -14.801677562633333,
+          "left_knuckles_inward_hand_deg": -111.52364238637131,
+          "left_pronation_hand_err_deg": 17.93183824385642,
+          "left_fist_inward_hand_err_deg": 6.737844178140875,
+          "left_palm_across_avatar_err_deg": 28.301035855854423,
+          "left_pronation_err_deg": 5.670504315126379,
+          "left_fist_inward_err_deg": 3.1131077940666216,
+          "right_elbow_angle_deg": 133.12552749219282,
+          "right_palm_across_forearm_err_deg": 24.88796234854974,
+          "right_pronation_forearm_deg": 52.1974760702628,
+          "right_fist_inward_forearm_deg": -147.59735034730542,
+          "right_knuckles_inward_forearm_deg": 93.34627461399862,
+          "right_pronation_forearm_err_deg": 0.9405056793867743,
+          "right_fist_inward_forearm_err_deg": 0.3153191028056881,
+          "right_palm_across_hand_err_deg": 10.998317843672279,
+          "right_pronation_hand_deg": 51.681614854746385,
+          "right_fist_inward_hand_deg": -138.68867956800486,
+          "right_knuckles_inward_hand_deg": 71.81992058277505,
+          "right_pronation_hand_err_deg": 1.4563668949031978,
+          "right_fist_inward_hand_err_deg": 9.223989882106252,
+          "right_palm_across_avatar_err_deg": 10.998317843672279,
+          "right_pronation_err_deg": 0.9405056793867743,
+          "right_fist_inward_err_deg": 0.3153191028056881,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                0.5110825736323887,
+                -0.4627694392286976,
+                0.7243197146600737
+              ],
+              "across": [
+                0.5962408181123009,
+                0.6068303024561761,
+                0.5255985833673069
+              ]
+            },
+            "right": {
+              "forward": [
+                0.2799568505413317,
+                0.6853643682920312,
+                0.6722349622792938
+              ],
+              "across": [
+                -0.35139440872656086,
+                -0.8232262121360672,
+                0.4458930064127642
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 28.886080857907693,
+          "left_shoulder_elev_deg": -30.178345357366,
+          "left_shoulder_delta_elev_deg": 2.9554656619208473,
+          "left_foot_pitch_deg": -45.29044182025495,
+          "right_shoulder_elev_deg": -2.9033009394093376,
+          "right_shoulder_delta_elev_deg": 30.230501083251273,
+          "right_foot_pitch_deg": -38.05536785784873,
+          "head_yaw_rel_deg": -42.60892364315251,
+          "left_elbow_angle_deg": 85.6400773037399,
+          "left_palm_across_forearm_err_deg": 4.572205232629505,
+          "left_pronation_forearm_deg": -75.50398517882499,
+          "left_fist_inward_forearm_deg": -24.65262977444618,
+          "left_knuckles_inward_forearm_deg": -153.74211031176716,
+          "left_pronation_forearm_err_deg": 5.6705047253409475,
+          "left_fist_inward_forearm_err_deg": 3.113108033671949,
+          "left_palm_across_hand_err_deg": 28.301035850110853,
+          "left_pronation_hand_deg": -87.76531875493282,
+          "left_fist_inward_hand_deg": -14.801677543143906,
+          "left_knuckles_inward_hand_deg": -111.52364234546829,
+          "left_pronation_hand_err_deg": 17.931838301448806,
+          "left_fist_inward_hand_err_deg": 6.737844197630324,
+          "left_palm_across_avatar_err_deg": 28.301035850110853,
+          "left_pronation_err_deg": 5.6705047253409475,
+          "left_fist_inward_err_deg": 3.113108033671949,
+          "right_elbow_angle_deg": 133.12552749219282,
+          "right_palm_across_forearm_err_deg": 24.88796222811662,
+          "right_pronation_forearm_deg": 52.19747614244572,
+          "right_fist_inward_forearm_deg": -147.59735026475133,
+          "right_knuckles_inward_forearm_deg": 93.34627455877323,
+          "right_pronation_forearm_err_deg": 0.9405056072038747,
+          "right_fist_inward_forearm_err_deg": 0.3153191853597832,
+          "right_palm_across_hand_err_deg": 10.998317871903637,
+          "right_pronation_hand_deg": 51.68161475872838,
+          "right_fist_inward_hand_deg": -138.68867934055822,
+          "right_knuckles_inward_hand_deg": 71.81992054385876,
+          "right_pronation_hand_err_deg": 1.4563669909211967,
+          "right_fist_inward_hand_err_deg": 9.223990109552886,
+          "right_palm_across_avatar_err_deg": 10.998317871903637,
+          "right_pronation_err_deg": 0.9405056072038747,
+          "right_fist_inward_err_deg": 0.3153191853597832,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                0.5110825736323887,
+                -0.4627694392286976,
+                0.7243197146600737
+              ],
+              "across": [
+                0.5962408181123009,
+                0.6068303024561761,
+                0.5255985833673069
+              ]
+            },
+            "right": {
+              "forward": [
+                0.2799568505413317,
+                0.6853643682920312,
+                0.6722349622792938
+              ],
+              "across": [
+                -0.35139440872656086,
+                -0.8232262121360672,
+                0.4458930064127642
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_20_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 71.527600799369,
+        "left_shoulder_elev_deg": -12.554150399859623,
+        "left_shoulder_delta_elev_deg": -12.554150399859623,
+        "left_foot_pitch_deg": -26.157985122671988,
+        "right_shoulder_elev_deg": -24.19387756074811,
+        "right_shoulder_delta_elev_deg": -24.19387756074811,
+        "right_foot_pitch_deg": -24.529833462563296,
+        "head_yaw_rel_deg": 64.51586688195346
+      },
+      "palm_diag": {
+        "left_pronation_deg": -92.41393130567104,
+        "left_wrist_flexion_deg": 7.629029791008328,
+        "left_fist_inward_deg": -44.33905905155959,
+        "left_knuckles_inward_deg": -63.63192213502176,
+        "left_elbow_angle_deg": 47.6639918027494,
+        "left_palm_fwd_err_deg": 8.64928317753095,
+        "left_palm_across_proxy_err_deg": 6.560736699139201,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 98.5765592383567,
+        "right_wrist_flexion_deg": 11.36045307706935,
+        "right_fist_inward_deg": -118.47762019045285,
+        "right_knuckles_inward_deg": -116.11456392632478,
+        "right_elbow_angle_deg": 55.80335467241468,
+        "right_palm_fwd_err_deg": 5.273882897680379,
+        "right_palm_across_proxy_err_deg": 172.8798153598596,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 76.73288667320983,
+          "left_shoulder_elev_deg": -26.426753164367458,
+          "left_shoulder_delta_elev_deg": 6.7070578549193876,
+          "left_foot_pitch_deg": -26.7394846774232,
+          "right_shoulder_elev_deg": -39.57254093148166,
+          "right_shoulder_delta_elev_deg": -6.438738908821051,
+          "right_foot_pitch_deg": -25.272364416872964,
+          "head_yaw_rel_deg": 63.780327283515135,
+          "left_elbow_angle_deg": 47.6639918027494,
+          "left_palm_across_forearm_err_deg": 31.099041282781346,
+          "left_pronation_forearm_deg": -93.21879928905727,
+          "left_fist_inward_forearm_deg": -48.711106617370554,
+          "left_knuckles_inward_forearm_deg": -67.31957879249819,
+          "left_pronation_forearm_err_deg": 0.8048679833862309,
+          "left_fist_inward_forearm_err_deg": 3.650786344960551,
+          "left_palm_across_hand_err_deg": 22.572251789672798,
+          "left_pronation_hand_deg": -89.90770299614466,
+          "left_fist_inward_hand_deg": -44.3883809060735,
+          "left_knuckles_inward_hand_deg": -69.70345997795789,
+          "left_pronation_hand_err_deg": 2.5062283095263638,
+          "left_fist_inward_hand_err_deg": 0.6719393663365167,
+          "left_palm_across_avatar_err_deg": 22.572251789672798,
+          "left_pronation_err_deg": 0.8048679833862309,
+          "left_fist_inward_err_deg": 3.650786344960551,
+          "right_elbow_angle_deg": 55.80335467241468,
+          "right_palm_across_forearm_err_deg": 48.98362408562434,
+          "right_pronation_forearm_deg": 99.01730411394786,
+          "right_fist_inward_forearm_deg": -119.48739011215227,
+          "right_knuckles_inward_forearm_deg": -110.34552564742177,
+          "right_pronation_forearm_err_deg": 0.4407448755911787,
+          "right_fist_inward_forearm_err_deg": 0.6293910606453323,
+          "right_palm_across_hand_err_deg": 53.434591505090815,
+          "right_pronation_hand_deg": 77.63502888823388,
+          "right_fist_inward_hand_deg": -138.95332187492377,
+          "right_knuckles_inward_hand_deg": -126.32231587254633,
+          "right_pronation_hand_err_deg": 20.941530350122832,
+          "right_fist_inward_hand_err_deg": 18.83654070212617,
+          "right_palm_across_avatar_err_deg": 53.434591505090815,
+          "right_pronation_err_deg": 0.4407448755911787,
+          "right_fist_inward_err_deg": 0.6293910606453323,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.8451019887416843,
+                0.5312420950546265,
+                0.05987040226039275
+              ],
+              "across": [
+                -0.14075377393062397,
+                0.9886417743062424,
+                0.05268602491070373
+              ]
+            },
+            "right": {
+              "forward": [
+                -0.49573621360856335,
+                0.3932392255533477,
+                0.7743439274658568
+              ],
+              "across": [
+                0.3445187987421606,
+                -0.8120156421268996,
+                -0.4711023182436034
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 67.85261940116536,
+          "left_shoulder_elev_deg": -26.426753233642863,
+          "left_shoulder_delta_elev_deg": 6.707057785643983,
+          "left_foot_pitch_deg": -26.73948467742311,
+          "right_shoulder_elev_deg": -39.57254080212058,
+          "right_shoulder_delta_elev_deg": -6.4387387794599675,
+          "right_foot_pitch_deg": -25.27236441687756,
+          "head_yaw_rel_deg": 63.8371516344381,
+          "left_elbow_angle_deg": 47.6639918027494,
+          "left_palm_across_forearm_err_deg": 31.099041466448426,
+          "left_pronation_forearm_deg": -93.21879914837912,
+          "left_fist_inward_forearm_deg": -48.71110652854863,
+          "left_knuckles_inward_forearm_deg": -67.31957867277522,
+          "left_pronation_forearm_err_deg": 0.8048678427080631,
+          "left_fist_inward_forearm_err_deg": 3.650786256138616,
+          "left_palm_across_hand_err_deg": 22.572251836497433,
+          "left_pronation_hand_deg": -89.90770292495536,
+          "left_fist_inward_hand_deg": -44.38838091135354,
+          "left_knuckles_inward_hand_deg": -69.70346008914484,
+          "left_pronation_hand_err_deg": 2.5062283807156973,
+          "left_fist_inward_hand_err_deg": 0.6719393610564737,
+          "left_palm_across_avatar_err_deg": 22.572251836497433,
+          "left_pronation_err_deg": 0.8048678427080631,
+          "left_fist_inward_err_deg": 3.650786256138616,
+          "right_elbow_angle_deg": 55.80335467241468,
+          "right_palm_across_forearm_err_deg": 48.98362414090922,
+          "right_pronation_forearm_deg": 99.0173040935855,
+          "right_fist_inward_forearm_deg": -119.48739013507684,
+          "right_knuckles_inward_forearm_deg": -110.34552568073308,
+          "right_pronation_forearm_err_deg": 0.44074485522878604,
+          "right_fist_inward_forearm_err_deg": 0.6293910377207794,
+          "right_palm_across_hand_err_deg": 53.434591507705676,
+          "right_pronation_hand_deg": 77.63502888180682,
+          "right_fist_inward_hand_deg": -138.95332188146756,
+          "right_knuckles_inward_hand_deg": -126.32231578752383,
+          "right_pronation_hand_err_deg": 20.94153035654989,
+          "right_fist_inward_hand_err_deg": 18.836540708669958,
+          "right_palm_across_avatar_err_deg": 53.434591507705676,
+          "right_pronation_err_deg": 0.44074485522878604,
+          "right_fist_inward_err_deg": 0.6293910377207794,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.8451019887416843,
+                0.5312420950546265,
+                0.05987040226039275
+              ],
+              "across": [
+                -0.14075377393062397,
+                0.9886417743062424,
+                0.05268602491070373
+              ]
+            },
+            "right": {
+              "forward": [
+                -0.49573621360856335,
+                0.3932392255533477,
+                0.7743439274658568
+              ],
+              "across": [
+                0.3445187987421606,
+                -0.8120156421268996,
+                -0.4711023182436034
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_26_Pro.jpg",
+      "skeleton": {
+        "trunk_flexion_deg": 31.59942620886302,
+        "left_shoulder_elev_deg": -2.1414544664945554,
+        "left_shoulder_delta_elev_deg": -2.1414544664945554,
+        "left_foot_pitch_deg": -48.66242965168001,
+        "right_shoulder_elev_deg": 12.833893920713383,
+        "right_shoulder_delta_elev_deg": 12.833893920713383,
+        "right_foot_pitch_deg": -23.94130398164685,
+        "head_yaw_rel_deg": -17.645155266194024
+      },
+      "palm_diag": {
+        "left_pronation_deg": -69.64074826443769,
+        "left_wrist_flexion_deg": 6.047392569917665,
+        "left_fist_inward_deg": -47.68098710519858,
+        "left_knuckles_inward_deg": -29.288904009135553,
+        "left_elbow_angle_deg": 50.220373539817665,
+        "left_palm_fwd_err_deg": 11.998222994017464,
+        "left_palm_across_proxy_err_deg": 13.608980590369342,
+        "left_has_finger_across": true,
+        "right_pronation_deg": 42.011861993971856,
+        "right_wrist_flexion_deg": 18.352119594946753,
+        "right_fist_inward_deg": -130.1941919476689,
+        "right_knuckles_inward_deg": -167.26882620966467,
+        "right_elbow_angle_deg": 50.42424620149717,
+        "right_palm_fwd_err_deg": 7.517665756999776,
+        "right_palm_across_proxy_err_deg": 146.35089173751928,
+        "right_has_finger_across": true
+      },
+      "avatar": {
+        "surface0": {
+          "trunk_flexion_deg": 36.80998452506047,
+          "left_shoulder_elev_deg": -32.326102457475024,
+          "left_shoulder_delta_elev_deg": 0.8077085618118218,
+          "left_foot_pitch_deg": -46.7794578353967,
+          "right_shoulder_elev_deg": -15.996453841965781,
+          "right_shoulder_delta_elev_deg": 17.13734818069483,
+          "right_foot_pitch_deg": -24.719296370104885,
+          "head_yaw_rel_deg": -13.140140129631561,
+          "left_elbow_angle_deg": 50.220373539817665,
+          "left_palm_across_forearm_err_deg": 7.567242192958774,
+          "left_pronation_forearm_deg": -67.50454361564687,
+          "left_fist_inward_forearm_deg": -45.65338028052987,
+          "left_knuckles_inward_forearm_deg": -29.3648058114612,
+          "left_pronation_forearm_err_deg": 2.136204648790823,
+          "left_fist_inward_forearm_err_deg": 0.5346526648627616,
+          "left_palm_across_hand_err_deg": 5.837310861199217,
+          "left_pronation_hand_deg": -51.15050513145528,
+          "left_fist_inward_hand_deg": -42.84732380157201,
+          "left_knuckles_inward_hand_deg": -31.22050365186162,
+          "left_pronation_hand_err_deg": 18.490243132982414,
+          "left_fist_inward_hand_err_deg": 2.2714038140950947,
+          "left_palm_across_avatar_err_deg": 5.837310861199217,
+          "left_pronation_err_deg": 2.136204648790823,
+          "left_fist_inward_err_deg": 0.5346526648627616,
+          "right_elbow_angle_deg": 50.42424620149717,
+          "right_palm_across_forearm_err_deg": 8.095505666417871,
+          "right_pronation_forearm_deg": 39.55118055778558,
+          "right_fist_inward_forearm_deg": -132.49562906215013,
+          "right_knuckles_inward_forearm_deg": -166.44423540040782,
+          "right_pronation_forearm_err_deg": 2.4606814361862916,
+          "right_fist_inward_forearm_err_deg": 0.042886581986294914,
+          "right_palm_across_hand_err_deg": 7.851508754374867,
+          "right_pronation_hand_deg": 36.0944137186132,
+          "right_fist_inward_hand_deg": -136.17305227931436,
+          "right_knuckles_inward_hand_deg": -169.61217732599385,
+          "right_pronation_hand_err_deg": 5.917448275358652,
+          "right_fist_inward_hand_err_deg": 3.7203097991505274,
+          "right_palm_across_avatar_err_deg": 7.851508754374867,
+          "right_pronation_err_deg": 2.4606814361862916,
+          "right_fist_inward_err_deg": 0.042886581986294914,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.3570981119754709,
+                0.8867261566768867,
+                0.29359438259032034
+              ],
+              "across": [
+                0.03320942321977203,
+                0.6297075577428604,
+                -0.7761221076164061
+              ]
+            },
+            "right": {
+              "forward": [
+                0.45783390706053273,
+                0.8888604083542292,
+                -0.01775635114657929
+              ],
+              "across": [
+                0.08533722779378886,
+                -0.5372828701990329,
+                0.8390737005431407
+              ]
+            }
+          }
+        },
+        "surface1": {
+          "trunk_flexion_deg": 30.84225579007201,
+          "left_shoulder_elev_deg": -32.32610243387757,
+          "left_shoulder_delta_elev_deg": 0.8077085854092729,
+          "left_foot_pitch_deg": -46.77945783539699,
+          "right_shoulder_elev_deg": -15.996453876368365,
+          "right_shoulder_delta_elev_deg": 17.137348146292247,
+          "right_foot_pitch_deg": -24.719296370104395,
+          "head_yaw_rel_deg": -13.342838046841251,
+          "left_elbow_angle_deg": 50.220373539817665,
+          "left_palm_across_forearm_err_deg": 7.567242079652626,
+          "left_pronation_forearm_deg": -67.50454387143284,
+          "left_fist_inward_forearm_deg": -45.65338035630891,
+          "left_knuckles_inward_forearm_deg": -29.364805884674137,
+          "left_pronation_forearm_err_deg": 2.1362043930048458,
+          "left_fist_inward_forearm_err_deg": 0.5346527406418033,
+          "left_palm_across_hand_err_deg": 5.837310838968015,
+          "left_pronation_hand_deg": -51.15050521757225,
+          "left_fist_inward_hand_deg": -42.84732382396695,
+          "left_knuckles_inward_hand_deg": -31.22050369321523,
+          "left_pronation_hand_err_deg": 18.49024304686543,
+          "left_fist_inward_hand_err_deg": 2.271403791700152,
+          "left_palm_across_avatar_err_deg": 5.837310838968015,
+          "left_pronation_err_deg": 2.1362043930048458,
+          "left_fist_inward_err_deg": 0.5346527406418033,
+          "right_elbow_angle_deg": 50.42424620149717,
+          "right_palm_across_forearm_err_deg": 8.09550568434642,
+          "right_pronation_forearm_deg": 39.55118043618932,
+          "right_fist_inward_forearm_deg": -132.49562908142408,
+          "right_knuckles_inward_forearm_deg": -166.44423541392175,
+          "right_pronation_forearm_err_deg": 2.46068155778255,
+          "right_fist_inward_forearm_err_deg": 0.04288660126024979,
+          "right_palm_across_hand_err_deg": 7.851508787103526,
+          "right_pronation_hand_deg": 36.09441364785438,
+          "right_fist_inward_hand_deg": -136.1730522848878,
+          "right_knuckles_inward_hand_deg": -169.6121773378526,
+          "right_pronation_hand_err_deg": 5.917448346117482,
+          "right_fist_inward_hand_err_deg": 3.7203098047239678,
+          "right_palm_across_avatar_err_deg": 7.851508787103526,
+          "right_pronation_err_deg": 2.46068155778255,
+          "right_fist_inward_err_deg": 0.04288660126024979,
+          "bake_palm": {
+            "left": {
+              "forward": [
+                -0.3570981119754709,
+                0.8867261566768867,
+                0.29359438259032034
+              ],
+              "across": [
+                0.03320942321977203,
+                0.6297075577428604,
+                -0.7761221076164061
+              ]
+            },
+            "right": {
+              "forward": [
+                0.45783390706053273,
+                0.8888604083542292,
+                -0.01775635114657929
+              ],
+              "across": [
+                0.08533722779378886,
+                -0.5372828701990329,
+                0.8390737005431407
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "wrist_rows": [
+    {
+      "image": "WIN_20260801_13_57_25_Pro.jpg",
+      "left_elbow_angle_deg": 46.20875289158499,
+      "right_elbow_angle_deg": 64.59547113756666,
+      "left_pronation_x55_deg": -88.46036595781787,
+      "right_pronation_x55_deg": 103.3943627129115,
+      "left_fist_inward_x55_deg": -48.691332713362534,
+      "right_fist_inward_x55_deg": -122.76897740746185,
+      "left_knuckles_inward_x55_deg": -32.06572597440664,
+      "right_knuckles_inward_x55_deg": -104.79529561818192,
+      "left_pronation_err_deg": 0.815977250196056,
+      "right_pronation_err_deg": 0.04171268546610918,
+      "left_fist_inward_err_deg": 1.5281744441618912,
+      "right_fist_inward_err_deg": 0.5786729151228656,
+      "left_palm_across_forearm_err_deg": 20.046342607062964,
+      "right_palm_across_forearm_err_deg": 19.338992692979346,
+      "left_palm_across_hand_err_deg": 11.01821677140819,
+      "right_palm_across_hand_err_deg": 17.284610410780186,
+      "left_palm_fwd_err_deg": 7.131318459253949,
+      "right_palm_fwd_err_deg": 1.809651060133906,
+      "left_palm_across_proxy_err_deg": 25.40063317267554,
+      "right_palm_across_proxy_err_deg": 157.43544385869097
+    },
+    {
+      "image": "WIN_20260801_13_57_30_Pro.jpg",
+      "left_elbow_angle_deg": 46.10885900710656,
+      "right_elbow_angle_deg": 47.359409934132984,
+      "left_pronation_x55_deg": -101.88159897318333,
+      "right_pronation_x55_deg": 73.46079822072768,
+      "left_fist_inward_x55_deg": -49.191260237893175,
+      "right_fist_inward_x55_deg": -138.73937060756253,
+      "left_knuckles_inward_x55_deg": -62.37124446815595,
+      "right_knuckles_inward_x55_deg": -137.85410067608794,
+      "left_pronation_err_deg": 0.2090080376848391,
+      "right_pronation_err_deg": 0.16078442265205695,
+      "left_fist_inward_err_deg": 1.5964617463430386,
+      "right_fist_inward_err_deg": 0.3328956048216014,
+      "left_palm_across_forearm_err_deg": 26.547942262576633,
+      "right_palm_across_forearm_err_deg": 20.408407980400003,
+      "left_palm_across_hand_err_deg": 29.37063856621215,
+      "right_palm_across_hand_err_deg": 19.5022248806275,
+      "left_palm_fwd_err_deg": 5.771484168373219,
+      "right_palm_fwd_err_deg": 10.654522174520366,
+      "left_palm_across_proxy_err_deg": 19.487947876945945,
+      "right_palm_across_proxy_err_deg": 167.46186174492343
+    },
+    {
+      "image": "WIN_20260801_13_57_35_Pro.jpg",
+      "left_elbow_angle_deg": 45.05621027812797,
+      "right_elbow_angle_deg": 70.78690459745222,
+      "left_pronation_x55_deg": -93.32301958174598,
+      "right_pronation_x55_deg": 70.22821531512476,
+      "left_fist_inward_x55_deg": -36.27074570017788,
+      "right_fist_inward_x55_deg": -171.6117537926969,
+      "left_knuckles_inward_x55_deg": -59.040975423492945,
+      "right_knuckles_inward_x55_deg": -98.85021873678957,
+      "left_pronation_err_deg": 0.48826696517483015,
+      "right_pronation_err_deg": 0.7033480247728221,
+      "left_fist_inward_err_deg": 2.6904914503287785,
+      "right_fist_inward_err_deg": 0.3140367311997636,
+      "left_palm_across_forearm_err_deg": 16.246037638952856,
+      "right_palm_across_forearm_err_deg": 16.553707453852475,
+      "left_palm_across_hand_err_deg": 8.681578311566431,
+      "right_palm_across_hand_err_deg": 29.382914638102122,
+      "left_palm_fwd_err_deg": 9.091810871840748,
+      "right_palm_fwd_err_deg": 10.809360046962828,
+      "left_palm_across_proxy_err_deg": 21.00291446698777,
+      "right_palm_across_proxy_err_deg": 111.44783048741951
+    },
+    {
+      "image": "WIN_20260801_13_57_40_Pro.jpg",
+      "left_elbow_angle_deg": 70.21974534682379,
+      "right_elbow_angle_deg": 48.42815744489768,
+      "left_pronation_x55_deg": -103.04520069208554,
+      "right_pronation_x55_deg": 62.55641514588307,
+      "left_fist_inward_x55_deg": -38.51629112436653,
+      "right_fist_inward_x55_deg": -127.41745433587168,
+      "left_knuckles_inward_x55_deg": -97.29822250130267,
+      "right_knuckles_inward_x55_deg": -145.61580517201574,
+      "left_pronation_err_deg": 0.8317913182482357,
+      "right_pronation_err_deg": 0.22111499883334318,
+      "left_fist_inward_err_deg": 1.679786697194686,
+      "right_fist_inward_err_deg": 0.042311977948060076,
+      "left_palm_across_forearm_err_deg": 13.067302658108144,
+      "right_palm_across_forearm_err_deg": 8.125372867207659,
+      "left_palm_across_hand_err_deg": 13.833689819383268,
+      "right_palm_across_hand_err_deg": 8.514802332515174,
+      "left_palm_fwd_err_deg": 5.261219624453348,
+      "right_palm_fwd_err_deg": 9.844623456965785,
+      "left_palm_across_proxy_err_deg": 31.338147763483796,
+      "right_palm_across_proxy_err_deg": 163.16273059945718
+    },
+    {
+      "image": "WIN_20260801_13_57_44_Pro.jpg",
+      "left_elbow_angle_deg": 31.179455732490403,
+      "right_elbow_angle_deg": 34.16604560959599,
+      "left_pronation_x55_deg": -110.12262236101064,
+      "right_pronation_x55_deg": 69.76015190708854,
+      "left_fist_inward_x55_deg": -56.42497814574451,
+      "right_fist_inward_x55_deg": -104.25991441263531,
+      "left_knuckles_inward_x55_deg": -31.47876249636025,
+      "right_knuckles_inward_x55_deg": -133.156249788194,
+      "left_pronation_err_deg": 10.844474864064836,
+      "right_pronation_err_deg": 0.08484893542640748,
+      "left_fist_inward_err_deg": 3.0936869467643078,
+      "right_fist_inward_err_deg": 0.04620855427793913,
+      "left_palm_across_forearm_err_deg": 39.47673031546613,
+      "right_palm_across_forearm_err_deg": 12.775476745453467,
+      "left_palm_across_hand_err_deg": 21.645932909824108,
+      "right_palm_across_hand_err_deg": 7.0268888783209,
+      "left_palm_fwd_err_deg": 12.633812732399523,
+      "right_palm_fwd_err_deg": 6.3113660431080865,
+      "left_palm_across_proxy_err_deg": 37.369422419046366,
+      "right_palm_across_proxy_err_deg": 161.25330735845515
+    },
+    {
+      "image": "WIN_20260801_13_57_50_Pro.jpg",
+      "left_elbow_angle_deg": 44.98240819695512,
+      "right_elbow_angle_deg": 48.75203132902463,
+      "left_pronation_x55_deg": -101.15158386108999,
+      "right_pronation_x55_deg": 80.21431347157957,
+      "left_fist_inward_x55_deg": -49.36559993220513,
+      "right_fist_inward_x55_deg": -135.30836088636406,
+      "left_knuckles_inward_x55_deg": -49.4725088547282,
+      "right_knuckles_inward_x55_deg": -133.15129472841522,
+      "left_pronation_err_deg": 1.280303791202698,
+      "right_pronation_err_deg": 0.03995275763784889,
+      "left_fist_inward_err_deg": 0.9507306228512107,
+      "right_fist_inward_err_deg": 0.12203389967865519,
+      "left_palm_across_forearm_err_deg": 18.2628006581618,
+      "right_palm_across_forearm_err_deg": 26.094752665413555,
+      "left_palm_across_hand_err_deg": 11.200814896891206,
+      "right_palm_across_hand_err_deg": 14.985226699464281,
+      "left_palm_fwd_err_deg": 10.36189300123594,
+      "right_palm_fwd_err_deg": 9.499399808713529,
+      "left_palm_across_proxy_err_deg": 64.24327796064955,
+      "right_palm_across_proxy_err_deg": 156.73164865155115
+    },
+    {
+      "image": "WIN_20260801_13_57_54_Pro.jpg",
+      "left_elbow_angle_deg": 47.63396663579622,
+      "right_elbow_angle_deg": 37.087829126767275,
+      "left_pronation_x55_deg": -80.3564341712561,
+      "right_pronation_x55_deg": 71.67390187564483,
+      "left_fist_inward_x55_deg": -46.80323553457423,
+      "right_fist_inward_x55_deg": -118.24781206342588,
+      "left_knuckles_inward_x55_deg": -27.851435397455067,
+      "right_knuckles_inward_x55_deg": -145.71246331756055,
+      "left_pronation_err_deg": 2.5468850014270856,
+      "right_pronation_err_deg": 0.5464509817967098,
+      "left_fist_inward_err_deg": 0.9201543007490329,
+      "right_fist_inward_err_deg": 0.12800345525661783,
+      "left_palm_across_forearm_err_deg": 19.690814674388115,
+      "right_palm_across_forearm_err_deg": 18.52276109765955,
+      "left_palm_across_hand_err_deg": 19.2023722414893,
+      "right_palm_across_hand_err_deg": 10.421579482961368,
+      "left_palm_fwd_err_deg": 13.04785617720568,
+      "right_palm_fwd_err_deg": 8.70427475730632,
+      "left_palm_across_proxy_err_deg": 18.01813105400513,
+      "right_palm_across_proxy_err_deg": 163.73104999442003
+    },
+    {
+      "image": "WIN_20260801_13_58_00_Pro.jpg",
+      "left_elbow_angle_deg": 67.37716780778901,
+      "right_elbow_angle_deg": 141.73194892336295,
+      "left_pronation_x55_deg": -94.12831589061823,
+      "right_pronation_x55_deg": 55.961649220770866,
+      "left_fist_inward_x55_deg": -41.16092268792488,
+      "right_fist_inward_x55_deg": -179.73571930026668,
+      "left_knuckles_inward_x55_deg": -80.57392436366962,
+      "right_knuckles_inward_x55_deg": 56.4263280050794,
+      "left_pronation_err_deg": 0.44465655431267237,
+      "right_pronation_err_deg": 0.019428164499146305,
+      "left_fist_inward_err_deg": 2.0857954934147074,
+      "right_fist_inward_err_deg": 1.5147972906968334,
+      "left_palm_across_forearm_err_deg": 11.340873677616262,
+      "right_palm_across_forearm_err_deg": 5.5594122116984925,
+      "left_palm_across_hand_err_deg": 10.475933445732545,
+      "right_palm_across_hand_err_deg": 12.223993268897523,
+      "left_palm_fwd_err_deg": 5.53496925410713,
+      "right_palm_fwd_err_deg": 2.6454382562399696,
+      "left_palm_across_proxy_err_deg": 173.16680807299608,
+      "right_palm_across_proxy_err_deg": 129.90171710673104
+    },
+    {
+      "image": "WIN_20260801_13_58_05_Pro.jpg",
+      "left_elbow_angle_deg": 56.65484780864717,
+      "right_elbow_angle_deg": 49.72921127891305,
+      "left_pronation_x55_deg": -47.801904583848035,
+      "right_pronation_x55_deg": 101.37994750112426,
+      "left_fist_inward_x55_deg": -32.6242445894086,
+      "right_fist_inward_x55_deg": -126.17903371107906,
+      "left_knuckles_inward_x55_deg": 22.611417958757336,
+      "right_knuckles_inward_x55_deg": -109.53372214944532,
+      "left_pronation_err_deg": 4.628491870800161,
+      "right_pronation_err_deg": 0.20714889450817964,
+      "left_fist_inward_err_deg": 2.4732385338628546,
+      "right_fist_inward_err_deg": 0.07056904155189159,
+      "left_palm_across_forearm_err_deg": 28.115138126117376,
+      "right_palm_across_forearm_err_deg": 15.781565997397614,
+      "left_palm_across_hand_err_deg": 32.459040601772756,
+      "right_palm_across_hand_err_deg": 22.94126888084798,
+      "left_palm_fwd_err_deg": 15.251645741603593,
+      "right_palm_fwd_err_deg": 6.08912503435678,
+      "left_palm_across_proxy_err_deg": 93.5044739041156,
+      "right_palm_across_proxy_err_deg": 71.54620353770432
+    },
+    {
+      "image": "WIN_20260801_13_58_10_Pro.jpg",
+      "left_elbow_angle_deg": 67.67778732725063,
+      "right_elbow_angle_deg": 56.093442399335906,
+      "left_pronation_x55_deg": -63.28148427069282,
+      "right_pronation_x55_deg": 68.66744933431461,
+      "left_fist_inward_x55_deg": -32.186052588819926,
+      "right_fist_inward_x55_deg": -147.91900342620113,
+      "left_knuckles_inward_x55_deg": -5.897512728940896,
+      "right_knuckles_inward_x55_deg": -122.28901693518763,
+      "left_pronation_err_deg": 1.890181895043554,
+      "right_pronation_err_deg": 0.3006700787163936,
+      "left_fist_inward_err_deg": 1.6141063857536722,
+      "right_fist_inward_err_deg": 0.4105707619676764,
+      "left_palm_across_forearm_err_deg": 13.060136047892037,
+      "right_palm_across_forearm_err_deg": 22.0728638335762,
+      "left_palm_across_hand_err_deg": 19.694106874353306,
+      "right_palm_across_hand_err_deg": 21.762757232780483,
+      "left_palm_fwd_err_deg": 17.142448894581253,
+      "right_palm_fwd_err_deg": 7.281722733793809,
+      "left_palm_across_proxy_err_deg": 34.370042874022886,
+      "right_palm_across_proxy_err_deg": 67.59765466739368
+    },
+    {
+      "image": "WIN_20260801_13_58_15_Pro.jpg",
+      "left_elbow_angle_deg": 85.6400773037399,
+      "right_elbow_angle_deg": 133.12552749219282,
+      "left_pronation_x55_deg": -69.83348045348403,
+      "right_pronation_x55_deg": 53.13798174964959,
+      "left_fist_inward_x55_deg": -24.425977230426607,
+      "right_fist_inward_x55_deg": -148.07054489125835,
+      "left_knuckles_inward_x55_deg": -152.93430270192133,
+      "right_knuckles_inward_x55_deg": 88.19037044434707,
+      "left_pronation_err_deg": 5.6705047253409475,
+      "right_pronation_err_deg": 0.9405056072038747,
+      "left_fist_inward_err_deg": 3.113108033671949,
+      "right_fist_inward_err_deg": 0.3153191853597832,
+      "left_palm_across_forearm_err_deg": 4.572205232629505,
+      "right_palm_across_forearm_err_deg": 24.88796222811662,
+      "left_palm_across_hand_err_deg": 28.301035850110853,
+      "right_palm_across_hand_err_deg": 10.998317871903637,
+      "left_palm_fwd_err_deg": 8.350086337631446,
+      "right_palm_fwd_err_deg": 18.156544189232108,
+      "left_palm_across_proxy_err_deg": 147.8890001639863,
+      "right_palm_across_proxy_err_deg": 107.97788472475752
+    },
+    {
+      "image": "WIN_20260801_13_58_20_Pro.jpg",
+      "left_elbow_angle_deg": 47.6639918027494,
+      "right_elbow_angle_deg": 55.80335467241468,
+      "left_pronation_x55_deg": -92.41393130567104,
+      "right_pronation_x55_deg": 98.5765592383567,
+      "left_fist_inward_x55_deg": -44.33905905155959,
+      "right_fist_inward_x55_deg": -118.47762019045285,
+      "left_knuckles_inward_x55_deg": -63.63192213502176,
+      "right_knuckles_inward_x55_deg": -116.11456392632478,
+      "left_pronation_err_deg": 0.8048678427080631,
+      "right_pronation_err_deg": 0.44074485522878604,
+      "left_fist_inward_err_deg": 3.650786256138616,
+      "right_fist_inward_err_deg": 0.6293910377207794,
+      "left_palm_across_forearm_err_deg": 31.099041466448426,
+      "right_palm_across_forearm_err_deg": 48.98362414090922,
+      "left_palm_across_hand_err_deg": 22.572251836497433,
+      "right_palm_across_hand_err_deg": 53.434591507705676,
+      "left_palm_fwd_err_deg": 8.64928317753095,
+      "right_palm_fwd_err_deg": 5.273882897680379,
+      "left_palm_across_proxy_err_deg": 6.560736699139201,
+      "right_palm_across_proxy_err_deg": 172.8798153598596
+    },
+    {
+      "image": "WIN_20260801_13_58_26_Pro.jpg",
+      "left_elbow_angle_deg": 50.220373539817665,
+      "right_elbow_angle_deg": 50.42424620149717,
+      "left_pronation_x55_deg": -69.64074826443769,
+      "right_pronation_x55_deg": 42.011861993971856,
+      "left_fist_inward_x55_deg": -47.68098710519858,
+      "right_fist_inward_x55_deg": -130.1941919476689,
+      "left_knuckles_inward_x55_deg": -29.288904009135553,
+      "right_knuckles_inward_x55_deg": -167.26882620966467,
+      "left_pronation_err_deg": 2.1362043930048458,
+      "right_pronation_err_deg": 2.46068155778255,
+      "left_fist_inward_err_deg": 0.5346527406418033,
+      "right_fist_inward_err_deg": 0.04288660126024979,
+      "left_palm_across_forearm_err_deg": 7.567242079652626,
+      "right_palm_across_forearm_err_deg": 8.09550568434642,
+      "left_palm_across_hand_err_deg": 5.837310838968015,
+      "right_palm_across_hand_err_deg": 7.851508787103526,
+      "left_palm_fwd_err_deg": 11.998222994017464,
+      "right_palm_fwd_err_deg": 7.517665756999776,
+      "left_palm_across_proxy_err_deg": 13.608980590369342,
+      "right_palm_across_proxy_err_deg": 146.35089173751928
+    }
+  ],
+  "summary": {
+    "trunk_flexion_deg": {
+      "skeleton_mean": 36.52131263792352,
+      "avatar_s0_mean": 41.90294128663511,
+      "avatar_s1_mean": 36.05912706609866,
+      "abs_err_s1_mean": 1.4893475143442267,
+      "abs_err_s1_max": 3.6749813982036414
+    },
+    "left_shoulder_delta_elev_deg": {
+      "skeleton_mean": -4.838680612335965,
+      "avatar_s0_mean": 1.57828488423793,
+      "avatar_s1_mean": 1.5782848888260477,
+      "abs_err_s1_mean": 6.416965501162012,
+      "abs_err_s1_max": 19.261208185503605
+    },
+    "right_shoulder_delta_elev_deg": {
+      "skeleton_mean": 3.3202708654784394,
+      "avatar_s0_mean": 9.84645089321005,
+      "avatar_s1_mean": 9.846450912715556,
+      "abs_err_s1_mean": 6.526180047237117,
+      "abs_err_s1_max": 17.755138781288142
+    },
+    "left_shoulder_elev_deg": {
+      "skeleton_mean": -4.838680612335965,
+      "avatar_s0_mean": -31.55552613504892,
+      "avatar_s1_mean": -31.5555261304608,
+      "abs_err_s1_mean": 26.716845518124828,
+      "abs_err_s1_max": 33.133310786901376
+    },
+    "right_shoulder_elev_deg": {
+      "skeleton_mean": 3.3202708654784394,
+      "avatar_s0_mean": -23.28735112945056,
+      "avatar_s1_mean": -23.287351109945057,
+      "abs_err_s1_mean": 26.607621975423495,
+      "abs_err_s1_max": 33.114725324900455
+    },
+    "left_foot_pitch_deg": {
+      "skeleton_mean": -35.283007769086865,
+      "avatar_s0_mean": -34.82204893588752,
+      "avatar_s1_mean": -34.822048935887345,
+      "abs_err_s1_mean": 1.2261983201103608,
+      "abs_err_s1_max": 2.3589526756935513
+    },
+    "right_foot_pitch_deg": {
+      "skeleton_mean": -31.945789699747188,
+      "avatar_s0_mean": -31.883885065899374,
+      "avatar_s1_mean": -31.883885065900834,
+      "abs_err_s1_mean": 1.0027208396320721,
+      "abs_err_s1_max": 2.933605198509511
+    },
+    "head_yaw_rel_deg": {
+      "skeleton_mean": 2.8652075475593506,
+      "avatar_s0_mean": 6.870787903559771,
+      "avatar_s1_mean": 6.851494641823594,
+      "abs_err_s1_mean": 5.432440970061746,
+      "abs_err_s1_max": 12.62810056180092
+    },
+    "left_pronation_x55_deg": {
+      "mean": -85.80313002822625,
+      "max": -47.801904583848035
+    },
+    "right_pronation_x55_deg": {
+      "mean": 73.1556621297806,
+      "max": 103.3943627129115
+    },
+    "left_fist_inward_x55_deg": {
+      "mean": -42.12928358782017,
+      "max": -24.425977230426607
+    },
+    "right_fist_inward_x55_deg": {
+      "mean": -136.07151976714965,
+      "max": -104.25991441263531
+    },
+    "left_knuckles_inward_x55_deg": {
+      "mean": -51.48415562275643,
+      "max": 22.611417958757336
+    },
+    "right_knuckles_inward_x55_deg": {
+      "mean": -97.6711429852647,
+      "max": 88.19037044434707
+    },
+    "left_pronation_err_deg": {
+      "mean": 2.5070472699391404,
+      "max": 10.844474864064836
+    },
+    "right_pronation_err_deg": {
+      "mean": 0.4744147665018637,
+      "max": 2.46068155778255
+    },
+    "left_fist_inward_err_deg": {
+      "mean": 1.9947056655289652,
+      "max": 3.650786256138616
+    },
+    "right_fist_inward_err_deg": {
+      "mean": 0.3498228505279013,
+      "max": 1.5147972906968334
+    },
+    "left_palm_across_forearm_err_deg": {
+      "mean": 19.160969803467143,
+      "max": 39.47673031546613
+    },
+    "right_palm_across_forearm_err_deg": {
+      "mean": 19.015415815308508,
+      "max": 48.98362414090922
+    },
+    "left_palm_across_hand_err_deg": {
+      "mean": 18.02253253570843,
+      "max": 32.459040601772756
+    },
+    "right_palm_across_hand_err_deg": {
+      "mean": 18.179283451693102,
+      "max": 53.434591507705676
+    },
+    "left_palm_fwd_err_deg": {
+      "mean": 10.01738857186417,
+      "max": 17.142448894581253
+    },
+    "right_palm_fwd_err_deg": {
+      "mean": 8.045967401231819,
+      "max": 18.156544189232108
+    },
+    "left_palm_across_proxy_err_deg": {
+      "mean": 52.766193616801814,
+      "max": 173.16680807299608
+    },
+    "right_palm_across_proxy_err_deg": {
+      "mean": 136.72907998683715,
+      "max": 172.8798153598596
+    },
+    "elbow_vs_pronation_err": {
+      "left": {
+        "pearson_elbow_vs_pronation_err": -0.14389752657172863,
+        "bent_lt70_err_mean": 2.3717562241472403,
+        "extended_gt120_err_mean": NaN,
+        "n_bent": 11,
+        "n_extended": 0
+      },
+      "right": {
+        "pearson_elbow_vs_pronation_err": 0.007907018367977737,
+        "bent_lt70_err_mean": 0.45041101680483847,
+        "extended_gt120_err_mean": 0.4799668858515105,
+        "n_bent": 10,
+        "n_extended": 2
+      }
+    },
+    "inferability": {
+      "x55_pronation_has_signal": true,
+      "x55_pronation_range_abs_max_deg": 110.12262236101064,
+      "smpl24_proxy_across_mean_err_deg": 94.74763680181948,
+      "smpl24_palm_fwd_mean_err_deg": 9.031677986547994,
+      "mixamo_forearm_pronation_mean_err_deg": 1.490731018220502,
+      "can_infer_from_16_joints_or_smpl24": false,
+      "can_infer_from_nlf_smplx55_fingers": true,
+      "can_retarget_if_fingers_present": true,
+      "notes": "Pronation is the missing DOF of shoulder-elbow-wrist. SMPL-24 hand\u00d7forearm across is the inverted proxy (see proxy err ~180\u00b0). NLF live already queries SMPL-X55 knuckles; that is the usable signal. Mixamo can carry it only as ForeArm twist, not Hand-only roll."
+    }
+  }
+}

@@ -15,7 +15,7 @@ LAB_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(LAB_ROOT / "src"))
 sys.path.insert(0, str(LAB_ROOT / "scripts"))
 
-from pose_lab.data import WindowNPZDataset  # noqa: E402
+from pose_lab.data import WindowNPZDataset, feature_ablation_kwargs  # noqa: E402
 from pose_lab.logging_utils import write_json  # noqa: E402
 from pose_lab.models import build_model  # noqa: E402
 from train import eval_delta  # noqa: E402
@@ -37,15 +37,29 @@ def main() -> None:
     model = build_model(cfg, in_dim=F).to(device)
     model.load_state_dict(ckpt["model"])
     fcfg = cfg.get("features") or {}
-    zero_accel = bool(fcfg.get("zero_accel", False))
-    zero_2d = bool(fcfg.get("zero_2d", False))
-    if zero_accel or zero_2d:
-        print(f"[eval] feature ablation zero_accel={zero_accel} zero_2d={zero_2d}", flush=True)
+    feat_kw = feature_ablation_kwargs(fcfg)
+    if any(
+        feat_kw[k]
+        for k in (
+            "zero_accel",
+            "zero_2d",
+            "zero_ipsi",
+            "zero_bones",
+            "zero_inv_conf",
+            "multilag",
+        )
+    ):
+        print(
+            "[eval] features "
+            f"zero_accel={feat_kw['zero_accel']} zero_2d={feat_kw['zero_2d']} "
+            f"zero_ipsi={feat_kw['zero_ipsi']} zero_bones={feat_kw['zero_bones']} "
+            f"zero_inv_conf={feat_kw['zero_inv_conf']} multilag={feat_kw['multilag']}",
+            flush=True,
+        )
     ds = WindowNPZDataset(
         args.dataset_dir / f"{args.split}.npz",
         mirror_p=0.0,
-        zero_accel=zero_accel,
-        zero_2d=zero_2d,
+        **feat_kw,
     )
     loader = DataLoader(ds, batch_size=args.batch_size, shuffle=False)
     metrics = eval_delta(model, loader, device)

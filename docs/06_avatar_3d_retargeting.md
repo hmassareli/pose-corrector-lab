@@ -132,6 +132,7 @@ Nao ha vetor de pe do MediaPipe sendo copiado para o Teacher nesse caminho. O al
 
 - Cachear orientacao, posicao e eixo local de cada osso quando o FBX carrega.
 - Comecar cada frame da pose de repouso. Acumular rotacoes de frame em frame causa deriva, tremor e membros torcidos.
+- Ossos do tronco (quadril, coluna, pescoco, cabeca) misturam a forca do retarget em relacao a uma referencia **ereta canonica**, nao ao repouso bruto. Personagens sao autorados em poses neutras diferentes — o `fighter-web` ja vem com o tronco inclinado ~21° e o pescoco ~52° para frente — e misturar em direcao ao repouso deixava essa inclinacao no resultado (avatar corcunda ao lado de um rig T-pose na mesma pose). Com a referencia ereta, `strength` significa "quanto do alvo a partir do neutro", independente da pose de autoria. Rigs T-pose nao mudam (repouso ≈ ereto).
 - Medir o eixo real de cada osso e o pivo do pe. Nomes de osso nao dizem onde fica a ponta visual do sapato.
 - Nunca assumir que o eixo local `Z` de todo FBX aponta para frente.
 
@@ -198,7 +199,7 @@ O avatar Mixamo usa retarget **FK estilo MiKaPo** em `viewer/mikapo_mixamo_solve
 - One-Euro nos quaternions locais
 - **pe flat** (mesmo sinal ankle→toe, so sem componente vertical) + `plantAvatarOnGround`
 - **cabeca** ears/eyes do Pose-33 (`/api/pose-aux.json` / live aux)
-- **mao** roll da palma wrist/index/pinky (dedos ainda abertos — sem HandLandmarker)
+- **mao** pronacao no `ForeArm` (across = indicador/mindinho); `Hand` aponta wrist→knuckles com o mesmo across. Sem dedos, nao ha twist — nunca `hand×forearm`.
 
 | Modo | Pes | Cabeca/mao aux |
 |------|-----|----------------|
@@ -211,3 +212,118 @@ python scripts/export_teacher_feet.py --split test
 ```
 
 Referencia upstream: `external/mikapo_port/` + `PORT.md`.
+## Tronco torto: encurvamento vs torcao (medido)
+
+Duas falhas distintas, com sintomas parecidos ("tronco torto") e causas
+independentes. Diagnosticar uma nao resolve a outra.
+
+**Encurvamento (hunch).** Rigs sao autorados em poses neutras diferentes:
+`fighter-web` vem com a coluna 19,7-21,1° fora da vertical e o pescoco 54,4°,
+contra 7,3° / 26,2° do boxeador (`probe_trunk_rest.py`). Com `strength < 1` o
+blend ia em direcao ao rest CRU, entao essa inclinacao autorada vazava em todo
+frame. Corrigido com `restUprightInRoot`: os ossos do tronco misturam a partir
+da orientacao ERETA canonica, entao `strength` passa a significar "quanto do
+alvo a partir do neutro". Rigs T-pose ficam iguais (rest ≈ ereto).**Encurvamento — causa raiz (off-by-one da cadeia).** O retarget misturava os
+3 ossos de coluna do rig com apenas os 3 segmentos SUPERIORES da cadeia SMPL-X
+(`spine1→spine2→spine3→neck`, descartando `pelvis→spine1`). Cada osso do rig
+recebia a direcao do segmento ACIMA do que ele ocupa; num tronco curvado cada
+segmento inclina mais que o de baixo, entao o erro acumula na cadeia — medido
+como **+9,3° de inclinacao excedente** (avatar 28,0° vs fit 18,7°) nos DOIS
+personagens, independente de rig. Corrigido mapeando a cadeia completa
+(`pelvis→spine1→spine2→spine3→neck`) com parametrizacao continua (osso i cobre
+[i*seg/count, (i+1)*seg/count], interpolado entre waypoints): erro cai para
+**-0,9° / -1,0°**. Resample com `Math.round` REJEITADO: pula o segmento
+`spine1→spine2` inteiro e piora a deformacao de bind do `spine1` (47°).
+`probe_torso_twist.py` mede as duas grandezas (inclinacao e bind deviation).
+
+**Torcao (twist).** `probe_spine_kink.py` mede a linha pelve→pescoco e angulos
+
+de dobra — ambos INVARIANTES a rotacao em torno dessa linha. Ou seja, e cego
+para torcao, que e justo o que se ve como "torto". `probe_torso_twist.py` mede
+o angulo horizontal quadril→ombros do avatar contra o do fit (grandeza livre de
+convencao de rig: nao ha constante a subtrair). A/B confirmou que a referencia
+ereta move a torcao em 0,1° — ela nao trata esse eixo.
+
+Causa achada e corrigida: a cadeia do tronco nao nomeava seu filho de
+referencia, entao o eixo de aim vinha de `children[0]`. `Spine2` tem tres
+filhos; no boxeador o exportador lista `LeftShoulder` primeiro, deixando o eixo
+"ao longo da cadeia" 26,5° fora da vertical (0,42 lateral). Com childAliases
+nomeados: vies constante do boxeador **-3,6° → -1,0°**; `fighter-web` (que lista
+`Neck` primeiro) inalterado em +4,8°, servindo de controle. `check_body_fidelity`
+sem regressao (spine 1,4 / spine1 2,0 / spine2 1,5).
+
+**Hipotese REJEITADA** — dar a cada osso do tronco seu eixo lateral autorado em
+vez do across de ombros compartilhado. O across e uma medida entre lados, e no
+`fighter-web` os ombros estao 9,5° girados em relacao a pelve no rest, entao a
+lombar herda o giro da cintura escapular. Parecia certo; medido, PIOROU
+(+4,8° → +6,2°, controle boxeador -3,7°). Nao adotado. Ver
+`probe_torso_twist.py --authored-across`.
+
+**Aberto:** o vies de +4,8° do `fighter-web` nao foi explicado. Nao e a coluna
+(controle acima) — os candidatos restantes sao o solve de clavicula
+(`applyShoulderFromSmpl`, que move os ossos do braco usados na medida) e a
+deformacao de skinning da malha. Note que o espalhamento (std ~10°) e MAIOR que
+o vies nos dois personagens, entao parte do que se ve e rastreio, nao constante.
+
+**Coluna em S ("osso torto" no live) — causa raiz e correcao (17/ago/2026).**
+Sintoma: SkeletonHelper mostrava `spine`→`spine1` com kink de 25-51° (pior
+sentado/inclinado), lido como "osso torto". Diagnostico em
+`experiments/bone_crook/`: (1) as juntas INTERNAS `spine1/2/3` do NLF x55 cru ja
+oscilam 20-40° por segmento com sinal ALTERNADO (zig-zag de ruido, nao anatomia —
+curva sagital real nao alterna sinal por segmento); (2) o fit SMPL-X mantem ou
+amplifica (+3-9°) — residuo fit-vs-x55 de 170-290 mm nos frames normais indica
+fit mal convergido; (3) a MESH do fit nao mostra o S porque a pele (LBS) faz
+media de varios ossos e os segmentos `spine2→spine3` tem so ~6-7 cm (wiggle de
+3-5 cm vira 30-40° de angulo, mas quase nada de superficie). O avatar expunha o
+ruido porque o solver copiava a DIRECAO de cada segmento com ~1° de erro.
+
+Correcao em `updateAvatarPose`: cadeia `pelvis→spine1→spine2→spine3→neck`
+construida ANTES do hips; 2 passadas de suavizacao Laplaciana (0.5) nos
+waypoints internos quando `aux.kind==="smpl"`; hips passa a mirar o primeiro
+segmento da cadeia (em vez de `-hipCenter`, que discordava 17-30° por frame).
+
+A/B (mesma sequencia, `_solver_spine_zigzag.js` = baseline, NAO o HEAD do git):
+
+| medida | antes | depois |
+|---|---:|---:|
+| kink hips→spine (4 frames) | 16-30° | 2.5-5.6° |
+| kink spine→spine1 (sit/lean) | 35° / 51° | 15.6° / 23.6° |
+| bind deviation tronco (soma) | 148.5° | 94.2° |
+| hips swing_raw / swing_var | 31.0° / 6.7° | 15.6° / 3.6° |
+| spine swing_raw / swing_var | 24.6° / 4.1° | 16.0° / 3.2° |
+| spine1 swing_raw / swing_var | 26.4° / 3.6° | 35.4° / 4.0° |
+| pes/maos/bracos/neck | — | inalterados (controle) |
+
+Tradeoff consciente: `spine1` afasta-se do segmento cru do fit (que e o ruido
+sendo removido) e a inclinacao media do tronco fica -6.0° vs fit (antes -2.2°) —
+a suavizacao corta um pouco de bend real extremo. Curvas reais sustentadas sao
+preservadas (lean 1052: kink spine→spine1 residual 23.6° = bend real).
+
+**Pescoco torto + ombros assimetricos (17/ago/2026).** Diagnosticos em
+`experiments/bone_crook/neck_*.json` e renders `neck_*_front.png`:
+
+1. **Pescoco torto: bend concentrado numa juncao.** `applyHeadFromSmpl` mirava
+   neck (0.75) E head (0.9) no MESMO vetor `basis.up` (neck→head), que carrega
+   um kink real de 25-29° do NLF logo apos o spine2 endireitado pelo de-zigzag.
+   Resultado: neck bind 21-35° vs head 4-7° — a dobra inteira acumulava na base
+   do pescoco. Correcao: neck mira no PONTO MEDIO da cadeia
+   (`spine3-dir.lerp(basis.up, 0.5)`), head continua no `basis.up` (gaze
+   inalterada). Medido: bind neck 21.6→16.0° (em pe), 28.9→18.1° (sentado),
+   kink neck→head 4.5→9.7° (dobra distribuida), fidelity neck twist 9.0→7.7°,
+   todos os outros ossos inalterados.
+2. **Ombros diferentes: o DADO e assimetrico (nao o solver).** NLF no frame
+   "mid": elevacao clavicula L 18.2° vs R 38.0° (ombro direito realmente
+   levantado). bindDeg R 58° vs L 23° e o solver seguindo o dado. O bug real
+   era menor: `latU` entrava NAO-normalizado na composicao esferica do alvo em
+   `applyShoulderFromSmpl` (mistura de vetores unitarios com um nao-unitario
+   distorce elev/az de forma diferente por lado). Normalizado — mudanca <0.1°
+   nos frames testados (acrossU ja era ~unitario), mas fecha o buraco
+   conceitual. Ombros assimétricos continuarao visiveis quando a pessoa
+   estiver com um ombro levantado — isso e fidelidade, nao defeito.
+
+```bash
+python scripts/probe_trunk_rest.py            # geometria de repouso do tronco
+python scripts/probe_torso_twist.py           # torcao vs o fit (com flags A/B)
+# A/B de solver: NUNCA usar git stash como baseline (HEAD pode ser muito antigo);
+# snapshotar o solver em experiments/_solver_*.js e servir via Handler transladado.
+```

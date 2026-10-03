@@ -1,0 +1,12 @@
+from pathlib import Path
+root=Path(__file__).resolve().parents[1]/'viewer';p=root/'boxing_core.mjs';s=p.read_text(encoding='utf-8')
+s=s.replace("clamp(radial,-1,1)*.45*dt", "clamp(radial+clamp((d-1.1)*2,0,.65),-1,1)*.45*dt")
+s=s.replace("out.push({hand:h,speed:clamp(speed,1.1,6)})", "out.push({hand:h,speed:clamp(speed,1.1,6),previous:this.last[12+h].slice()})")
+p.write_text(s,encoding='utf-8')
+p=root/'boxing.js';s=p.read_text(encoding='utf-8')
+s=s.replace("orbitalStep,segmentSphere}", "orbitalStep,segmentSphere,segmentCapsule}")
+s=s.replace("start:now,hit:false,mocap:true", "start:now,hit:false,mocap:true,previous:hit.previous?worldPoint(f,hit.previous):null")
+s=s.replace("hitBody=segmentSphere(previous,current,torso,.36)", "hitBody=segmentCapsule(previous,current,worldPoint(b,b.pose[0]),worldPoint(b,[0,(b.pose[8][1]+b.pose[9][1])/2,0]),.3)")
+s=s.replace("if(age>30&&(hitHead||hitBody))", "if((atk.mocap||age>30)&&(hitHead||hitBody))")
+s=s.replace("5,6.5,s*5", "5,8.5,s*5").replace("-5,6.5,s*5", "-5,8.5,s*5").replace("x,6.45,s*5", "x,8.45,s*5")
+p.write_text(s,encoding='utf-8')

@@ -87,17 +87,34 @@ def apply_similarity(pose: np.ndarray, R: np.ndarray, scale: float, t: np.ndarra
     return scale * (pose @ R.T) + t
 
 
-def trunk_translate_scale(src: np.ndarray, dst: np.ndarray) -> np.ndarray:
-    """Match trunk centroid + shoulder width; keep src orientation (yaw/twist).
-
-    Kills root walk relative to dst without forcing MP trunk rotation onto teacher.
-    """
+def trunk_translate_scale_params(
+    src: np.ndarray, dst: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """Return (mu_src, mu_dst, scale) for the same transform as trunk_translate_scale."""
     src = src.astype(np.float64, copy=False)
     dst = dst.astype(np.float64, copy=False)
     mu_s = src[TRUNK_IDX].mean(axis=0)
     mu_d = dst[TRUNK_IDX].mean(axis=0)
     scale = _shoulder_width(dst) / _shoulder_width(src)
-    return (scale * (src - mu_s) + mu_d).astype(np.float32, copy=False)
+    return mu_s, mu_d, scale
+
+
+def apply_trunk_translate_scale(
+    points: np.ndarray, mu_s: np.ndarray, mu_d: np.ndarray, scale: float
+) -> np.ndarray:
+    """Apply trunk translate+scale to (..., 3) points (e.g. extra foot joints)."""
+    return (scale * (points.astype(np.float64, copy=False) - mu_s) + mu_d).astype(
+        np.float32, copy=False
+    )
+
+
+def trunk_translate_scale(src: np.ndarray, dst: np.ndarray) -> np.ndarray:
+    """Match trunk centroid + shoulder width; keep src orientation (yaw/twist).
+
+    Kills root walk relative to dst without forcing MP trunk rotation onto teacher.
+    """
+    mu_s, mu_d, scale = trunk_translate_scale_params(src, dst)
+    return apply_trunk_translate_scale(src, mu_s, mu_d, scale)
 
 
 def sequence_align_teacher_to_mp(teacher: np.ndarray, mp: np.ndarray) -> np.ndarray:

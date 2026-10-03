@@ -1,0 +1,155 @@
+{
+  "result": "PASS",
+  "transport": "p2p",
+  "checks": [
+    "camera required",
+    "two browsers local signaling",
+    "camera translation replicated",
+    "no synthetic feet fields",
+    "host/guest movement agrees",
+    "Newton force replicated",
+    "duplicate attempt rejected",
+    "air does not set PEAK",
+    "60 missing journal entries recovered after dropped snapshots",
+    "client1 authoritative totals and PEAK restored",
+    "authoritative timer agrees",
+    "disconnect pauses"
+  ],
+  "errors": [],
+  "states": [
+    {
+      "active": true,
+      "online": true,
+      "self": 0,
+      "ready": true,
+      "clock": 83.60000000000036,
+      "round": 1,
+      "smooth": 50,
+      "cameraOn": true,
+      "loaded": true,
+      "renderCalls": 100
+    },
+    {
+      "active": true,
+      "online": true,
+      "self": 1,
+      "ready": true,
+      "clock": 83.60000000000036,
+      "round": 1,
+      "smooth": 50,
+      "cameraOn": true,
+      "loaded": true,
+      "renderCalls": 100
+    }
+  ],
+  "movement": [
+    [
+      {
+        "x": 0.11407585038092986,
+        "z": -0.5718189782424375,
+        "radialApplied": 0.102994011976048,
+        "footContacts": null
+      },
+      {
+        "x": -0.10296318300013953,
+        "z": 0.5615996111811702,
+        "radialApplied": 0.102994011976048,
+        "footContacts": null
+      }
+    ],
+    [
+      {
+        "x": 0.11407585038092986,
+        "z": -0.5718189782424375,
+        "radialApplied": 0.102994011976048,
+        "footContacts": null
+      },
+      {
+        "x": -0.10296318300013953,
+        "z": 0.5615996111811702,
+        "radialApplied": 0.102994011976048,
+        "footContacts": null
+      }
+    ]
+  ],
+  "journals": [
+    [
+      {
+        "t": 4.883333333333321,
+        "hand": 0,
+        "forceN": 1500,
+        "speed": 4,
+        "target": null,
+        "tier": "devastador",
+        "landed": false,
+        "blocked": false,
+        "combo": 0
+      }
+    ],
+    [
+      {
+        "t": 4.883333333333321,
+        "hand": 0,
+        "forceN": 1500,
+        "speed": 4,
+        "target": null,
+        "tier": "devastador",
+        "landed": false,
+        "blocked": false,
+        "combo": 0
+      }
+    ]
+  ],
+  "recovered": [
+    {
+      "peak": 600,
+      "total": 36000,
+      "average": 600,
+      "hits": 60,
+      "attempts": 61,
+      "accuracy": 0.9836065573770492,
+      "headPeak": 600,
+      "bodyPeak": null,
+      "tiers": {
+        "toque": 0,
+        "leve": 0,
+        "solido": 60,
+        "forte": 0,
+        "pesado": 0,
+        "devastador": 0
+      },
+      "fastest": 2,
+      "maxCombo": 1,
+      "maxComboForce": 600,
+      "blocked": 0,
+      "perMinute": 61,
+      "damageReceived": 0,
+      "receivedPeak": 0
+    },
+    {
+      "peak": 600,
+      "total": 36000,
+      "average": 600,
+      "hits": 60,
+      "attempts": 61,
+      "accuracy": 0.9836065573770492,
+      "headPeak": 600,
+      "bodyPeak": null,
+      "tiers": {
+        "toque": 0,
+        "leve": 0,
+        "solido": 60,
+        "forte": 0,
+        "pesado": 0,
+        "devastador": 0
+      },
+      "fastest": 2,
+      "maxCombo": 1,
+      "maxComboForce": 600,
+      "blocked": 0,
+      "perMinute": 61,
+      "damageReceived": 0,
+      "receivedPeak": 0
+    }
+  ]
+}

@@ -1,0 +1,428 @@
+{
+  "avatars": [
+    {
+      "avatar": "boxer-prism31",
+      "checks": [
+        {
+          "name": "signed_and_combined_face_orientation",
+          "ok": true,
+          "detail": [
+            0.014909336917703688,
+            0.014893402321513075,
+            0.015331759640891734,
+            0.018886855274608594,
+            0.007281426750456215,
+            0.01910272683212054,
+            0.015304408710161583
+          ]
+        },
+        {
+          "name": "neutral_missing",
+          "ok": true,
+          "detail": 0.01732220559309314
+        },
+        {
+          "name": "neutral_collapsed",
+          "ok": true,
+          "detail": 0.01732220559309314
+        },
+        {
+          "name": "neutral_short",
+          "ok": true,
+          "detail": 0.01732220559309314
+        },
+        {
+          "name": "neutral_nan",
+          "ok": true,
+          "detail": 0.01732220559309314
+        },
+        {
+          "name": "short_occlusion_hold",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "occlusion_follows_body",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "prolonged_loss_relaxes_without_snap",
+          "ok": true,
+          "detail": 2.4185797526629975
+        },
+        {
+          "name": "recovery_continuity",
+          "ok": true,
+          "detail": 13.928248388821611
+        },
+        {
+          "name": "recovery_reaches_face",
+          "ok": true,
+          "detail": 0.008744094101377501
+        },
+        {
+          "name": "single_frame_orientation_flip_rejected",
+          "ok": true,
+          "detail": {
+            "status": "held",
+            "pitchOffsetDegrees": 20.556045219583478,
+            "accepted": 1,
+            "rejected": 1,
+            "faceRelative": [
+              9.474467179178275e-18,
+              -0.0009309849070003338,
+              5.118401152167039e-15,
+              0.9999995666334576
+            ]
+          }
+        },
+        {
+          "name": "duplicate_timestamp_does_not_reset_filter",
+          "ok": true,
+          "detail": 0.010840016174869946
+        },
+        {
+          "name": "slider_bypass_and_response",
+          "ok": true,
+          "detail": {
+            "0": 33.333333333333336,
+            "50": 66.66666666666667,
+            "100": 66.66666666666667
+          }
+        },
+        {
+          "name": "slider_filters_stationary_jitter",
+          "ok": true,
+          "detail": {
+            "inputPeakToPeak": 0.8,
+            "outputPeakToPeak": 0.3577677684417755
+          }
+        },
+        {
+          "name": "relative_anatomical_limits",
+          "ok": true,
+          "detail": {
+            "maxNeckYaw": 33.98549025745066,
+            "maxHeadRelativeYaw": 50.985434589780176
+          }
+        },
+        {
+          "name": "straight_elbow_keeps_twist",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "tiny_palm_span_does_not_create_twist",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "real_capture_does_not_inherit_demo_calibration",
+          "ok": true,
+          "detail": 0.01732220559309314
+        },
+        {
+          "name": "repainting_stale_sample_does_not_renew_confidence",
+          "ok": true,
+          "detail": {
+            "status": "held",
+            "pitchOffsetDegrees": 20.556045219583478,
+            "accepted": 2,
+            "rejected": 0,
+            "faceRelative": [
+              -1.585608077872474e-15,
+              0.29981777310174346,
+              4.8843032867349855e-15,
+              0.9539964899999955
+            ]
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "avatar": "boxeador",
+      "checks": [
+        {
+          "name": "signed_and_combined_face_orientation",
+          "ok": true,
+          "detail": [
+            0.0056579099639366606,
+            0.005617110418509237,
+            3.4150945850063755e-06,
+            3.4150945850063755e-06,
+            0.0014118845262766967,
+            0,
+            0.002514294824519307
+          ]
+        },
+        {
+          "name": "neutral_missing",
+          "ok": true,
+          "detail": 3.4150945850063755e-06
+        },
+        {
+          "name": "neutral_collapsed",
+          "ok": true,
+          "detail": 3.4150945850063755e-06
+        },
+        {
+          "name": "neutral_short",
+          "ok": true,
+          "detail": 3.4150945850063755e-06
+        },
+        {
+          "name": "neutral_nan",
+          "ok": true,
+          "detail": 3.4150945850063755e-06
+        },
+        {
+          "name": "short_occlusion_hold",
+          "ok": true,
+          "detail": 0.006890574743915406
+        },
+        {
+          "name": "occlusion_follows_body",
+          "ok": true,
+          "detail": 0.008419195910361717
+        },
+        {
+          "name": "prolonged_loss_relaxes_without_snap",
+          "ok": true,
+          "detail": 2.4084662315018024
+        },
+        {
+          "name": "recovery_continuity",
+          "ok": true,
+          "detail": 13.871724909958683
+        },
+        {
+          "name": "recovery_reaches_face",
+          "ok": true,
+          "detail": 0.00700901032960108
+        },
+        {
+          "name": "single_frame_orientation_flip_rejected",
+          "ok": true,
+          "detail": {
+            "status": "held",
+            "pitchOffsetDegrees": 20.556045219583478,
+            "accepted": 1,
+            "rejected": 1,
+            "faceRelative": [
+              7.121257096659537e-19,
+              -0.002202603550098997,
+              5.1003533518835154e-17,
+              0.9999975742658586
+            ]
+          }
+        },
+        {
+          "name": "duplicate_timestamp_does_not_reset_filter",
+          "ok": true,
+          "detail": 2.4148365394514667e-06
+        },
+        {
+          "name": "slider_bypass_and_response",
+          "ok": true,
+          "detail": {
+            "0": 33.333333333333336,
+            "50": 66.66666666666667,
+            "100": 66.66666666666667
+          }
+        },
+        {
+          "name": "slider_filters_stationary_jitter",
+          "ok": true,
+          "detail": {
+            "inputPeakToPeak": 0.8,
+            "outputPeakToPeak": 0.3577505426553569
+          }
+        },
+        {
+          "name": "relative_anatomical_limits",
+          "ok": true,
+          "detail": {
+            "maxNeckYaw": 33.98549060361492,
+            "maxHeadRelativeYaw": 50.98543857712752
+          }
+        },
+        {
+          "name": "straight_elbow_keeps_twist",
+          "ok": true,
+          "detail": 0.011126723806873053
+        },
+        {
+          "name": "tiny_palm_span_does_not_create_twist",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "real_capture_does_not_inherit_demo_calibration",
+          "ok": true,
+          "detail": 3.4150945850063755e-06
+        },
+        {
+          "name": "repainting_stale_sample_does_not_renew_confidence",
+          "ok": true,
+          "detail": {
+            "status": "held",
+            "pitchOffsetDegrees": 20.556045219583478,
+            "accepted": 2,
+            "rejected": 0,
+            "faceRelative": [
+              -7.016890853991533e-17,
+              0.29860440973044106,
+              4.8734805737069046e-17,
+              0.9543769729459819
+            ]
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "avatar": "fighter-web",
+      "checks": [
+        {
+          "name": "signed_and_combined_face_orientation",
+          "ok": true,
+          "detail": [
+            0,
+            0.0037871516597378072,
+            0.004986831573035536,
+            0,
+            0.005974544735541386,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "neutral_missing",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "neutral_collapsed",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "neutral_short",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "neutral_nan",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "short_occlusion_hold",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "occlusion_follows_body",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "prolonged_loss_relaxes_without_snap",
+          "ok": true,
+          "detail": 2.7948938376122348
+        },
+        {
+          "name": "recovery_continuity",
+          "ok": true,
+          "detail": 16.03485979820068
+        },
+        {
+          "name": "recovery_reaches_face",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "single_frame_orientation_flip_rejected",
+          "ok": true,
+          "detail": {
+            "status": "held",
+            "pitchOffsetDegrees": 20.556045219583478,
+            "accepted": 1,
+            "rejected": 1,
+            "faceRelative": [
+              2.6885002472989365e-16,
+              0.04644968578410961,
+              -2.1522346646789366e-15,
+              0.9989206308263725
+            ]
+          }
+        },
+        {
+          "name": "duplicate_timestamp_does_not_reset_filter",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "slider_bypass_and_response",
+          "ok": true,
+          "detail": {
+            "0": 33.333333333333336,
+            "50": 66.66666666666667,
+            "100": 66.66666666666667
+          }
+        },
+        {
+          "name": "slider_filters_stationary_jitter",
+          "ok": true,
+          "detail": {
+            "inputPeakToPeak": 0.8,
+            "outputPeakToPeak": 0.357752593624036
+          }
+        },
+        {
+          "name": "relative_anatomical_limits",
+          "ok": true,
+          "detail": {
+            "maxNeckYaw": 33.98549040341262,
+            "maxHeadRelativeYaw": 51.23504935880566
+          }
+        },
+        {
+          "name": "straight_elbow_keeps_twist",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "tiny_palm_span_does_not_create_twist",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "real_capture_does_not_inherit_demo_calibration",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "repainting_stale_sample_does_not_renew_confidence",
+          "ok": true,
+          "detail": {
+            "status": "held",
+            "pitchOffsetDegrees": 20.556045219583478,
+            "accepted": 2,
+            "rejected": 0,
+            "faceRelative": [
+              8.481450371512441e-16,
+              0.34468107962319144,
+              -1.9691994445268758e-15,
+              0.9387198481707905
+            ]
+          }
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "pageErrors": []
+}

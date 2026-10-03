@@ -1,0 +1,1366 @@
+[
+  {
+    "path": "src/pose_lab/__init__.py",
+    "lines": 3,
+    "bytes": 103,
+    "docstring": "Pose Corrector Lab — bone→bone boxing pose correction experiments.",
+    "top_level_functions": []
+  },
+  {
+    "path": "src/pose_lab/align.py",
+    "lines": 127,
+    "bytes": 4785,
+    "docstring": "Body-frame normalization and teacher↔MP trunk alignment.",
+    "top_level_functions": [
+      "_safe_norm",
+      "_shoulder_width",
+      "body_frame_from_pose",
+      "to_body_frame",
+      "from_body_frame",
+      "procrustes_trunk",
+      "apply_similarity",
+      "trunk_translate_scale_params",
+      "apply_trunk_translate_scale",
+      "trunk_translate_scale",
+      "sequence_align_teacher_to_mp"
+    ]
+  },
+  {
+    "path": "src/pose_lab/data.py",
+    "lines": 347,
+    "bytes": 12714,
+    "docstring": "Window dataset from data/dataset/*.npz.",
+    "top_level_functions": [
+      "mirror_residual",
+      "mirror_features",
+      "mirror_motion_label",
+      "feature_ablation_kwargs",
+      "apply_feature_ablation",
+      "_rewrite_accel_as_multilag",
+      "WindowNPZDataset"
+    ]
+  },
+  {
+    "path": "src/pose_lab/features.py",
+    "lines": 128,
+    "bytes": 4401,
+    "docstring": "Feature tensor construction for the corrector (MediaPipe → F dims).",
+    "top_level_functions": [
+      "_angle_between",
+      "pose_to_body_sequence",
+      "build_feature_frame",
+      "build_feature_sequence",
+      "feature_dim"
+    ]
+  },
+  {
+    "path": "src/pose_lab/io.py",
+    "lines": 252,
+    "bytes": 9031,
+    "docstring": "I/O helpers for clips, teacher outputs, paired samples.",
+    "top_level_functions": [
+      "list_videos",
+      "clip_id_from_path",
+      "teacher_dir",
+      "save_teacher_clip",
+      "load_teacher_clip",
+      "save_viewer_payload",
+      "viewer_payload_dict",
+      "clip_has_joints",
+      "_source_video_name",
+      "probe_video_fps",
+      "resolve_clip_fps",
+      "build_viewer_payload_from_clip"
+    ]
+  },
+  {
+    "path": "src/pose_lab/labels.py",
+    "lines": 106,
+    "bytes": 4121,
+    "docstring": "Residual targets and weak motion pseudo-labels.",
+    "top_level_functions": [
+      "residual_targets",
+      "residual_sequence",
+      "motion_pseudo_label",
+      "difficulty_score"
+    ]
+  },
+  {
+    "path": "src/pose_lab/logging_utils.py",
+    "lines": 37,
+    "bytes": 1158,
+    "docstring": "Run logging helpers (jsonl + directories).",
+    "top_level_functions": [
+      "make_run_dir",
+      "JsonlLogger",
+      "write_json"
+    ]
+  },
+  {
+    "path": "src/pose_lab/losses.py",
+    "lines": 643,
+    "bytes": 24612,
+    "docstring": "Training losses for residual corrector.",
+    "top_level_functions": [
+      "_joint_weights",
+      "huber_delta",
+      "passthrough_penalty",
+      "smooth_delta_penalty",
+      "confidence_weight",
+      "mp_targets_from_features",
+      "_side_reach",
+      "_elbow_angle_deg",
+      "_arm_reach_error",
+      "_reconstruct_arm_targets",
+      "_extend_frac_stats",
+      "extension_geometry_losses",
+      "elbow_angle_geometry_losses",
+      "_xyz_axis_weights",
+      "_align_pred_true",
+      "bone_length_loss",
+      "velocity_loss",
+      "direction_loss",
+      "z_extension_loss",
+      "peak_reach_loss",
+      "total_loss"
+    ]
+  },
+  {
+    "path": "src/pose_lab/metrics.py",
+    "lines": 104,
+    "bytes": 3836,
+    "docstring": "Evaluation metrics for the pose corrector.",
+    "top_level_functions": [
+      "mpjpe_mm",
+      "jitter_energy",
+      "bone_length_mae",
+      "hard_mask",
+      "overcorrect_rate",
+      "summarize_split"
+    ]
+  },
+  {
+    "path": "src/pose_lab/models.py",
+    "lines": 193,
+    "bytes": 3483,
+    "docstring": "Causal pose corrector models (GRU / optional TCN).",
+    "top_level_functions": [
+      "take_delta_last",
+      "CausalGRUCorrector",
+      "build_model"
+    ]
+  },
+  {
+    "path": "src/pose_lab/skeleton.py",
+    "lines": 297,
+    "bytes": 8541,
+    "docstring": "Canonical skeleton used across teacher remap, MediaPipe pairing, and the corrector.",
+    "top_level_functions": [
+      "mediapipe_array_to_lab",
+      "smpl24_to_lab",
+      "smpl24_avatar_aux",
+      "smpl24_avatar_aux_json",
+      "smplx55_to_lab",
+      "smplx55_avatar_aux_json"
+    ]
+  },
+  {
+    "path": "src/pose_lab/timebase.py",
+    "lines": 118,
+    "bytes": 4173,
+    "docstring": "Canonical 30 Hz timebase — the simple FPS solution.",
+    "top_level_functions": [
+      "frame_times",
+      "resample_series",
+      "resample_to_n_frames",
+      "resample_at_times",
+      "velocity",
+      "acceleration"
+    ]
+  },
+  {
+    "path": "scripts/ablate_palm_signal.py",
+    "lines": 187,
+    "bytes": 7570,
+    "docstring": "Does the avatar's palm follow the HAND SIGNAL, or just the rest-pose geometry?\n\nMotivating observation: in the LIVE viewer the punch ends up palm-down and looks\nplausible, but it clearly is not tracking the user's actual palm. Hypothesis: the\npalm-down look comes from the shortest-arc alignment out of the A-pose rest (which\ndoes not preserve roll), not from the palm across at all — and two mechanisms pin\nthe real signal near that default in live:\n  * acute-flip is ON (live never passes fitPalm), so any across more than 90 deg\n    from the rest reference is NEGATED instead of applied;\n  * the hand blends at strength 0.85, so 15% of the rest orientation always stays.\n\nThree configurations, same body motion, measured with absolute_palm_error's frame:\n\n  fk      palm across from the fit's FK      + fitPalm  (what the bake renders)\n  obs     palm across from observed fingers  + fitPalm  (fit-quality positions)\n  live    palm across from observed fingers, NO fitPalm  (what live actually does)\n  aimonly no across at all                                (pure rest geometry)\n\nIf `aimonly` still trends palm-down through the punch, the palm-down is geometric\nand the hand signal is decoration. The gap between `live` and `fk` is how much the\nlive path throws away.\n\nUsage: python scripts/ablate_palm_signal.py",
+    "top_level_functions": [
+      "make_variant",
+      "measure",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/absolute_palm_error.py",
+    "lines": 135,
+    "bytes": 5507,
+    "docstring": "ABSOLUTE palm error: the number the eye actually judges. No calibration.\n\nanalyze_palm_raw.py removes a constant rig offset before measuring, which answers\n\"does the hand TRACK the fit?\" (yes: ~5 deg). But it hides the thing that is\nactually wrong on screen: a CONSTANT offset between the avatar's palm and the\nfit's palm is exactly \"the fist is rotated 90 deg / faces sideways instead of\ndown\". Calibrating it away makes a broken render look perfect.\n\nSo here both sides are built as the SAME anatomical frame and compared directly:\n\n    fwd    = along the hand, wrist -> knuckles\n    across = medial-lateral palm axis\n    normal = fwd x across          (palm facing direction; -Y = toward the ground)\n\n  * FIT:    across = pinky1 - index1  (real SMPL-X knuckles)\n  * AVATAR: across = normal of the plane fitted to the hand + finger chain,\n            transported by the hand bone's measured per-frame rotation.\n            Uses the rig's real bone geometry, NOT the solver's\n            `restAcrossInRoot`, so it stays non-circular.\n\nBoth use sign = -1 on the left, matching the solver's own negateAcrossLeft\nconvention, so the two hands are anatomically mirrored rather than mirror-image.\n\nUsage: python scripts/absolute_palm_error.py ondisk_fix fixed",
+    "top_level_functions": [
+      "unit",
+      "quat_to_mat",
+      "frame",
+      "ang",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/analyze_bone_jitter.py",
+    "lines": 83,
+    "bytes": 2938,
+    "docstring": "Frame-to-frame jitter per bone, compared against the fit's own motion.\n\nLower error vs the fit does NOT imply smoother output: raising a bone's\n`strength` scales its noise along with its signal before the One-Euro filter\nruns. This measures the smoothness half of that trade.\n\n  jitter(t) = angle( A_t^T A_t+1 )   for the avatar bone\n  ref(t)    = the same on the fit's FK rotation for the matching joint\n\nIf the avatar's jitter sits near the fit's, the motion is as smooth as the source.\nJitter well above the fit's is the retarget adding shake of its own.\n\nUsage: python scripts/analyze_bone_jitter.py neck04 neck075 [--bones neck,head]",
+    "top_level_functions": [
+      "ang",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/analyze_palm_raw.py",
+    "lines": 156,
+    "bytes": 6793,
+    "docstring": "Offline analysis of palm_raw_<tag>.npz dumps from check_palm_fidelity.py.\n\nThe render is slow, so it happens once and every metric is tried here.\n\nThe avatar's hand-bone frame and the fit's anatomical palm frame differ by an\nunknown CONSTANT rig offset, so raw angles between them are meaningless. Two\nways to see past that:\n\n  1. CALIBRATION-FREE (primary). Frame-to-frame relative rotation:\n         d_av(t)  = angle(R_av(t)^T  R_av(t+1))\n         d_fit(t) = angle(R_fit(t)^T R_fit(t+1))\n     Any constant offset M cancels: (M R)^T (M R') = R^T R'. If the avatar\n     tracks the fit, these two series match. This cannot be faked by a bad\n     calibration, and it is what exposes whether the hand is being driven at all.\n\n  2. KARCHER-CALIBRATED. Proper geodesic mean on SO(3) (iterative, unlike a naive\n     quaternion average, which collapses when the spread is large — that is what\n     produced the bogus \"residual = exactly 90 deg\" reading). Residual after\n     removing it is the tracking error; the calibrated palm normal is then\n     directly comparable to the fit's.\n\nUsage: python scripts/analyze_palm_raw.py baseline [fixed ...]",
+    "top_level_functions": [
+      "log_so3",
+      "exp_so3",
+      "karcher_mean",
+      "ang",
+      "analyze",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/analyze_people_side_crop.py",
+    "lines": 445,
+    "bytes": 16423,
+    "docstring": "Estimate safe lateral crop % on YOLO person clips.\n\nSamples frames, re-detects people, picks the primary (most central) person,\nand reports how much left/right width can be cut without clipping them.\nAlso flags side-person intrusion.",
+    "top_level_functions": [
+      "sample_frame_indices",
+      "read_frames",
+      "pick_primary",
+      "analyze_clip",
+      "main",
+      "_stats",
+      "_agg",
+      "_markdown"
+    ]
+  },
+  {
+    "path": "scripts/augment_npz_yseq.py",
+    "lines": 135,
+    "bytes": 4560,
+    "docstring": "Add per-frame residual targets `y_seq` to existing window NPZs.\n\nUses clip_idx / frame_end already stored in the NPZ plus residual_30.npy\nfrom data/paired — no full feature rebuild.\n\nWrites a new key `y_seq` with shape (N, T, DELTA_DIM) alongside existing `y`\n(last frame, unchanged). Safe to re-run (overwrites y_seq only).",
+    "top_level_functions": [
+      "_load_residual",
+      "augment_split",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/batch_split_all_people.py",
+    "lines": 224,
+    "bytes": 7333,
+    "docstring": "From-scratch YOLO person split for all shot folders (max_box, all people).\n\nUsage:\n  python scripts/batch_split_all_people.py\n  python scripts/batch_split_all_people.py --wipe",
+    "top_level_functions": [
+      "slug_source",
+      "discover_jobs",
+      "wipe_people",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/batch_split_burn_shots.py",
+    "lines": 116,
+    "bytes": 3772,
+    "docstring": "Batch YOLO person-split for all Burn 500 user shots.",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/bench_arm_angles.py",
+    "lines": 519,
+    "bytes": 20635,
+    "docstring": "Benchmark arm ANGLE fidelity to the teacher (NOT reach / hand-separation).\n\nOn the same teacher-extended frames as bench_extension.py (default thresholds\nyield ~4041 test frames), measure how close MediaPipe and each corrector are\nto the teacher's elbow (and optional shoulder) angles — for BOTH arms.\n\nAngles\n------\n  Elbow flexion/extension (required):\n    Interior angle at the elbow, angle(shoulder-elbow-wrist), in degrees.\n    180 deg ≈ fully straight arm; smaller ≈ more flexed.\n    Interior arccos angle (same definition as losses._elbow_angle_deg /\n    bench_extension._elbow_angles_deg) — NOT a reach/magnitude metric.\n\n  Upper-arm elevation (optional, reported):\n    Angle between upper-arm vector (shoulder→elbow) and trunk up-axis\n    (mid-hip → mid-shoulder). 0° ≈ arm along trunk; 90° ≈ arm out to side\n    (horizontal relative to trunk). Scale-free / rotation-aware within\n    the pose's own body axes.\n\nFrame selection (identical to bench_extension.py)\n-------------------------------------------------\n  Teacher-extended if, on the active side (larger teacher reach):\n    reach > --reach-thr  OR  elbow angle > --elbow-thr-deg\n  and (active_reach - guard_reach) >= --jab-margin when jab_margin > 0.\n\nMetrics (per arm L/R and pooled both-arms), on those frames only:\n  - mean |angle_C - angle_T|  vs  mean |angle_MP - angle_T|   (degrees)\n  - % frames where |C-T| < |MP-T|\n  - mean signed error (C-T) and (MP-T)\n  - mean teacher / MP / corrector angles for context\n\nNOT measured here: reach magnitude, hand separation, max-reach style scores.",
+    "top_level_functions": [
+      "_elbow_angles_deg",
+      "_upper_arm_elevation_deg",
+      "load_poses",
+      "_angle_stats",
+      "evaluate_corrector",
+      "print_checkpoint_table",
+      "print_portuguese_compare",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/bench_extended_shoulder_level_hands.py",
+    "lines": 374,
+    "bytes": 14302,
+    "docstring": "Hand proximity on teacher extended + shoulder-level arm frames.\n\nNOT jab detection. Selects frames from the *teacher* pose only with a strict\ngeometric test, then scores how close Corrector / MediaPipe wrists are to the\nteacher wrists on those frames.\n\nFrame selection (teacher, per arm, both arms can qualify independently)\n----------------------------------------------------------------------\nAn arm (L or R) on frame t qualifies if ALL of:\n\n  (1) Reach ratio >= --reach-min (default 0.70):\n        reach = ||wrist - shoulder|| / (||shoulder - elbow|| + ||elbow - wrist||)\n\n  (2) Wrist near shoulder height (body frame of the teacher pose at t):\n        |wrist_y - shoulder_y| / shoulder_width  <=  --height-band  (default 0.55)\n      Body frame: +Y = trunk up (hip→shoulder), +X = L→R shoulders, +Z = forward\n      (same as pose_lab.align.body_frame_from_pose). shoulder_width = ||RS - LS||.\n\n  (3) Arm not hanging / dropped — direction of (wrist - shoulder) is more\n      horizontal than downward, in the same teacher body frame:\n        Let u = normalize(wrist - shoulder) in body coords.\n        Require u_y >= --min-uy  (default -0.35)\n          ≈ not more than ~20° below the horizontal plane through the shoulder\n        AND hypot(u_x, u_z) >= --min-horiz  (default 0.55)\n          ≈ horizontal/outward component dominates (rejects mostly vertical arms)\n\nIf both arms qualify on the same frame, both contribute samples (per-side).\nIf one qualifies, only that side is used for \"active\" metrics; the other wrist\nstill enters the both-wrists proximity pool for that frame when we score\ncombined hand error (see below).\n\nMetrics (ONLY on frames with >=1 qualifying teacher arm)\n--------------------------------------------------------\nPrimary — hand proximity to teacher (meters in aligned export space):\n  For each selected frame, define:\n    err_C = 0.5 * ( ||wristL_C - wristL_T|| + ||wristR_C - wristR_T|| )\n    err_MP = 0.5 * ( ||wristL_MP - wristL_T|| + ||wristR_MP - wristR_T|| )\n  Report mean err_C, mean err_MP, and mean(err_MP - err_C).\n  Also per-side means on frames where that side qualified:\n    mean ||wrist_active_C - wrist_active_T||  (and same for guard / MP).\n\nSecondary:\n  - Hand-separation error: mean | ||wL-wR||_C - ||wL-wR||_T |  vs same for MP\n  - pct_frames_C_closer: % selected frames with err_C < err_MP\n\nLeaderboard column: `hand_prox_mae_C` (lower better) and `hand_prox_impr_vs_mp`\n  = (mean_err_MP - mean_err_C) / max(mean_err_MP, eps)  (higher better).",
+    "top_level_functions": [
+      "load_poses",
+      "_reach_ratios",
+      "teacher_arm_qualifies",
+      "evaluate_corrector",
+      "print_summary",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/bench_extension.py",
+    "lines": 564,
+    "bytes": 25806,
+    "docstring": "Benchmark arm-extension quality: teacher vs MediaPipe vs corrector.\n\nUses source-fps viewer exports under data/{mediapipe,corrected,teacher_aligned}/\nthat share matching n_frames. Teacher-extended frames are detected from\nteacher_aligned poses; reach is compared on the active (more extended) side.\n\nExtension / reach definition\n----------------------------\n  reach(side) = ||wrist - shoulder|| / bone_chain\n  bone_chain  = ||shoulder - elbow|| + ||elbow - wrist||   (per-frame, same pose)\n\n  Values near 1.0 ~ fully straight arm. Values are clipped to [0, 1.05] for\n  reporting stability (numerical noise / slight overstretch).\n\nTeacher-extended frame (OR of):\n  - reach > --reach-thr (default 0.85), OR\n  - elbow angle > --elbow-thr-deg (default 160 deg)\nOptionally require jab asymmetry: active reach - guard reach >= --jab-margin\n(default 0.08). Active side = argmax teacher reach on that frame.\n\nMetrics (on teacher-extended frames, active side unless noted):\n  - mean/median reach for teacher, MP, corrector\n  - % frames where corrector reach > MP reach\n  - mean (teacher - corrector) and (teacher - MP) reach gaps\n  - guard-hand: non-active side ||wrist - shoulder|| (raw meters) and\n    distance of guard wrist toward neck (||wrist - neck||)\n  - hand separation: ||wrist_active - wrist_guard|| (= ||L_wrist - R_wrist||)\n    raw and / shoulder_width; % frames corrector > MP; gaps to teacher",
+    "top_level_functions": [
+      "_elbow_angles_deg",
+      "arm_metrics",
+      "detect_extended",
+      "_pick",
+      "summarize_arrays",
+      "clip_stats",
+      "load_trio",
+      "aggregate_clips",
+      "print_summary",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/bench_game_boxing.py",
+    "lines": 511,
+    "bytes": 19756,
+    "docstring": "DEPRECATED for ablation ranking — use bench_extended_shoulder_level_hands.py.\n\nKept only for ad-hoc analysis. Leaderboard primary metric is hand proximity on\nteacher extended + shoulder-level frames (not this composite game_score).\n\n---\nGame-relevant boxing evaluation: would this corrector help in-game vs raw MP?\n\nCompares corrected export vs MediaPipe vs teacher_aligned on the test split,\nsame source-fps timeline as the viewer.\n\nFrame sets (from teacher pose)\n------------------------------\n  Extended / jab frames — identical rule to bench_extension / bench_arm_angles:\n    active reach > reach_thr OR active elbow > elbow_thr_deg,\n    AND (active − guard) reach >= jab_margin.\n  Idle / guard frames — BOTH arms have reach < idle_reach_max (default 0.55).\n\nMetrics\n-------\n  Jab (extended, active side):\n    - elbow angle MAE vs teacher (deg)\n    - forwardness MAE: body-frame +Z of (wrist−shoulder), using the *teacher*\n      body frame each frame so C/MP/T share one axis (punch depth)\n    - reach-ratio MAE vs teacher (secondary)\n\n  Guard (same extended frames, non-active side):\n    - elbow angle MAE vs teacher\n    - wrist–shoulder span MAE vs teacher (hand stays back)\n\n  Idle safety (idle frames):\n    - mean ||C − MP|| on arm targets (shoulders/elbows/wrists), body-frame of MP\n      — lower = less over-correction of idle/guard\n    - also report mean ||T − MP|| as reference difficulty\n\n  Temporal (extended windows, active wrist):\n    - mean ||Δv|| of active wrist (frame-to-frame accel proxy); lower better\n\nComposite game_score (higher = more helpful in-game)\n----------------------------------------------------\n  Each component is a relative improvement of corrector vs MediaPipe toward\n  teacher (or toward lower idle/jitter), clamped to [-1, 1]:\n\n    impr(err) = (mae_MP − mae_C) / max(mae_MP, eps)\n\n  game_score =\n      0.35 * jab_angle_impr\n    + 0.20 * jab_forward_impr\n    + 0.25 * guard_impr          # mean of guard elbow + guard span impr\n    + 0.15 * idle_safety_impr    # 1 − ||C−MP|| / max(||T−MP||, eps)  (clipped)\n    + 0.05 * jitter_impr\n\n  Idle term rewards staying close to MP when teacher is idle (don't ruin guard).\n  Reach-ratio MAE is reported but NOT in the composite (avoids stretch hacking).",
+    "top_level_functions": [
+      "load_poses",
+      "_elbow_angles_deg",
+      "_forwardness_body_z",
+      "_pick",
+      "_mae",
+      "_impr",
+      "_wrist_accel_mag",
+      "_target_mpjpe_bf",
+      "evaluate_corrector",
+      "print_summary",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/bench_punch_trajectory.py",
+    "lines": 372,
+    "bytes": 12908,
+    "docstring": "Punch-trajectory bench for game-oriented corrector ranking.\n\nCompares Corrector vs MediaPipe toward teacher on the test split.\n\nMetrics (per selected extending arm, then aggregated)\n----------------------------------------------------\n  peak_wrist_err_mm     |C−T| at teacher peak extension (lower better)\n  timing_err_frames     |argmax_reach(C) − argmax_reach(T)| on short windows\n  direction_cos_err     1 − cos(vel_wrist) near peak (lower better)\n  return_guard_err_mm   wrist error on retract frames after a punch\n  idle_delta_mm         mean ||C−MP|| on idle/guard frames (false-punch proxy)\n  jitter_accel          mean ||Δv|| of wrists on extended windows\n\nComposite punch_score (higher better): weighted relative improvements vs MP.",
+    "top_level_functions": [
+      "load_poses",
+      "_reach",
+      "_impr",
+      "_to_body",
+      "_clip_metrics",
+      "_nanmean",
+      "evaluate",
+      "_test_clips",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/build_dataset.py",
+    "lines": 200,
+    "bytes": 7518,
+    "docstring": "Build windowed training arrays from data/paired + splits/manifest.json.\n\nWrites:\n  data/dataset/{train,val,test}.npz\n  data/dataset/meta.json\n\nUses mp_2d_30.npy from pair_poses when present (MediaPipe image landmarks / W,H).",
+    "top_level_functions": [
+      "_load_yaml",
+      "_windows",
+      "build_split",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/check_bake_sanity.py",
+    "lines": 151,
+    "bytes": 7056,
+    "docstring": "Sanity-check the baker-top avatar pose (v2, positions+twist).\n\nOpens avatar_bake_seq.html with the rendered top_frames.json, steps to sample\nframes and reads the avatar's bone world positions to verify the pose is a\nstanding human: feet planted on the ground, knees below hips (not on chest),\nshoulders above hips (torso not inverted), head above shoulders.\n\nThe viewer is Y-down: down = +Y, so hip.y < knee.y < ankle.y for a standing\npose, and a knee-on-chest pose has knee.y ≈ hip.y (or above).",
+    "top_level_functions": [
+      "Handler",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/check_body_fidelity.py",
+    "lines": 230,
+    "bytes": 10632,
+    "docstring": "Where else does the retarget lose the fit? Per-bone SWING vs TWIST error.\n\nThe palm work (check_palm_fidelity / absolute_palm_error) answered \"is the hand\nright?\". This answers \"which OTHER bones are wrong, and wrong in what way?\".\n\nTwo independent numbers per bone, because the solver treats them differently:\n\n  SWING (aim) — two numbers, because the raw angle between the avatar's bone\n    direction and the fit's is NOT purely error: Mixamo and SMPL-X do not define\n    every bone the same way (their clavicle and pelvis rest layouts differ a lot),\n    and that shows up as a CONSTANT offset.\n      swing_raw  = angle(avatar_dir, fit_dir) in viewer space.\n      swing_var  = spread of F_t^T . avatar_dir_t around its mean direction.\n                   F_t^T maps into the fit's local frame, where a pure definition\n                   difference is CONSTANT — so this isolates the part that is\n                   actually tracking error. THIS is the one to judge.\n    The solver drives aim from the fit's POSITIONS, so swing_var should be small\n    everywhere; a large swing_raw with a small swing_var is a rig convention\n    difference, not a defect.\n\n  TWIST (roll about the bone's own axis) — the part of the orientation that\n    positions cannot carry. Measured as the residual rotation about the bone axis\n    after the aim is accounted for, with the constant rig offset removed\n    (A_t = F_t . C, offset on the RIGHT; see analyze_palm_raw.py).\n    This is where the retarget is expected to be weak: only some bones get a roll\n    signal at all (hands/forearms from the palm, spine/head from shoulder/eye\n    across, upper arms from the elbow \"witness\"). A bone with small swing but\n    large twist is oriented along the right line while rotated around it.\n\nReference rotations come from the fit's FK (build_fk), conjugated into viewer\nspace: R_viewer = FLIP @ R_nlf @ FLIP.T with FLIP = diag(1,-1,-1) (det +1).\n\nUsage: python scripts/check_body_fidelity.py [--step 4]",
+    "top_level_functions": [
+      "unit",
+      "ang_between",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/check_palm_fidelity.py",
+    "lines": 321,
+    "bytes": 14166,
+    "docstring": "Non-circular palm-fidelity check: does the RENDERED avatar's hand track the FIT's palm?\n\nWhy this exists\n---------------\n`render_bake_top.py --verify` is CIRCULAR: it reconstructs the avatar's across from\n`rest.restAcrossInRoot` — the exact vector `rotateBoneWithAcross` just solved onto the\ntarget. It measures the solver's own objective, so it passes by construction even when\n`restAcrossInRoot` is the wrong axis for this mesh.\n\nThis check never touches `restAcrossInRoot`.\n\n  * FIT side (ground truth): a palm frame built from real SMPL-X anatomy —\n        across = unit(pinky1 - index1)              # true knuckle axis, well conditioned\n        fwd    = unit(mid(index1,pinky1) - wrist)   # along the hand, orthogonalized\n        normal = unit(fwd x across)                 # palm facing direction\n  * AVATAR side (measurement): the hand bone's WORLD QUATERNION, taken straight off the\n    rendered rig. Exact and noise-free — no finger geometry, no rig assumption.\n    (An earlier version derived the avatar frame from its index chain; the boxing glove's\n    chain is nearly collinear (S2/S1 ~ 0.10) so that estimate was unusable — it reported a\n    spurious 140 deg offset on the right hand. The bone quaternion has no such problem.)\n\nThe avatar's bone frame and the fit's anatomical frame differ by an unknown but CONSTANT\nrig offset, so the metric splits R_err(t) = R_avatar(t) @ R_fit(t)^T into:\n\n    rest offset  = geodesic mean of R_err   -> arbitrary rig constant, NOT a defect\n    tracking err = spread of R_err about it -> THE DEFECT. Should be ~0 for a correct\n                                               retarget. This is the number that matters.\n\nThen, with that constant removed, the avatar's calibrated palm normal is directly\ncomparable to the fit's, which gives the metric the eye actually judges:\n\"during the punch, does the palm turn toward the ground?\" (normal_y -> -1).\n\nUsage:  python scripts/check_palm_fidelity.py [--tag baseline] [--step 4]",
+    "top_level_functions": [
+      "unit",
+      "fit_palm_frame",
+      "quat_to_mat",
+      "mat_to_quat",
+      "geodesic_mean",
+      "angle_deg",
+      "Handler",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/compare_hybrik_vs_mp_teacher_metrics.py",
+    "lines": 539,
+    "bytes": 22682,
+    "docstring": "MediaPipe vs HybrIK (ResNet-34 SMPL) against Teacher — same residual panel.\n\nUses external/HybrIK + pretrained_models/hybrik_res34.pth (body SMPL, not HybrIK-X).\n\nUsage:\n  python scripts/compare_hybrik_vs_mp_teacher_metrics.py --clip-list short --device cuda\n\nHD cleanup before next model test:\n  data/hybrik/\n  experiments/hybrik_vs_mp_teacher/\n  external/HybrIK/pretrained_models/\n  external/HybrIK/model_files/\n  (optional) entire external/HybrIK/ if done with HybrIK",
+    "top_level_functions": [
+      "_flip_mp_to_viewer",
+      "resolve_video",
+      "short_clip_ids",
+      "load_hybrik",
+      "infer_frame",
+      "export_clip",
+      "_residual_panel",
+      "_elbow_mae_deg",
+      "_hand_prox_body",
+      "_lean_legs",
+      "probe_axis",
+      "evaluate_clip",
+      "aggregate",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/compare_instanthmr_vs_mp_teacher_metrics.py",
+    "lines": 642,
+    "bytes": 26195,
+    "docstring": "Head-to-head MediaPipe vs InstantHMR against Teacher (same residual panel as RTM test).\n\nUses InstantHMR ONNX (momolesang/InstantHMR, ~81MB) — NOT the 461MB .pth.\nPerson bbox = full-frame (lab clips are already person crops).\n\nUsage:\n  python scripts/compare_instanthmr_vs_mp_teacher_metrics.py --clip-list short --device cpu\n  python scripts/compare_instanthmr_vs_mp_teacher_metrics.py --metrics-only\n\nHD cleanup after this experiment (do before next model test):\n  data/instanthmr/  data/models/instanthmr/  experiments/instanthmr_vs_mp_teacher/\n  and HF cache copies of InstantHMR if any.",
+    "top_level_functions": [
+      "_flip_mp_to_viewer",
+      "mhr70_to_lab",
+      "resolve_video",
+      "short_clip_ids",
+      "preprocess_crop",
+      "load_session",
+      "run_hmr",
+      "export_clip",
+      "_residual_panel",
+      "_elbow_mae_deg",
+      "_hand_prox_body",
+      "_lean_legs",
+      "probe_axis",
+      "evaluate_clip",
+      "aggregate",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/compare_nlf_vs_mp_teacher_metrics.py",
+    "lines": 723,
+    "bytes": 28944,
+    "docstring": "MediaPipe vs NLF-S (TorchScript multi) against Teacher — same residual panel.\n\nModel: data/models/nlf/nlf_s_multi_0.2.2.torchscript (~298MB, not the 500MB L).\n\nUsage:\n  python scripts/compare_nlf_vs_mp_teacher_metrics.py --clip-list short --device cuda\n\nHD cleanup before next test:\n  data/nlf/  data/models/nlf/  experiments/nlf_vs_mp_teacher/",
+    "top_level_functions": [
+      "_flip_mp_to_viewer",
+      "resolve_video",
+      "short_clip_ids",
+      "infer_frame_full",
+      "infer_frame_fast",
+      "infer_frame",
+      "export_clip",
+      "_residual_panel",
+      "_elbow_mae_deg",
+      "_hand_prox_body",
+      "_lean_legs",
+      "probe_axis",
+      "evaluate_clip",
+      "aggregate",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/compare_palm_frames.py",
+    "lines": 287,
+    "bytes": 14175,
+    "docstring": "Side-by-side close-ups: FIT MESH hand vs BAKED AVATAR hand, same frames, matched camera.\n\nThe numeric check lives in check_palm_fidelity.py; this is the eyeball check that\ngoes with it. For each requested frame it renders two panels framed on the SAME\nanatomical point (the wrist) from the SAME world-space direction, so \"is the palm\nfacing the ground or the side?\" is directly comparable.\n\nPanels: LEFT = SMPL-X fit mesh (ground truth), RIGHT = retargeted Mixamo avatar.\nEach is labelled with that hand's palm-normal Y (-1 = palm facing the ground),\nmeasured by the same index-chain construction check_palm_fidelity.py uses.\n\nUsage:\n  python scripts/compare_palm_frames.py --frames 440,470,480,500 --side right --tag baseline",
+    "top_level_functions": [
+      "Handler",
+      "step_to",
+      "shoot",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/compare_rtm_vs_mp_teacher_metrics.py",
+    "lines": 679,
+    "bytes": 28714,
+    "docstring": "Head-to-head MediaPipe vs RTMW3D against Teacher using the lab training metrics.\n\nSame residual contract as pair_poses / train.eval_delta:\n  - YZ flip to viewer\n  - resample @ 30 Hz\n  - trunk_translate_scale teacher → student (per frame)\n  - Δ* = teacher − student in *student* body frame on 6 arm joints (18-D)\n\nAlso reports hand_prox / elbow MAE on the same teacher-extended frame selection\nas the export benches, scored in body-frame units (shoulder-widths) so each\nsource gets its own trunk-aligned teacher (fair cross-estimator compare).\n\nUsage:\n  python scripts/compare_rtm_vs_mp_teacher_metrics.py --clip-list short --device cpu\n  python scripts/compare_rtm_vs_mp_teacher_metrics.py --split test --limit 4 --stride 2",
+    "top_level_functions": [
+      "_flip_mp_to_viewer",
+      "coco_xyz_to_lab",
+      "pick_person_nd",
+      "resolve_video",
+      "short_clip_ids",
+      "load_split_clips",
+      "export_rtmw3d_clip",
+      "_residual_panel",
+      "_elbow_mae_deg",
+      "_hand_prox_body",
+      "_lean_legs",
+      "pick_axis",
+      "probe_raw_rtm",
+      "evaluate_clip",
+      "aggregate",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/compare_rtmpose_mediapipe.py",
+    "lines": 385,
+    "bytes": 14736,
+    "docstring": "Side-by-side MediaPipe Pose vs RTMPose / RTMW3D on lab clips.\n\nVariants:\n  --variant 2d   BodyWithFeet (Halpe26) — image lean only\n  --variant 3d   Wholebody3d / RTMW3D-x — 2D overlay + 3D lean vs MP world\n\nFirst run downloads ONNX (2d: ~140MB, 3d: YOLOX-m + large RTMW3D from HuggingFace).\n\nUsage:\n  python scripts/compare_rtmpose_mediapipe.py --variant 3d --clip-list short --max-frames 60 --stride 2\n  python scripts/compare_rtmpose_mediapipe.py --variant 2d --clip burn_500_shots__shot_000__person_009",
+    "top_level_functions": [
+      "lean_deg_2d",
+      "lean_deg_axis",
+      "lean_vs_legs",
+      "draw_pose",
+      "pick_person_nd",
+      "short_clip_ids",
+      "_stats",
+      "run_clip",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/convert_avatar_to_glb.py",
+    "lines": 49,
+    "bytes": 1418,
+    "docstring": "Convert an FBX avatar to a browser-ready GLB using Blender.\n\nRun:\n    blender --background --python scripts/convert_avatar_to_glb.py --       --input \"assets/boxeador mixamo trellis.fbx\"       --output assets/boxeador_mixamo_trellis.glb",
+    "top_level_functions": [
+      "parse_args",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/crop_people_sides.py",
+    "lines": 118,
+    "bytes": 3828,
+    "docstring": "Lateral-crop all YOLO person clips in-place (default 30% total = 15% each side).",
+    "top_level_functions": [
+      "crop_one",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/curate_people.py",
+    "lines": 80,
+    "bytes": 2715,
+    "docstring": "Curate main person clips from split_people output (de-overlap fragments).",
+    "top_level_functions": [
+      "overlap",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/dump_bone_quats.py",
+    "lines": 78,
+    "bytes": 3103,
+    "docstring": "Dump every rig bone's world quaternion per frame, for jitter analysis.\n\nError-vs-the-fit (check_body_fidelity.py) and JITTER are different questions: a\nsetting can track the fit better on average while shaking more frame to frame.\nRaising a bone's `strength` scales the signal AND its noise before the One-Euro\nfilter sees it, so smoothness has to be measured, not assumed.\n\nJitter here = angle of the frame-to-frame relative rotation of a bone, compared\nagainst the same quantity on the fit (the reference for how much that bone\nSHOULD be moving).\n\nUsage:\n  python scripts/dump_bone_quats.py --tag neck04\n  python scripts/analyze_bone_jitter.py neck04 neck075",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/eval.py",
+    "lines": 84,
+    "bytes": 3005,
+    "docstring": "Evaluate a checkpoint on val/test window npz.",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/export_corrected.py",
+    "lines": 302,
+    "bytes": 12060,
+    "docstring": "Run best_hard.pt on paired clips → data/corrected/<clip_id>/ for the web viewer.",
+    "top_level_functions": [
+      "_clip_ids_for_args",
+      "_source_grid",
+      "_to_source_fps",
+      "_resample_existing",
+      "apply_delta",
+      "correct_clip",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/export_nlf_fit_sequence.py",
+    "lines": 121,
+    "bytes": 5107,
+    "docstring": "Export NLF-S full SMPL fit (rotations + mesh) per frame of a video.\n\nFor each frame: detect_smpl_batched (YOLO + fit) → pose, betas, trans, fitted\njoints3d, vertices3d; plus the fast-path x55 joints (what the game uses today)\nfor a contrast panel. --model-name smplx gives the full SMPL-X mesh (10475\nverts, articulated hands) whose faces live in SMPLX_NEUTRAL.npz.\n\nSaves one npz: experiments/nlf_fit_webcam1/fit_smplx.npz",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/export_teacher_aligned.py",
+    "lines": 123,
+    "bytes": 4914,
+    "docstring": "Copy paired teacher_aligned_30.npy → data/teacher_aligned/<clip>/ for the web viewer.\n\nResamples 30 Hz paired poses onto the source-video / MediaPipe frame grid so the\nviewer scrubber matches MediaPipe frame indices.",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/export_teacher_feet.py",
+    "lines": 177,
+    "bytes": 7095,
+    "docstring": "Export Teacher ankle→foot tips for avatar retarget (MiKaPo-style).\n\nReads raw GVHMR FK `joints3d_smpl.npy` (T,22,3) where indices 7/8 = ankles and\n10/11 = left_foot / right_foot. Applies the same YZ flip + 30 Hz resample +\nper-frame trunk translate+scale as pairing, then resamples onto the source-video\ngrid used by `teacher_aligned` viewer clips.\n\nWrites `data/teacher_aligned/<clip>/foot_landmarks.json` with:\n  source=teacher, heel≈ankle (no SMPL heel in FK-22), toe=SMPL foot tip.",
+    "top_level_functions": [
+      "_flip_yz",
+      "export_one",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/glb_hand_axes.py",
+    "lines": 238,
+    "bytes": 10106,
+    "docstring": "Derive a rig's true rest palm axes from the SKINNED MESH, not from a pose assumption.\n\nWhy\n---\nmikapo_mixamo_solver.js derives the hand/forearm rest across as `boneDir x up`,\ncommented \"T-pose palms face down\". The boxeador GLB is NOT a T-pose (arms hang\ndown at ~66 deg below horizontal), so that axis is wrong, and every hand solve\ninherits the error. Bone positions alone can't fix it: this rig only has an index\nfinger chain, and that chain is nearly collinear (S2/S1 ~ 0.10), so a\ncross-product flexion axis off it is numerically unstable.\n\nThe idea was that a hand is a flattened volume, so PCA over the vertices skinned\nto it would recover forward / across / palm-normal as the three principal axes.\n\nRESULT: THAT DOES NOT WORK FOR THIS ASSET, and this script is what proved it. The\nboxing glove is a rounded mitt, not a flat hand -- measured bbox ~10x12x10 cm with\nprincipal values 6.57 / 6.12 / 4.22. The two in-plane axes are nearly degenerate,\nso the \"widest axis\" is noise; a fix built on it flipped the LEFT hand ~180deg.\n\nThe solver therefore derives the palm across from FINGER-CHAIN geometry instead\n(deriveRestPalmAcross in mikapo_mixamo_solver.js), computed at runtime -- nothing\nconsumes this script's output. It is kept as a DIAGNOSTIC: run it to check whether\na new character's hand mesh is anisotropic enough for mesh-based methods, and to\ninspect the rig's rest hand geometry.\n\nUsage: python scripts/glb_hand_axes.py [--glb assets/boxeador_mixamo_trellis.glb]",
+    "top_level_functions": [
+      "load_glb",
+      "buffer_bytes",
+      "read_accessor",
+      "node_matrix",
+      "norm_name",
+      "unit",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/make_demo_clip.py",
+    "lines": 124,
+    "bytes": 4080,
+    "docstring": "Create a synthetic teacher clip so the HTML viewer works before GVHMR is installed.",
+    "top_level_functions": [
+      "synth_punch_sequence",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/make_splits.py",
+    "lines": 128,
+    "bytes": 4411,
+    "docstring": "Build data/splits/manifest.json — split by source video / burn holdout shots.\n\nPolicy (v1):\n  test  = full held-out videos: intense_10_shadow, max_calories_left_half\n  val   = last ~15% of burn_500 shots (by shot id)\n  train = remaining burn shots + beginner / shadow_clip / shot_008 / win_*",
+    "top_level_functions": [
+      "source_group",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/measure_avatar_angles.py",
+    "lines": 567,
+    "bytes": 24960,
+    "docstring": "Measure retarget angle fidelity: NLF skeleton vs solved Mixamo avatar.\n\nUses the 13 benchmark photos already inferred in:\n  experiments/nlf_dense_surface/report.json   (smpl24 + surface regions)\n  experiments/nlf_smplx55_probe/report.json   (eyes/jaw/fingers for head+palm truth)\n\nBakes each pose via viewer/avatar_bake.html (same solver as live) and reads\nsolved bone world transforms (window.__BAKE_MEASURE__) to compare:\n\n  Body: trunk flexion, shoulder elevation, foot pitch, head yaw\n  Wrist (signed, no screenshots):\n    - pronation_deg: palm-across vs palm-down, around the forearm\n    - fist_inward_deg: knuckles vs chest-from-wrist, around the forearm\n    - knuckles_inward_deg: knuckles vs torso forward\n    - Mixamo ForeArm twist vs X55 fingers; SMPL-24 hand×forearm proxy is\n      reported only as a negative control (must stay unused)\n\nWrites experiments/avatar_angle_fidelity/report.json and prints a table.",
+    "top_level_functions": [
+      "V",
+      "angle_deg",
+      "elev_deg",
+      "yaw_deg",
+      "wrap180",
+      "quat_conj",
+      "quat_mul",
+      "quat_rotate",
+      "write_pose_json",
+      "skeleton_metrics",
+      "_unit",
+      "signed_angle_around",
+      "torso_frame",
+      "x55_palm_axes",
+      "wrist_signed_metrics",
+      "palm_axis_diag",
+      "bone_live_across",
+      "bone_dir",
+      "avatar_metrics",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/measure_fit_head_cost.py",
+    "lines": 223,
+    "bytes": 8124,
+    "docstring": "Measure the isolated NLF-S fit-head cost.\n\nThe question: how much does adding SMPL rotations (pose/betas/trans) to the\nruntime cost, beyond what the runtime already does?\n\nThree estimation paths on the SAME image + box (no YOLO, torch, same GPU):\n\n  1. nonparam fast    — _estimate_poses_batched with 24-joint weights\n  2. nonparam dense   — _estimate_poses_batched with x55+surface1024 weights\n                        (the query set the runtime dense mode already runs)\n  3. parametric       — _estimate_parametric_batched (canonical query + SMPL fit)\n\n  pure_fit_ms     = parametric - dense      (what adding rotations costs)\n  dense_query_ms  = dense - fast            (the extra canonical points)\n  full_nonparam   = parametric - fast\n\nSanity: parametric pose/betas/trans must match detect_smpl_batched's fitted\noutputs on the same frame (proves _estimate_parametric_batched IS the fit).\n\nProbe only — no runtime change.",
+    "top_level_functions": [
+      "bench",
+      "first_tensor_list",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/measure_punch_roll.py",
+    "lines": 229,
+    "bytes": 9324,
+    "docstring": "Measure wrist-roll signal: NLF-S x55 finger knuckles vs the SMPL fit.\n\nThe live viewer draws the palm axes (cyan = palm fwd, magenta = across\nindex<->pinky, yellow = forearm) from the *non-parametric* x55 joints. This\nprobe answers: during a punch sequence, does that across vector actually rotate\naround the forearm axis (roll/pronation), or is the signal flat?\n\nFor each boxing frame and each hand:\n  - non-param x55 (what the viewer shows):\n      across = pinky1 - index1 ; forearm = wrist - elbow\n      roll_deg_t = signed angle of across projected on the plane perpendicular\n                   to the forearm (per-frame local basis, consistent sign)\n      swept_deg   = cumulative signed roll across the sequence (unwrap)\n      span_mm     = |across| (knuckle credibility: tiny/erratic => noise)\n  - parametric fit (SMPL24, the expensive rotations):\n      wrist rotvec projected on the fitted forearm axis = pronation proxy\n      |wrist rotvec| = total wrist rotation magnitude\n\nThe comparison tells us whether the fast path the game runs carries the roll\nsignal at all, and how much the full fit would add.",
+    "top_level_functions": [
+      "list_images",
+      "rotvec_angle",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/nlf_bbox_track.py",
+    "lines": 138,
+    "bytes": 4817,
+    "docstring": "Light person bbox helpers for NLF fast path (no YOLOv8x every frame).\n\nUse with estimate_poses_batched when the frame is not a tight person crop:\n  - sticky IoU tracker from an occasional YOLOv8n (or external) box\n  - full-frame only as last-resort fallback",
+    "top_level_functions": [
+      "xyxy_to_xywh",
+      "expand_xywh",
+      "iou_xywh",
+      "StickyBBox",
+      "YoloNanoPerson"
+    ]
+  },
+  {
+    "path": "scripts/nlf_engine.py",
+    "lines": 797,
+    "bytes": 34949,
+    "docstring": "NLF-S accelerated feature engines + async latest-frame-wins pose pipeline.\n\nReplaces ONLY the expensive backbone stage (EffNetV2-S) of the NLF fast path with\na pluggable engine; warp, decode and reconstruct always run the model's own\n(cheap) compiled methods. Backends, all from the SAME fp16/fp32 ONNX export:\n\n  torch  — the original TorchScript path (reference; very slow on CPU)\n  trt    — TensorRT engine (NVIDIA GPUs; fastest)\n  dml    — onnxruntime-directml (any DirectX 12 GPU: AMD/Intel/NVIDIA iGPU)\n  ov     — OpenVINO (Intel CPU + iGPU via the GPU plugin)\n  ort    — onnxruntime CPU (anywhere, no GPU)\n\nBackend selection is MEASURED, not heuristic: `calibrate_backend` benches every\nloadable backend on the real pose path and picks the fastest (TRT tie-break\nwithin 20% for CUDA robustness), cached by hardware fingerprint. At runtime\n`AsyncPoseWorker` monitors latency/drops and hot-swaps via `set_backend` when\ndegraded (1.5x baseline); hard failures (e.g. a DML driver TDR) auto-fallback\nto the next-fastest candidate after 2 consecutive errors.\n\nThe `AsyncPoseWorker` runs decode/detect/infer off the asyncio event loop with\nlatest-frame-wins semantics: when the queue is full the oldest frame is dropped,\nso a slow stage never grows the backlog (bounded latency, game-loop pattern).\nYOLO detection runs on its own thread so its spike never blocks the pose path.\n\nValidated end-to-end against `estimate_poses_batched` (0.0002 mm with the ORT\nbackend); quality vs teacher identical to the fast-path reference.",
+    "top_level_functions": [
+      "im_to_linear",
+      "intr_from_fov",
+      "resolve_backend",
+      "_pkg_version",
+      "hardware_fingerprint",
+      "load_backend_choice",
+      "save_backend_choice",
+      "available_backends",
+      "calibrate_backend",
+      "build_trt_engine",
+      "_TrtRunner",
+      "NlfFeatureEngine",
+      "AsyncPoseWorker"
+    ]
+  },
+  {
+    "path": "scripts/nlf_fast_path.py",
+    "lines": 245,
+    "bytes": 9498,
+    "docstring": "NLF-S game/runtime fast path helpers (no YOLO, no SMPL fit, joints-only).",
+    "top_level_functions": [
+      "load_nlf",
+      "smpl24_canonical",
+      "smplx55_canonical",
+      "smpl_surface_canonical",
+      "x55_plus_surface_weights",
+      "smpl24_hand_surface_indices",
+      "lab_joint_indices_smpl24",
+      "get_joint_weights",
+      "fullframe_box",
+      "estimate_joints24",
+      "detect_smpl_joints_nonparam",
+      "cuda_ms",
+      "stage_breakdown"
+    ]
+  },
+  {
+    "path": "scripts/overnight_mocap_queue.py",
+    "lines": 171,
+    "bytes": 5788,
+    "docstring": "Wait for YOLO people batch, then run MediaPipe + GVHMR teacher overnight.\n\nUsage (from pose_corrector_lab):\n  python -u scripts/overnight_mocap_queue.py",
+    "top_level_functions": [
+      "log",
+      "wait_yolo",
+      "run",
+      "ensure_mediapipe",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/pair_poses.py",
+    "lines": 218,
+    "bytes": 8656,
+    "docstring": "Pair MediaPipe ↔ teacher: same clock @ 30 Hz, trunk-align teacher, save sequences.\n\nDoes NOT build training windows yet — that is build_dataset.py.\nOutputs per clip under data/paired/<clip_id>/:\n  mp_30.npy              (T, J, 3) MediaPipe @ 30 Hz (viewer/world convention)\n  mp_2d_30.npy           (T, J, 2) MediaPipe 2D normalized by frame W/H\n  teacher_aligned_30.npy (T, J, 3) teacher translate+scale onto MP (keeps torso yaw)\n  conf_30.npy            (T, J)    MP confidence resampled\n  residual_30.npy        (T, 18)   shoulder/elbow/wrist Δ* in MP body frame\n  meta.json",
+    "top_level_functions": [
+      "_load_yaml",
+      "_flip_mp_to_viewer",
+      "_common_clip_ids",
+      "pair_one",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_mesh_surface.py",
+    "lines": 212,
+    "bytes": 7906,
+    "docstring": "Measure the avatar's SKINNED-MESH SURFACE, not the bones.\n\nThe user reports a sunken belly and \"mountain\" ridges on the back. Those are\nsurface deformations — the skinned mesh stretched or compressed by bones sitting\nfar from their bind pose. Bone-angle probes cannot see them; this one reads the\nactual rendered vertex positions.\n\nFor each chosen real frame it loads the avatar through the bake_seq viewer,\nskins every vertex to world space, then measures the TORSO cylinder between the\nhips and the neck:\n\n  belly_depth : for FRONT (chest-side) vertices around the pelvis level, how far\n                the surface dips INWARD from the band's own p85 baseline. A\n                sunken belly shows as a positive depth in centimetres.\n  back_bumps  : for BACK vertices, RMS (and p99) deviation of the radial\n                distance from a smooth quadratic baseline along the torso.\n                \"Mountains\" show as a large RMS (high-frequency ridges).\n\nThe vertex filter runs IN THE PAGE so high-poly assets (boxeador: 730k verts)\ndo not move megabytes over the browser bridge.\n\nUsage:\n  python scripts/probe_mesh_surface.py --frames 440 --avatar boxeador\n  python scripts/probe_mesh_surface.py --ab   # serve the A/B solver copy",
+    "top_level_functions": [
+      "step_to",
+      "main",
+      "analyze"
+    ]
+  },
+  {
+    "path": "scripts/probe_nlf_dense_surface.py",
+    "lines": 91,
+    "bytes": 3783,
+    "docstring": "Query every NLF SMPL point and summarize its 1,024 surface points by body region.",
+    "top_level_functions": [
+      "root_centered",
+      "as_named",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_nlf_rotations.py",
+    "lines": 223,
+    "bytes": 8424,
+    "docstring": "Probe: does the NLF-S TorchScript model expose SMPL rotation parameters?\n\nThe fast path (estimate_poses_batched) reads only `poses3d` (joints). The full\nAPI (detect_smpl_batched) does YOLO + SMPL fit internally. This probe answers:\n\n  1. What does detect_smpl_batched return beyond joints (keys + shapes)?\n  2. What does estimate_poses_batched return beyond poses3d?\n  3. Are rotation params (axis-angle / rot6d / betas / global_orient / body_pose /\n     hand_pose / expression / transl / verts) present in any output?\n  4. What does the full path cost vs the fast path on the same image?\n\nProbe only: no viewer or runtime change. Writes a JSON report under experiments/.",
+    "top_level_functions": [
+      "list_images",
+      "describe",
+      "find_rotation_hints",
+      "bench",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_nlf_rotations_fit.py",
+    "lines": 236,
+    "bytes": 9158,
+    "docstring": "Deep probe: full NLF-S SMPL fit params on the boxing benchmark sequence.\n\nRuns detect_smpl_batched (YOLO + fit) on every benchmark image and records:\n\n  - pose   (1,72)  SMPL axis-angle params: global_orient(3) + 23 body joints(69)\n  - betas  (1,10)  SMPL shape params\n  - trans  (1,3)   root translation\n  - joints3d (1,24,3)  fitted SMPL joints (same params, same space)\n\nand the fast-path joints (estimate_poses_batched) for the same image, then\nreports sanity stats: pose-norm range across the sequence, betas consistency,\ntrans range, and fitted-vs-fast joint distance. Also times both paths fairly\n(inside torch.inference_mode).\n\nThis validates whether the rotation params are usable signal for retarget /\navatar (spine, shoulder, elbow, wrist, hip articulation) — probe only.",
+    "top_level_functions": [
+      "list_images",
+      "bench",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_nlf_smplx55.py",
+    "lines": 130,
+    "bytes": 5146,
+    "docstring": "Compare the fast NLF SMPL24 and SMPL-X55 queries on still images.\n\nThis is a probe only: it does not change the viewer or runtime pose path.\nIt writes named root-centered points and per-query CUDA timing to JSON so the\nretarget mapping can be verified before integrating any new joint.",
+    "top_level_functions": [
+      "list_images",
+      "cuda_timing",
+      "named_root_centered",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_rig_mapping.py",
+    "lines": 132,
+    "bytes": 5592,
+    "docstring": "Report which rig bones the solver actually maps, per character asset.\n\nExists because a silent mapping gap is invisible from the render: `spine1`/\n`spine2` were never matched (normalizedBoneName stripped digits), so the torso\nwas driven by ONE spine bone and nothing warned about it. Run this whenever a\nnew character is added.\n\nUsage: python scripts/probe_rig_mapping.py [--avatars boxeador,fighter-web]",
+    "top_level_functions": [
+      "H",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_spine_kink.py",
+    "lines": 189,
+    "bytes": 7410,
+    "docstring": "Probe: does the fighter-web spine kink where boxeador does not?\n\nFeeds REAL webcam NLF frames (experiments/nlf_fit_webcam1/fit_smplx.npz)\nthrough the exact bake_seq avatar pipeline (same as live NLF path) for both\navatars, and dumps the spine chain (hips→spine→spine1→spine2→neck→head) with\nper-joint turning angles. A \"kink\" shows up as one joint turning far more than\nits neighbours, or the chain bending sideways where the SMPL chain is straight.\n\nUsage: python scripts/probe_spine_kink.py [--avatars boxeador,fighter-web]",
+    "top_level_functions": [
+      "H",
+      "build_frames",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_torso_twist.py",
+    "lines": 469,
+    "bytes": 21240,
+    "docstring": "Is the avatar's torso TWISTED relative to its pelvis, compared to the fit?\n\nprobe_spine_kink measures the pelvis->neck line and per-joint turning angles.\nBoth are invariant to rotation ABOUT that line, so a torso yawed a constant N\ndegrees relative to the hips is completely invisible to it — which is why the\nspine chain looked \"equivalent\" on both assets while one still reads crooked.\n\nMeasured here instead: the signed horizontal angle between the HIP across\n(leftUpLeg->rightUpLeg) and the SHOULDER across (leftArm->rightArm). That is\ndefinition-free — it is the physical \"how far are the shoulders twisted from the\npelvis\", so the avatar's value and the fit's value are directly comparable with\nno rig-convention constant to subtract. A constant bias between them is a\npermanent torso twist; a large spread is tracking noise.\n\nThe trunk twist is driven by rest.restAcrossInRoot, which the builder sets for\nspine/spine1/spine2/neck/head from the REST shoulder span. That span is assumed\nlateral (purely +/-X). When a character is authored in an asymmetric stance\ninstead of a T/A-pose, the span is yawed, and every trunk frame inherits that\nyaw as a constant error. probe_trunk_rest reports the rest span; this reports\nwhat it costs on real frames.\n\nUsage: python scripts/probe_torso_twist.py [--avatars boxeador,fighter-web]",
+    "top_level_functions": [
+      "yaw_between",
+      "write_ab_solver",
+      "H",
+      "build_frames",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/probe_trunk_rest.py",
+    "lines": 184,
+    "bytes": 7976,
+    "docstring": "Rest-pose geometry of the TRUNK reference axes, per character asset.\n\nThe spine solve is rig-independent (same Spine/Spine1/Spine2 chain on both\nassets, driven by the same SMPL waypoints), so a character that looks crooked\nwhile another looks straight on the SAME pose must differ in its REST\nreferences. Two of those feed every trunk frame:\n\n  restDirection   the bone's aim axis. If childAliases do not resolve, the\n                  builder falls back to children[0] — on Mixamo, Spine2's first\n                  child is LeftShoulder, so the \"spine\" axis becomes a LATERAL\n                  vector and the retarget aims sideways-at-vertical.\n  restAcross      shoulder span (rightArm - leftArm) in rest, shared by\n                  spine/spine1/spine2/neck/head. Its tilt is a CONSTANT twist\n                  offset on the whole torso — exactly a permanent lean.\n\nReports both in root space: angle of restDirection off +Y, its lateral share,\nand the across's tilt off horizontal plus its asymmetry.\n\nUsage: python scripts/probe_trunk_rest.py [--avatars boxeador,fighter-web]",
+    "top_level_functions": [
+      "H",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/process_personal_videos.py",
+    "lines": 88,
+    "bytes": 3423,
+    "docstring": "Run MediaPipe and a corrector checkpoint over standalone local videos.",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/profile_nlf_inference.py",
+    "lines": 163,
+    "bytes": 6175,
+    "docstring": "Profile NLF-S TorchScript: full detect_smpl vs joints-only full-frame fast path.\n\nUsage:\n  python scripts/profile_nlf_inference.py --device cuda --n 40\n  python scripts/profile_nlf_inference.py --clip burn_500_shots__shot_000__person_009\n\nWrites experiments/nlf_speed/profile.json + updates NOTES latency section.",
+    "top_level_functions": [
+      "resolve_video",
+      "first_rgb",
+      "short_clip",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/render_bake_fit_vs_fast.py",
+    "lines": 198,
+    "bytes": 8475,
+    "docstring": "Bake the Mixamo avatar from NLF-S fit joints vs fast x55 joints, side-by-side.\n\nReads experiments/nlf_fit_webcam1/fit_smplx.npz (fit_joints + x55, both T×55×3\nin mm NLF camera space, same joint order), builds the avatar_bake_seq frame\nJSONs (16 lab joints + SMPL-X aux with fingers/eyes/collars), renders each\nsource through viewer/avatar_bake_seq.html with the side camera, and hstacks\nthe two panels into one comparison video.\n\nUsage:\n  python scripts/render_bake_fit_vs_fast.py [--step 2] [--max-frames 0]",
+    "top_level_functions": [
+      "Handler",
+      "build_frames",
+      "render_panel",
+      "to_mp4",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/render_bake_top.py",
+    "lines": 397,
+    "bytes": 18050,
+    "docstring": "Baker top v4: drive the Mixamo avatar's PALM DIRECTION from the fit rotations.\n\nHistory:\n  v1 (full-frame quaternion deltas) was BROKEN: the boxeador GLB rest is NOT a\n  T-pose, so transferring the full frame rotated directions wrongly (knee on\n  chest, inverted shoulders, feet up).\n  v2 (local wrist twist) fixed the body (directions always from positions) but\n  the fist stayed LATERAL.\n  v3 blamed the solver's across FADE and fed a large synthetic finger span to\n  saturate it. THAT DIAGNOSIS WAS WRONG. `computeHandPalmAxes` normalizes the\n  across unconditionally, so the span never reaches the fade -- 0.06 m and 0.6 m\n  produce the same unit vector. v3's own check was also CIRCULAR (see below), so\n  it reported success while the rendered fist was still wrong.\n  v4 (current) fixes the actual cause, in the solver: the hand/forearm rest\n  across was `boneDir x up` (\"T-pose palms face down\"), but this GLB is an\n  A-pose, so that reference was 41 deg (left) / 35 deg (right) off the real palm\n  plane. It is now fitted from the rig's own finger geometry. Measured absolute\n  palm error vs the fit mesh went 133/50 deg -> 8.3/8.4 deg.\n\nThe synthetic finger span below is ONLY a transport mechanism: the solver reads\nthe palm across out of aux index/pinky positions, so we synthesize two points\nthat encode the direction we want. Only the DIRECTION survives (it is\nnormalized) -- the magnitude is irrelevant and is not saturating any fade.\n\nVerification: do NOT trust `--verify` here. It reconstructs the avatar's across\nfrom `rest.restAcrossInRoot`, the very vector the solver just aligned to the\ntarget, so it measures the solver's own objective and passes by construction.\nUse instead:\n  scripts/absolute_palm_error.py   <- absolute, uncalibrated palm error (the gate)\n  scripts/check_palm_fidelity.py   <- tracking vs the fit, never touches restAcross\n  scripts/compare_palm_frames.py   <- paired mesh/avatar close-ups\n\nPanel comparison: LEFT = baker top v4 (palm from fit rotations), RIGHT = fit\njoints with the OBSERVED finger across.",
+    "top_level_functions": [
+      "rotmat",
+      "build_fk",
+      "palm_across_world",
+      "palm_forward_world",
+      "synth_fingers",
+      "build_frames",
+      "Handler",
+      "render_panel",
+      "verify_palm",
+      "to_mp4",
+      "SmplxCanon",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/render_benchmark_avatar_dev.py",
+    "lines": 116,
+    "bytes": 5209,
+    "docstring": "Write NLF-S fast + current-dev Mixamo renders beside benchmark photos.",
+    "top_level_functions": [
+      "Handler",
+      "save_compare",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/render_compare_videos.py",
+    "lines": 271,
+    "bytes": 11029,
+    "docstring": "Render side-view avatar videos: GVHMR teacher vs NLF-S, on a user webcam clip.\n\nPipeline:\n  1) NLF-S: run the live runtime (TRT/DML backend, smplx55 query) over the clip,\n     saving per-frame lab joints + SMPL-X aux.\n  2) Teacher: reuse data/teacher/<clip>/joints3d.npy (lab order) +\n     joints3d_smpl.npy (SMPL22) for the aux.\n  3) Playwright headless drives viewer/avatar_bake_seq.html frame by frame with a\n     side camera; frames go to ffmpeg as h264 mp4.\n  4) Benchmark: per-frame joint error (NLF-S vs teacher) after pelvis + shoulder\n     normalization, plus the existing avatar angle-fidelity report.\n\nUsage:\n  python scripts/render_compare_videos.py --clip henrique_webcam_1 [--max-frames 300] [--only teacher|nlf]",
+    "top_level_functions": [
+      "Handler",
+      "build_nlf_frames",
+      "build_teacher_frames",
+      "render_video",
+      "joint_error_bench",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/render_fit_videos.py",
+    "lines": 194,
+    "bytes": 8159,
+    "docstring": "Render the NLF-S SMPL-X fit (mesh, rotations) vs the fast x55 skeleton.\n\nPrep: reads experiments/nlf_fit_webcam1/fit_smplx.npz (verts T×10475×3 mm,\nfit_joints T×55×3, x55 T×55×3) and writes binary assets + meta for\nviewer/smpl_fit_seq.html:\n\n  render/verts.bin        float32 T×10475×3 (mesh mode)\n  render/faces.bin        uint32 20908×3     (from SMPLX_NEUTRAL.npz)\n  render/joints.bin       float32 T×55×3     (fit_joints → per-frame pelvis center)\n  render_skel/joints.bin  float32 T×55×3     (x55 → fast-path skeleton)\n  each: meta.json         {T, V, F, n_joints, joint_names, subsample}\n\nThen playwright drives smpl_fit_seq.html per frame (subsampled), screenshots\n720×960, and ffmpeg assembles the two panels + a side-by-side mp4.\n\nUsage:\n  python scripts/render_fit_videos.py [--frames N] [--step 2]",
+    "top_level_functions": [
+      "Handler",
+      "prepare",
+      "render_panel",
+      "to_mp4",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/render_spine_ab.py",
+    "lines": 182,
+    "bytes": 7698,
+    "docstring": "Visual A/B of the spine-upright retarget fix on identical real frames.\n\nRenders the SAME real NLF frames (from experiments/nlf_fit_webcam1/fit_smplx.npz)\nthrough viewer/avatar_bake_seq.html-style viewer three ways:\n\n  panel A: fighter-web with the OLD solver (experiments/_solver_no_upright.js)\n  panel B: fighter-web with the CURRENT solver (viewer/mikapo_mixamo_solver.js)\n  panel C: boxeador with the CURRENT solver (reference rig)\n\nand hstacks the three panels per frame into experiments/avatar_spine_ab/*.png.\n\nUsage:\n  python scripts/render_spine_ab.py [--frames 67,500,1052] [--step 1]",
+    "top_level_functions": [
+      "Handler",
+      "build_frames",
+      "render_panel",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/retighten_people_max_yolo.py",
+    "lines": 270,
+    "bytes": 8801,
+    "docstring": "Re-crop existing person clips to max YOLO box size (fixed w/h over the clip).\n\nFor each clip.mp4:\n  1) detect person boxes (primary = most central)\n  2) max_w / max_h across detections\n  3) rewrite clip with that fixed crop centered on smoothed box",
+    "top_level_functions": [
+      "pick_primary",
+      "collect_primary_boxes",
+      "interpolate_boxes",
+      "retighten_clip",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/run_ablation_eval.py",
+    "lines": 523,
+    "bytes": 18013,
+    "docstring": "Export corrected test + benches + append ablation leaderboard.\n\nPrimary game-relevant metric (higher better for ranking):\n  hand_prox_impr_vs_mp from scripts/bench_extended_shoulder_level_hands.py\n  (teacher extended + shoulder-level frames; lower hand_prox_mae_C is better).\n\nAlso records elbow MAE, val hard MPJPE, and test-split hard MPJPE\n(via scripts/eval.py --split test).\n\nUsage:\n  python scripts/run_ablation_eval.py --run-dir runs/<id> --name angle_v1 --ckpt both",
+    "top_level_functions": [
+      "_set_exp_root",
+      "_run",
+      "_config_hash",
+      "_load_summary",
+      "_elbow_from_bench",
+      "_ext_impr",
+      "_hands_from_bench",
+      "_ensure_leaderboard_schema",
+      "_append_leaderboard",
+      "_run_test_hard",
+      "_sort_leaderboard",
+      "_write_entry_pointer",
+      "export_ckpt",
+      "measure_one",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/run_mediapipe.py",
+    "lines": 362,
+    "bytes": 13789,
+    "docstring": "Batch MediaPipe Pose Landmarker on person clips → data/mediapipe/<clip_id>/.",
+    "top_level_functions": [
+      "ensure_model",
+      "discover_people_clips",
+      "_lm_xyz",
+      "_lm_vis",
+      "make_landmarker",
+      "run_one",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/run_noaux_combos_wave.py",
+    "lines": 343,
+    "bytes": 12257,
+    "docstring": "Train + eval wave-2 noaux combo ablations (one GPU, sequential).",
+    "top_level_functions": [
+      "_run",
+      "_parse_run_dir",
+      "seed_baseline",
+      "eval_existing",
+      "train_and_eval",
+      "write_conclusions",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/run_teacher.py",
+    "lines": 292,
+    "bytes": 10430,
+    "docstring": "Run GVHMR teacher on every video in data/input (or --input).\n\nThis wrapper:\n  1) Invokes upstream GVHMR demo per video (when installed)\n  2) Converts outputs into lab-canonical joints3d.npy + meta.json\n  3) Optionally exports viewer JSON\n\nIf GVHMR is not fully installed yet, use --dry-run to scaffold output folders.",
+    "top_level_functions": [
+      "load_cfg",
+      "probe_video_meta",
+      "find_gvhmr_demo",
+      "run_gvhmr_one",
+      "try_load_smpl_joints",
+      "convert_and_save",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/salvage_run.py",
+    "lines": 68,
+    "bytes": 2424,
+    "docstring": "Salvage an interrupted train run that has best_hard.pt but no summary/done line.",
+    "top_level_functions": [
+      "salvage",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/serve_cutter.py",
+    "lines": 265,
+    "bytes": 8790,
+    "docstring": "Interactive shot cutter UI for data/input videos.\n\nUsage:\n  python scripts/serve_cutter.py\n  python scripts/serve_cutter.py --port 8766\n\nOpen http://127.0.0.1:8766/",
+    "top_level_functions": [
+      "list_videos",
+      "safe_input_path",
+      "export_segments",
+      "Handler",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/serve_lab.py",
+    "lines": 1420,
+    "bytes": 60853,
+    "docstring": "Unified Pose Lab: multi-source offline viewer + live webcam corrector / NLF-S.\n\nUsage:\n  python scripts/serve_lab.py\n  → http://127.0.0.1:8780/          (offline clips: MP / Teacher / Corrector / NLF-S)\n  → http://127.0.0.1:8780/live      (webcam + MediaPipe / NLF-S + optional corrector)\n\nLegacy single-source server remains: scripts/serve_viewer.py",
+    "top_level_functions": [
+      "list_ready_clips",
+      "payload_bytes_for_clip",
+      "apply_saved_training_delta",
+      "training_oracle_payload",
+      "discover_checkpoints",
+      "CorrectorRuntime",
+      "NlfRuntime",
+      "_decode_nlf_ws_frame",
+      "start_nlf_websocket",
+      "Handler",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/serve_viewer.py",
+    "lines": 231,
+    "bytes": 8860,
+    "docstring": "Serve the HTML viewer: video | interactive 3D skeleton.\n\nLoads joints on demand from joints3d.npy (caches viewer_payload.json on first open).\n\nPrefer the unified lab (multi-source + live):\n  python scripts/serve_lab.py\n  → http://127.0.0.1:8780/\n\nLegacy single-source usage:\n  python scripts/serve_viewer.py --source mediapipe\n  python scripts/serve_viewer.py --source mediapipe --clip burn_500_shots__shot_000__person_000\n  python scripts/serve_viewer.py --clip shadow_clip_45s --source teacher",
+    "top_level_functions": [
+      "Handler",
+      "list_ready_clips",
+      "payload_bytes_for_clip",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/setup_gvhmr.py",
+    "lines": 94,
+    "bytes": 3451,
+    "docstring": "Clone / configure GVHMR as the offline teacher for this lab.",
+    "top_level_functions": [
+      "run",
+      "write_config",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/smoke_test.py",
+    "lines": 45,
+    "bytes": 1441,
+    "docstring": "Quick sanity checks for lab core modules.",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/split_people.py",
+    "lines": 568,
+    "bytes": 18952,
+    "docstring": "Split a multi-person video into per-person clips via YOLO + ByteTrack.\n\nUsage:\n  python scripts/split_people.py --video \"data/input/Burn 500....mp4\"\n  python scripts/split_people.py --video path.mp4 --min-sec 30 --device 0\n\nOutputs:\n  data/input/people/<stem>/person_XXX/clip.mp4\n  data/input/people/<stem>/person_XXX/meta.json\n  data/input/people/<stem>/people_manifest.json",
+    "top_level_functions": [
+      "stem_slug",
+      "ema_update",
+      "pad_box",
+      "even_size",
+      "max_box_size",
+      "crop_fixed_size",
+      "track_people",
+      "_iou_xyxy",
+      "mean_track_iou",
+      "dedup_overlapping_tracks",
+      "filter_tracks",
+      "export_track_clip",
+      "save_preview",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/split_shots.py",
+    "lines": 282,
+    "bytes": 8369,
+    "docstring": "Detect hard cuts / camera switches and split a video into continuous shots.\n\nUses ffmpeg `scene` score (reliable for hard cuts). Falls back to OpenCV\nhistogram/frame diffs if ffmpeg is unavailable.\n\nUsage:\n  python scripts/split_shots.py --video data/input/shadow_clip_45s.mp4\n  python scripts/split_shots.py --video data/input/shadow_clip_45s.mp4 --threshold 0.35 --min-len 1.0\n\nOutputs under data/input/shots/<video_stem>/:\n  shot_000.mp4, shot_001.mp4, ...\n  shots_manifest.json",
+    "top_level_functions": [
+      "_ffmpeg_bin",
+      "_ffprobe_meta",
+      "detect_cuts_ffmpeg",
+      "detect_cuts_opencv",
+      "export_shot",
+      "split_video",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/train.py",
+    "lines": 472,
+    "bytes": 18187,
+    "docstring": "Train the MediaPipe → residual corrector (GRU v1).",
+    "top_level_functions": [
+      "_load_yaml",
+      "set_seed",
+      "cosine_lr",
+      "eval_delta",
+      "train_one_epoch",
+      "main"
+    ]
+  },
+  {
+    "path": "scripts/try_nlf_tensorrt.py",
+    "lines": 93,
+    "bytes": 3258,
+    "docstring": "Attempt TensorRT FP16 compile of NLF crop_model — only if torch_tensorrt is installed.\n\nThe game fast path already meets CUDA p95 < 33ms without TRT on RTX 3060.\nThis script is the Phase-2 hook from the speed plan.",
+    "top_level_functions": [
+      "main"
+    ]
+  },
+  {
+    "path": "viewer/avatar_assets.js",
+    "lines": 118,
+    "bytes": 4493
+  },
+  {
+    "path": "viewer/avatar_bake.html",
+    "lines": 179,
+    "bytes": 6878
+  },
+  {
+    "path": "viewer/avatar_bake_seq.html",
+    "lines": 204,
+    "bytes": 8539
+  },
+  {
+    "path": "viewer/index.html",
+    "lines": 1505,
+    "bytes": 56555
+  },
+  {
+    "path": "viewer/live.html",
+    "lines": 2461,
+    "bytes": 100490
+  },
+  {
+    "path": "viewer/mikapo_mixamo_solver.js",
+    "lines": 1586,
+    "bytes": 68592
+  },
+  {
+    "path": "viewer/smpl_fit_seq.html",
+    "lines": 213,
+    "bytes": 8709
+  },
+  {
+    "path": "docs/00_overview.md",
+    "lines": 56,
+    "bytes": 2169
+  },
+  {
+    "path": "docs/01_teacher_gvhmr.md",
+    "lines": 107,
+    "bytes": 3190
+  },
+  {
+    "path": "docs/02_dataset_and_features.md",
+    "lines": 186,
+    "bytes": 7161
+  },
+  {
+    "path": "docs/03_training.md",
+    "lines": 214,
+    "bytes": 8047
+  },
+  {
+    "path": "docs/04_evaluation.md",
+    "lines": 122,
+    "bytes": 4429
+  },
+  {
+    "path": "docs/05_checklist.md",
+    "lines": 33,
+    "bytes": 1383
+  },
+  {
+    "path": "docs/06_avatar_3d_retargeting.md",
+    "lines": 329,
+    "bytes": 18983
+  },
+  {
+    "path": "docs/07_nlf_rotations.md",
+    "lines": 59,
+    "bytes": 4216
+  },
+  {
+    "path": "docs/08_meta_tempo_real_rotacoes.md",
+    "lines": 372,
+    "bytes": 23114
+  },
+  {
+    "path": "configs/dataset.yaml",
+    "lines": 64,
+    "bytes": 1249
+  },
+  {
+    "path": "configs/gvhmr_local.yaml",
+    "lines": 10,
+    "bytes": 273
+  },
+  {
+    "path": "configs/train.yaml",
+    "lines": 66,
+    "bytes": 1782
+  },
+  {
+    "path": "configs/train_angle.yaml",
+    "lines": 61,
+    "bytes": 1200
+  },
+  {
+    "path": "configs/train_clean.yaml",
+    "lines": 60,
+    "bytes": 1143
+  },
+  {
+    "path": "configs/train_drop2d.yaml",
+    "lines": 63,
+    "bytes": 1098
+  },
+  {
+    "path": "configs/train_dropaccel.yaml",
+    "lines": 62,
+    "bytes": 1068
+  },
+  {
+    "path": "configs/train_gru384.yaml",
+    "lines": 58,
+    "bytes": 1018
+  },
+  {
+    "path": "configs/train_noaux.yaml",
+    "lines": 58,
+    "bytes": 1006
+  },
+  {
+    "path": "configs/train_noaux_angle.yaml",
+    "lines": 58,
+    "bytes": 1034
+  },
+  {
+    "path": "configs/train_noaux_dropaccel.yaml",
+    "lines": 62,
+    "bytes": 1076
+  },
+  {
+    "path": "configs/train_noaux_gru384.yaml",
+    "lines": 58,
+    "bytes": 1010
+  },
+  {
+    "path": "configs/train_noaux_long.yaml",
+    "lines": 58,
+    "bytes": 1050
+  },
+  {
+    "path": "configs/train_noaux_wrist2.yaml",
+    "lines": 58,
+    "bytes": 1021
+  },
+  {
+    "path": "configs/train_wrist2.yaml",
+    "lines": 58,
+    "bytes": 1009
+  }
+]

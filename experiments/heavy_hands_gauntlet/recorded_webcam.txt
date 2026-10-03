@@ -1,0 +1,52 @@
+{
+  "result": "PASS",
+  "input": "henrique_webcam_1.mp4, seconds 10\u201318, 640\u00d7360@15fps via fake camera",
+  "checks": [
+    "actual webcam pipeline",
+    "JPEG upload",
+    "NLF-S inference",
+    "pose bridge",
+    "game follows poses",
+    "both camera screenshots",
+    "camera stop pauses round"
+  ],
+  "nlfBackend": "dml",
+  "nlfDevice": "cuda",
+  "samples": 1491,
+  "receivedPoseFps": 15.105740177188645,
+  "renderedState": {
+    "active": true,
+    "online": false,
+    "self": 0,
+    "ready": false,
+    "clock": 84.78333333333363,
+    "round": 1,
+    "smooth": 50,
+    "cameraOn": true,
+    "loaded": true,
+    "renderCalls": 104
+  },
+  "pageErrors": [],
+  "limitations": "Recorded replay, not live human latency/accuracy validation.",
+  "hiddenIframeAnimationDisabled": false,
+  "maxPoseGapMs": 838.5,
+  "cameraTranslationPreserved": true,
+  "firstPerson": {
+    "headClip": 1,
+    "camera": [
+      -0.07624511515245394,
+      1.8813650203792207,
+      -0.5120870632700548
+    ],
+    "head": [
+      -0.08369815022961477,
+      1.8565673201146706,
+      -0.6320630497562104
+    ]
+  },
+  "inferredFootFrames": 0,
+  "cameraRootDepthRange": [
+    2.463097333908081,
+    2.766045093536377
+  ]
+}

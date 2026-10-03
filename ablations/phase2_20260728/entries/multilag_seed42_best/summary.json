@@ -1,0 +1,8 @@
+{
+  "best_epoch": 45,
+  "best_hard_mm": 217.91836547851562,
+  "run_dir": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\runs\\20260728_002903_abl_gpt_multilag",
+  "elapsed_s": 2029.4629867076874,
+  "salvaged": true,
+  "had_last": true
+}

@@ -1,0 +1,1963 @@
+import { BoxingAudio } from "/static/boxing_audio.js";
+import { BoxingDebugRecorder } from "/static/boxing_debug_recording.js";
+import * as THREE from "three";
+import {
+  loadAvatar,
+  fillAvatarSelect,
+  CANONICAL_SKELETON_HEIGHT,
+} from "/static/avatar_assets.js";
+import {
+  buildAvatarRig,
+  createAvatarMotion,
+  updateAvatarPose,
+  setRetargetSmoothing,
+  setRetargetBoneSmoothing,
+  resetRetargetFilters,
+  resetHeadCalibration,
+  footDirectionsFromSmplAux,
+  headForwardFromSmplAux,
+} from "/static/mikapo_mixamo_solver.js";
+import {
+  clamp,
+  JOINTS,
+  validPose,
+  neutralPose,
+  PunchDetector,
+  guarded,
+  orbitalStep,
+  orbitalShift,
+  radialShift,
+  WebcamFootwork,
+  PoseRenderBuffer,
+  COMBAT,
+  chinPoint,
+  resolvePunch,
+  resolvePunchBox,
+  punchDamage,
+  punchPower,
+  sparringPose,
+} from "/static/boxing_core.mjs";
+import { DuelConnection } from "/static/boxing_net.js";
+import { validateLibrary, mixFrames, playStrike } from "/static/boxing_mocap.mjs";
+let sparringLibrary = null;
+fetch('/static/sparring_mocap.json').then(r => {
+  if (!r.ok) throw new Error('Sparring motion HTTP ' + r.status);
+  return r.json();
+}).then(data => { sparringLibrary = validateLibrary(data); })
+  .catch(error => console.warn('Sparring motion unavailable; using procedural poses.', error));
+function poseFrame(pose, aux = demoAux(pose)) {
+  return { pose, aux: Object.fromEntries(Object.entries(aux)
+    .filter(([, v]) => v?.isVector3).map(([k, v]) => [k, v.toArray()])) };
+}
+import { FootPlanting, solveTwoBone, prepareFeet, levelFeet, soleBottom } from "/static/boxing_feet.js";
+import { NativeGuardContact } from "/static/avatar_self_contact.js";
+import {
+  CameraShake,
+  ImpactFx,
+  GloveTrail,
+  DizzyStars,
+  CrowdFlashes,
+  toonifyAvatar,
+  addSkinnedOutlines,
+} from "/static/boxing_fx.js";
+import { buildArena, VENUES } from "/static/boxing_arena.js";
+const $ = (id) => document.getElementById(id),
+  sound = new BoxingAudio();
+let effect = null,
+  lastEffect = 0;
+function reviveVector(p) {
+  if (!p) return null;
+  const v = [p.x ?? p[0], p.y ?? p[1], p.z ?? p[2]];
+  return v.every(Number.isFinite) ? new THREE.Vector3(...v) : null;
+}
+function constrainFacing(p, aux) {
+  // Align the base to the opponent without cancelling chest rotation in hooks.
+  const across = new THREE.Vector3(...p[1]).sub(new THREE.Vector3(...p[2]));
+  const heading = Math.atan2(-across.z, across.x);
+  const correction = clamp(heading, -Math.PI / 15, Math.PI / 15) - heading;
+  const c = Math.cos(correction),
+    sn = Math.sin(correction),
+    pivot = new THREE.Vector3(...p[0]);
+  const rotate = (v) => {
+    const x = v.x - pivot.x,
+      z = v.z - pivot.z;
+    v.x = pivot.x + x * c + z * sn;
+    v.z = pivot.z - x * sn + z * c;
+    return v;
+  };
+  for (let i = 0; i < p.length; i++)
+    p[i] = rotate(new THREE.Vector3(...p[i])).toArray();
+  if (aux) {
+    const anchor = aux.pelvis?.clone() || new THREE.Vector3();
+    for (const [key, v] of Object.entries(aux))
+      if (v?.isVector3) {
+        const x = v.x - anchor.x,
+          z = v.z - anchor.z;
+        v.x = anchor.x + x * c + z * sn;
+        v.z = anchor.z - x * sn + z * c;
+      }
+  }
+  return p;
+}
+function demoAux(p) {
+  const aux = { kind: "smpl" };
+  for (const [name, i] of Object.entries(JOINTS))
+    aux[name] = new THREE.Vector3(...p[i]);
+  for (const [name, v] of Object.entries({
+    spine1: [0, 1.05, 0],
+    spine2: [0, 1.2, 0],
+    spine3: [0, 1.4, 0],
+    left_collar: [0.075, 1.43, 0],
+    right_collar: [-0.075, 1.43, 0],
+    left_eye: [0.035, 1.74, 0.075],
+    right_eye: [-0.035, 1.74, 0.075],
+    left_foot: [0.19, 0.05, 0.24],
+    right_foot: [-0.19, 0.05, 0.09],
+  }))
+    aux[name] = new THREE.Vector3(...v);
+  aux.head.z += 0.065;
+  // Synthetic sparring eyes follow the skull instead of staying at fixed
+  // world coordinates while the head moves. Real webcam aux is untouched.
+  const skullUp = aux.head.clone().sub(aux.neck).normalize();
+  const skullAcross = new THREE.Vector3(1, 0, 0).addScaledVector(skullUp, -skullUp.x).normalize();
+  const skullForward = new THREE.Vector3().crossVectors(skullAcross, skullUp).normalize();
+  const eyeCenter = aux.head.clone().addScaledVector(skullUp, 0.03).addScaledVector(skullForward, 0.08);
+  aux.left_eye = eyeCenter.clone().addScaledVector(skullAcross, 0.035);
+  aux.right_eye = eyeCenter.clone().addScaledVector(skullAcross, -0.035);
+  aux.jaw = aux.head.clone().addScaledVector(skullUp, -0.06).addScaledVector(skullForward, 0.06);
+  // Without knuckles the solver leaves the fist at rest roll (palms out on Prism).
+  // Thumb side follows world-up projected off the forearm: palms face inward.
+  for (const [side, w, e] of [["left", 12, 10], ["right", 13, 11]]) {
+    const wrist = new THREE.Vector3(...p[w]),
+      forward = wrist.clone().sub(new THREE.Vector3(...p[e])).normalize();
+    const up = new THREE.Vector3(0, 1, 0).addScaledVector(forward, -forward.y).normalize();
+    const knuckles = wrist.clone().addScaledVector(forward, 0.08);
+    aux[side + "_index"] = knuckles.clone().addScaledVector(up, 0.025);
+    aux[side + "_pinky"] = knuckles.clone().addScaledVector(up, -0.025);
+    aux[side + "_middle"] = knuckles.clone();
+    aux[side + "_hand"] = knuckles.clone();
+    aux[side + "_thumb"] = wrist.clone().addScaledVector(forward, 0.04).addScaledVector(up, 0.045);
+  }
+  return aux;
+}
+function reviveAux(aux) {
+  if (!aux || typeof aux !== "object") return null;
+  const out = { kind: aux.kind };
+  for (const [k, v] of Object.entries(aux)) {
+    if (k === "kind") continue;
+    const p = reviveVector(v);
+    if (p) out[k] = p;
+  }
+  return out;
+}
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#0a101c");
+scene.fog = new THREE.FogExp2("#0a101c", 0.055);
+const renderer = new THREE.WebGLRenderer({
+  canvas: $("arena"),
+  antialias: true,
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.02;
+const camera = new THREE.PerspectiveCamera(48, 1, 0.05, 80);
+camera.position.set(8, 5.2, 8);
+const targetCamera = new THREE.Vector3(),
+  targetLook = new THREE.Vector3();
+function keepEyeOutsideUpperBody(actor, eye, forward) {
+  if (!actor) return;
+  const point = (name) =>
+    actor.rig.bones.get(name)?.bone.getWorldPosition(new THREE.Vector3());
+  const heavy = actor.avatarId === "boxeador";
+  const capsules = [
+    [point("spine2"), point("neck"), heavy ? 0.2 : 0.16],
+    [point("leftArm"), point("leftForeArm"), heavy ? 0.18 : 0.14],
+    [point("rightArm"), point("rightForeArm"), heavy ? 0.18 : 0.14],
+  ].filter(([a, b]) => a && b);
+  const origin = eye.clone();
+  for (let pass = 0; pass < 3; pass++) {
+    for (const [a, b, r] of capsules) {
+      const segment = b.clone().sub(a),
+        length = segment.lengthSq();
+      const t = length
+        ? clamp(eye.clone().sub(a).dot(segment) / length, 0, 1)
+        : 0;
+      const nearest = a.clone().addScaledVector(segment, t);
+      const away = eye.clone().sub(nearest),
+        distance = away.length();
+      if (distance < r + camera.near) {
+        if (distance < 0.001) away.copy(forward);
+        else away.divideScalar(distance);
+        eye.addScaledVector(away, r + camera.near - distance);
+      }
+    }
+    // Prefer the nearest exterior point, with bounded clearance at eye level.
+    const correction = eye.clone().sub(origin).clampLength(0, 0.12);
+    eye.copy(origin).add(correction);
+  }
+}
+const eyeFill = new THREE.PointLight("#ffede0", 0.75, 2.4, 2);
+eyeFill.visible = false;
+scene.add(eyeFill);
+const arena = buildArena(scene);
+const shake = new CameraShake();
+const fx = new ImpactFx(scene);
+const flashes = new CrowdFlashes(scene, arena.seats);
+const trails = [0, 1].map(() => [new GloveTrail(scene), new GloveTrail(scene)]);
+const stars = [0, 1].map(() => new DizzyStars(scene));
+const CORNER_COLORS = ["#5cc8ff", "#ff6b7d"];
+$("train").disabled = $("online").disabled = true;
+let self = 0,
+  active = false,
+  online = false,
+  ready = false,
+  clock = 90,
+  round = 1,
+  acc = 0,
+  last = performance.now(),
+  sendTime = 0,
+  messageUntil = 0,
+  first = false,
+  smooth = Number(localStorage.getItem("labAvatarSmoothing") ?? 50),
+  cameraOn = false,
+  lastPoseTime = 0,
+  poseFrameTime = -1,
+  baseline = null,
+  loaded = false,
+  // Presentation clock: hit-stop and slow motion bend it; simulation never does.
+  vclock = 0,
+  hitstopUntil = 0,
+  slowmoUntil = 0,
+  ko = null,
+  lastTick = -1,
+  heartbeatAt = 0,
+  liveAnnounced = false;
+const combatState = () => ({
+  stun: 0,
+  dizzy: 0,
+  recoil: 0,
+  weakened: 0,
+  dizzyImmune: 0,
+  headHits: [],
+  combo: 0,
+  comboUntil: 0,
+  blockHold: null,
+  reaction: null,
+  stats: { clean: 0, chin: 0, maxCombo: 0, fastest: 0, blocked: 0 },
+});
+const fighters = [0, 1].map((i) => ({
+  x: 0,
+  z: i === 0 ? -0.68 : 0.68,
+  yaw: i === 0 ? 0 : Math.PI,
+  hp: 100,
+  ...combatState(),
+  pose: neutralPose(),
+  aux: demoAux(neutralPose()),
+  lateral: 0,
+  radial: 0,
+  footwork: new WebcamFootwork(),
+  detector: new PunchDetector(),
+  attacks: [],
+  score: 0,
+  avatarId:
+    i === 0
+      ? localStorage.getItem("labAvatarId") || "boxer-prism31"
+      : "boxeador",
+}));
+const actors = [null, null];
+const presentation = [new PoseRenderBuffer(), new PoseRenderBuffer()];
+const presentedSource = [null, null];
+const handPrevious = [[null, null], [null, null]];
+// Hit volumes measured on the rendered avatars each frame: what you see is what hits.
+const hitboxes = [null, null];
+const GLOVE_RADIUS = 0.08;
+function meshHitBox(i) {
+  const a = actors[i];
+  if (!a) return null;
+  const P = (n) => a.rig.bones.get(n)?.bone.getWorldPosition(new THREE.Vector3());
+  const headBone = a.rig.bones.get("head")?.bone;
+  const hips = P("hips"), chest = P("spine2") || P("spine1") || P("spine"), leftArm = P("leftArm"), rightArm = P("rightArm");
+  if (!headBone || !hips || !chest || !leftArm || !rightArm) return null;
+  const surface = a.headSurface;
+  const headCenter = surface ? headBone.localToWorld(surface.center.clone()) : P("head").add(new THREE.Vector3(0, 0.1, 0));
+  const headRadius = surface ? surface.radius * headBone.getWorldScale(new THREE.Vector3()).x * 1.1 : 0.12;
+  const forward = a.group.getWorldDirection(new THREE.Vector3());
+  const chin = headCenter.clone().add(new THREE.Vector3(0, -headRadius * 0.65, 0)).addScaledVector(forward, headRadius * 0.55);
+  const limbs = ["left", "right"].map((side) => ({ elbow: P(side + "ForeArm"), wrist: P(side + "Hand") }));
+  if (limbs.some((l) => !l.elbow || !l.wrist)) return null;
+  const along = (l, k) => l.wrist.clone().add(l.wrist.clone().sub(l.elbow).multiplyScalar(k)).toArray();
+  return {
+    head: { c: headCenter.toArray(), r: headRadius + GLOVE_RADIUS },
+    chin: { c: chin.toArray(), r: 0.05 + GLOVE_RADIUS * 0.5 },
+    body: { a: hips.toArray(), b: chest.toArray(), r: leftArm.distanceTo(rightArm) * 0.42 + GLOVE_RADIUS },
+    arms: limbs.map((l) => ({ a: l.elbow.toArray(), b: along(l, 0.35), r: 0.04 + GLOVE_RADIUS * 0.6 })),
+    gloves: limbs.map((l) => along(l, 0.25)),
+  };
+}
+const bruises = [[], []];
+function notify(text, seconds = 1.1) {
+  $("combatMessage").textContent = text;
+  messageUntil = performance.now() + seconds * 1000;
+}
+function setSmooth() {
+  smooth = clamp(Number($("smooth").value), 0, 100);
+  $("smoothValue").textContent = smooth + "%";
+  localStorage.setItem("labAvatarSmoothing", smooth);
+  for (const buffer of presentation) buffer.reset();
+  presentedSource.fill(null);
+  for (const a of actors)
+    if (a) {
+      setRetargetSmoothing(
+        a.rig,
+        (1.5 * 50) / Math.max(1, smooth),
+        (1.5 * 50) / Math.max(1, smooth),
+      );
+      setRetargetBoneSmoothing(
+        a.rig,
+        [
+          "leftShoulder",
+          "rightShoulder",
+          "leftArm",
+          "rightArm",
+          "leftForeArm",
+          "rightForeArm",
+          "leftHand",
+          "rightHand",
+        ],
+        (4 * 50) / Math.max(1, smooth),
+        (4 * 50) / Math.max(1, smooth),
+      );
+      resetRetargetFilters(a.rig);
+    }
+}
+$("audio").checked = sound.enabled;
+$("volume").value = sound.volume * 100;
+$("audio").onchange = () => sound.setEnabled($("audio").checked);
+$("volume").oninput = () => sound.setVolume(Number($("volume").value) / 100);
+$("musicVolume").value = sound.musicVolume * 100;
+$("musicVolume").oninput = () => sound.setMusicVolume(Number($("musicVolume").value) / 100);
+// The menu theme starts right away when the browser allows autoplay; otherwise
+// the first click/key anywhere unlocks it (listeners stay until it plays).
+sound.startMusic();
+for (const type of ["pointerdown", "keydown", "touchstart"])
+  addEventListener(type, () => sound.musicPlaying() || sound.startMusic(), { capture: true });
+$("soundHint").onclick = () => {
+  if (!sound.enabled) {
+    $("audio").checked = true;
+    sound.setEnabled(true);
+  }
+  sound.startMusic();
+};
+$("smooth").value = smooth;
+setSmooth();
+$("smooth").oninput = setSmooth;
+async function createActor(i, id) {
+  const previous = actors[i];
+  const { root } = await loadAvatar(id);
+  root.scale.multiplyScalar(1.72 / CANONICAL_SKELETON_HEIGHT);
+  if (localStorage.getItem("cornerToon") !== "off") toonifyAvatar(root);
+  const group = new THREE.Group();
+  group.rotation.order = "YXZ";
+  group.add(root);
+  scene.add(group);
+  root.traverse((n) => {
+    if (n.isMesh) {
+      n.castShadow = n.receiveShadow = true;
+    }
+  });
+  const a = {
+    avatarId: id,
+    root,
+    group,
+    rig: buildAvatarRig(root),
+    motion: createAvatarMotion(),
+    feet: new FootPlanting(),
+    groundInitialized: false,
+    gloves: [],
+    clip: { active: { value: 0 }, head: { value: new THREE.Vector3() } },
+    flash: { value: 0 },
+    flashColor: { value: new THREE.Color("#ffffff") },
+    flashStart: -1e9,
+    flashPeak: 0,
+    bruise: { value: [0, 1, 2, 3].map(() => new THREE.Vector4(0, -10, 0, 0)) },
+  };
+  root.traverse((n) => {
+    if (!n.isMesh) return;
+    for (const m of Array.isArray(n.material) ? n.material : [n.material]) {
+      m.userData.cornerOriginalSide = m.side;
+      m.onBeforeCompile = (shader) => {
+        shader.uniforms.cornerClip = a.clip.active;
+        shader.uniforms.cornerHead = a.clip.head;
+        shader.uniforms.cornerFlash = a.flash;
+        shader.uniforms.cornerFlashColor = a.flashColor;
+        shader.uniforms.cornerBruise = a.bruise;
+        shader.uniforms.cornerBones = {
+          value: new THREE.Vector2(
+            n.skeleton?.bones.indexOf(a.rig.bones.get("head")?.bone) ?? -2,
+            n.skeleton?.bones.indexOf(a.rig.bones.get("neck")?.bone) ?? -2,
+          ),
+        };
+        shader.vertexShader =
+          "varying vec3 cornerWorld;varying float cornerHeadWeight;uniform vec2 cornerBones;\nfloat cornerBoneWeight(float id,float weight){return (abs(id-cornerBones.x)<0.5||abs(id-cornerBones.y)<0.5)?weight:0.0;}\n" +
+          shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace(
+          "#include <worldpos_vertex>",
+          "#include <worldpos_vertex>\ncornerWorld=(modelMatrix*vec4(transformed,1.0)).xyz;\ncornerHeadWeight=-1.0;\n#ifdef USE_SKINNING\ncornerHeadWeight=cornerBoneWeight(skinIndex.x,skinWeight.x)+cornerBoneWeight(skinIndex.y,skinWeight.y)+cornerBoneWeight(skinIndex.z,skinWeight.z)+cornerBoneWeight(skinIndex.w,skinWeight.w);\n#endif\n",
+        );
+        shader.fragmentShader =
+          "varying vec3 cornerWorld;varying float cornerHeadWeight;uniform float cornerClip;uniform vec3 cornerHead;uniform float cornerFlash;uniform vec3 cornerFlashColor;uniform vec4 cornerBruise[4];\n" +
+          shader.fragmentShader;
+        shader.fragmentShader = shader.fragmentShader.replace(
+          "#include <clipping_planes_fragment>",
+          "#include <clipping_planes_fragment>\nif(cornerClip>0.5 && (cornerHeadWeight>0.08 || (cornerHeadWeight<0.0 && length(cornerWorld.xz-cornerHead.xz)<0.36 && cornerWorld.y>cornerHead.y-0.12))) discard;",
+        );
+        // Bruises tint the skin itself (multiplied, so texture detail survives),
+        // only on head/neck-weighted skin so gloves never pick them up.
+        shader.fragmentShader = shader.fragmentShader.replace(
+          "#include <color_fragment>",
+          "#include <color_fragment>\nif(cornerHeadWeight>0.3){float cornerRed=0.0;float cornerCore=0.0;for(int i=0;i<4;i++){vec4 b=cornerBruise[i];float d=distance(cornerWorld,b.xyz);cornerRed=max(cornerRed,b.w*(1.0-smoothstep(0.015,0.06,d)));cornerCore=max(cornerCore,b.w*(1.0-smoothstep(0.004,0.026,d)));}float k=clamp((cornerHeadWeight-0.3)/0.4,0.0,1.0);diffuseColor.rgb*=mix(vec3(1.0),vec3(1.0,0.48,0.5),cornerRed*k);diffuseColor.rgb*=mix(vec3(1.0),vec3(0.62,0.26,0.42),cornerCore*k*0.8);}",
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          "#include <tonemapping_fragment>",
+          "gl_FragColor.rgb=mix(gl_FragColor.rgb,cornerFlashColor,cornerFlash);\n#include <tonemapping_fragment>",
+        );
+      };
+      m.customProgramCacheKey = () => "corner-head-clip-v3";
+      m.needsUpdate = true;
+    }
+  });
+  updateAvatarPose({
+    model: root,
+    rig: a.rig,
+    pose: neutralPose(),
+    nameToIndex: JOINTS,
+    motion: a.motion,
+    aux: demoAux(neutralPose()),
+    allowFeet: true,
+    plantGround: true,
+    groundY: 0,
+  });
+  root.updateWorldMatrix(true, true);
+  const headY = a.rig.bones
+    .get("head")
+    .bone.getWorldPosition(new THREE.Vector3()).y;
+  const feetY = Math.min(
+    ...["leftFoot", "rightFoot"].map(
+      (n) => a.rig.bones.get(n).bone.getWorldPosition(new THREE.Vector3()).y,
+    ),
+  );
+  root.scale.multiplyScalar(1.72 / Math.max(0.5, headY - feetY));
+  a.rig = buildAvatarRig(root);
+  a.motion = createAvatarMotion();
+  root.updateWorldMatrix(true, true);
+  a.guardContact = new NativeGuardContact(a);
+  a.headSurface = sampleHeadSurface(a);
+  a.flatFeet = levelFeet(a);
+  prepareFeet(a);
+  // The solver grounds the lowest foot/toe bone, which sits inside the shoe;
+  // offset it by the shoe so the sole (not the bone) lands on the canvas.
+  {
+    const feet = ["leftFoot", "rightFoot"].map((n) => a.rig.bones.get(n)).filter(Boolean);
+    const boneLow = Math.min(...feet.flatMap((r) => [r.bone, r.child].filter(Boolean).map((b) => b.getWorldPosition(new THREE.Vector3()).y)));
+    const soleLow = Math.min(...feet.map((r) => soleBottom(a, r.bone)));
+    a.groundY = Number.isFinite(boneLow - soleLow) ? boneLow - soleLow : 0;
+  }
+  if (localStorage.getItem("cornerToon") !== "off" && localStorage.getItem("cornerOutline") === "on")
+    addSkinnedOutlines(root, id).then((hulls) => (a.outlines = hulls));
+  actors[i] = a;
+  bruises[i] = [];
+  handPrevious[i] = [null, null];
+  if (previous) {
+    scene.remove(previous.group, ...previous.gloves);
+    previous.root.traverse((n) => {
+      if (n.isMesh) {
+        n.geometry?.dispose();
+        for (const m of Array.isArray(n.material) ? n.material : [n.material])
+          m?.dispose();
+      }
+    });
+  }
+  fighters[i].avatarId = id;
+  setSmooth();
+}
+// Head skin samples in head-bone space: bruises land on the real face surface
+// whatever the avatar's proportions.
+function sampleHeadSurface(a) {
+  const head = a.rig.bones.get("head")?.bone;
+  if (!head) return null;
+  const points = [];
+  a.root.traverse((mesh) => {
+    if (!mesh.isSkinnedMesh || mesh.userData.cornerOutline) return;
+    const id = mesh.skeleton.bones.indexOf(head);
+    const { position, skinIndex, skinWeight } = mesh.geometry.attributes;
+    if (id < 0 || !skinIndex) return;
+    mesh.skeleton.update();
+    const step = Math.max(1, Math.floor(position.count / 40000));
+    for (let v = 0; v < position.count; v += step) {
+      let w = 0;
+      for (let c = 0; c < 4; c++)
+        if (skinIndex.getComponent(v, c) === id) w += skinWeight.getComponent(v, c);
+      if (w < 0.6) continue;
+      const p = new THREE.Vector3().fromBufferAttribute(position, v);
+      mesh.applyBoneTransform(v, p);
+      points.push(head.worldToLocal(mesh.localToWorld(p)));
+    }
+  });
+  if (points.length < 20) return null;
+  const center = points.reduce((s, p) => s.add(p), new THREE.Vector3()).divideScalar(points.length);
+  const radius = points.reduce((s, p) => s + p.distanceTo(center), 0) / points.length;
+  return { points, center, radius };
+}
+// Picks the skin point facing the punch; nearby repeat hits deepen one bruise.
+function addBruise(i, worldDirection, strength) {
+  const a = actors[i], surface = a?.headSurface, head = a?.rig.bones.get("head")?.bone;
+  if (!surface || !head) return;
+  const inverse = head.getWorldQuaternion(new THREE.Quaternion()).invert();
+  const dir = worldDirection.clone().normalize().applyQuaternion(inverse);
+  let best = null, score = -Infinity;
+  for (const p of surface.points) {
+    const s = p.clone().sub(surface.center).normalize().dot(dir);
+    if (s > score) (score = s), (best = p);
+  }
+  const local = best.clone().lerp(surface.center, 0.06);
+  const near = bruises[i].find((b) => b.local.distanceTo(local) < surface.radius * 0.3);
+  if (near) near.w = Math.min(1, near.w + strength * 0.6);
+  else {
+    bruises[i].push({ local, w: strength });
+    if (bruises[i].length > 4) bruises[i].shift();
+  }
+}
+fillAvatarSelect($("avatarSelect"), fighters[0].avatarId);
+for (const opt of $("avatarSelect").options)
+  opt.textContent =
+    {
+      "boxer-prism31": "Prism • técnico",
+      boxeador: "Titan • peso pesado",
+      "fighter-web": "Fighter • clássico",
+    }[opt.value] || opt.textContent;
+$("avatarSelect").onchange = async () => {
+  showFighter();
+  try {
+    $("avatarSelect").disabled = true;
+    document.body.classList.add("loading-fighter");
+    await createActor(self, $("avatarSelect").value);
+    localStorage.setItem("labAvatarId", $("avatarSelect").value);
+  } catch (e) {
+    notify("Falha ao carregar personagem");
+    $("loadStatus").textContent = e.message;
+  } finally {
+    $("avatarSelect").disabled = false;
+    document.body.classList.remove("loading-fighter");
+  }
+};
+try {
+  await Promise.all([
+    createActor(0, fighters[0].avatarId),
+    createActor(1, fighters[1].avatarId),
+  ]);
+  loaded = true;
+  $("train").disabled = $("online").disabled = false;
+  $("loadStatus").textContent = "Lutadores prontos • webcam + NLF";
+} catch (e) {
+  $("loadStatus").textContent = "Erro ao carregar lutadores: " + e.message;
+}
+function reset() {
+  for (const buffer of presentation) buffer.reset();
+  presentedSource.fill(null);
+  finalResult = null;
+  effect = null;
+  lastEffect = 0;
+  baseline = null;
+  clock = 90;
+  round = 1;
+  ko = null;
+  hitstopUntil = slowmoUntil = 0;
+  lastTick = -1;
+  liveAnnounced = false;
+  fx.clear();
+  document.body.classList.remove("dazed", "low-hp");
+  for (let i = 0; i < 2; i++) {
+    bruises[i] = [];
+    trails[i].forEach((t) => t.reset());
+    Object.assign(fighters[i], {
+      x: 0,
+      z: i ? 0.68 : -0.68,
+      hp: 100,
+      ...combatState(),
+      score: 0,
+      ai: null,
+      tracking: false,
+      pose: neutralPose(),
+      aux: demoAux(neutralPose()),
+      lateral: 0,
+      lateralTarget: 0,
+      lateralApplied: 0,
+      lateralOrigin: 0,
+      radial: 0,
+      radialTarget: 0,
+      radialApplied: 0,
+      radialOrigin: 0,
+      footContacts: null,
+      footVisible: null,
+      proceduralFeet: false,
+      attacks: [],
+      reaction: null,
+    });
+    fighters[i].detector = new PunchDetector();
+    fighters[i].footwork.reset();
+    if (actors[i]) { actors[i].feet.reset(); actors[i].groundInitialized=false; }
+  }
+}
+function enter(isOnline = false) {
+  if (!loaded) return;
+  sound.start().catch((e) => ($("trackingStatus").textContent = e.message));
+  sound.setMusicMode("fight");
+  active = true;
+  online = isOnline;
+  $("lobby").hidden = true;
+  $("hud").hidden = false;
+  $("guide").hidden = false;
+  $("exit").hidden = false;
+  document.body.classList.add("fighting");
+  if (window.cornerDebug) window.cornerDebug.snapCamera = true;
+  $("opponentName").textContent = isOnline ? "OPONENTE" : "SPARRING";
+  document.querySelector(".fighter.right .badge").textContent = isOnline ? "P2" : "CPU";
+  $("exit").textContent = isOnline ? "Sair da sala" : "Sair do treino";
+  $("fightState").textContent = isOnline ? "DUELO ONLINE" : "TREINAMENTO";
+  if (!isOnline) {
+    self = 0;
+    reset();
+    notify("Ative sua webcam", 1.8);
+  }
+  if (!cameraOn) $("cameraButton").click();
+}
+function exit() {
+  sound.stop();
+  sound.setMusicMode("lobby");
+  if (cameraOn) $("cameraButton").click();
+  active = false;
+  online = false;
+  self = 0;
+  net.close();
+  $("lobby").hidden = false;
+  $("hud").hidden = true;
+  $("guide").hidden = true;
+  $("exit").hidden = true;
+  document.body.classList.remove("fighting");
+  $("networkStatus").textContent = "ARENA DE TREINO";
+  $("result").close();
+  reset();
+}
+$("train").onclick = () => enter();
+$("exit").onclick = exit;
+$("again").onclick = exit;
+for (const b of document.querySelectorAll("[data-close]"))
+  b.onclick = () => $(b.dataset.close).close();
+$("settingsButton").onclick = () => $("settings").showModal();
+$("online").onclick = () => $("match").showModal();
+function setView() {
+  first = $("view").value === "first";
+  document.body.classList.toggle("first-person", first);
+  camera.fov = first ? 90 : 48;
+  camera.near = first ? 0.018 : 0.05;
+  camera.updateProjectionMatrix();
+  $("viewButton").textContent =
+    "Câmera: " + (first ? "primeira" : "terceira") + " pessoa";
+}
+$("view").onchange = setView;
+$("viewButton").onclick = () => {
+  $("view").value = first ? "third" : "first";
+  setView();
+};
+$("venue").value = localStorage.getItem("cornerVenue") || "night";
+arena.setVenue($("venue").value, renderer);
+$("venue").onchange = () => {
+  localStorage.setItem("cornerVenue", $("venue").value);
+  arena.setVenue($("venue").value, renderer);
+};
+$("fxShake").checked = localStorage.getItem("cornerFx") !== "off";
+const applyFxScale = () => {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  shake.scale = $("fxShake").checked ? (reduced ? 0.35 : 1) : 0;
+  document.body.classList.toggle("calm-fx", !$("fxShake").checked);
+};
+applyFxScale();
+$("fxShake").onchange = () => {
+  localStorage.setItem("cornerFx", $("fxShake").checked ? "on" : "off");
+  applyFxScale();
+};
+$("artStyle").value =
+  localStorage.getItem("cornerToon") === "off" ? "classic" : localStorage.getItem("cornerOutline") === "on" ? "outline" : "toon";
+$("artStyle").onchange = async () => {
+  localStorage.setItem("cornerToon", $("artStyle").value === "classic" ? "off" : "on");
+  localStorage.setItem("cornerOutline", $("artStyle").value === "outline" ? "on" : "off");
+  $("artStyle").disabled = true;
+  try {
+    await Promise.all([0, 1].map((i) => createActor(i, fighters[i].avatarId)));
+  } finally {
+    $("artStyle").disabled = false;
+  }
+};
+// Lobby fighter carousel drives the same select used in settings.
+const FIGHTER_INFO = {
+  "boxer-prism31": ["PRISM", "Técnico • guarda rápida"],
+  boxeador: ["TITAN", "Peso pesado • presença"],
+  "fighter-web": ["FIGHTER", "Clássico • old school"],
+};
+function showFighter() {
+  const [name, style] = FIGHTER_INFO[$("avatarSelect").value] || [$("avatarSelect").selectedOptions[0]?.textContent || "", ""];
+  $("fighterName").textContent = name;
+  $("fighterStyle").textContent = style;
+}
+function cycleFighter(step) {
+  const select = $("avatarSelect");
+  if (select.disabled) return;
+  select.selectedIndex = (select.selectedIndex + step + select.options.length) % select.options.length;
+  showFighter();
+  select.onchange();
+}
+$("fighterPrev").onclick = () => cycleFighter(-1);
+$("fighterNext").onclick = () => cycleFighter(1);
+showFighter();
+let bridgeReady = false;
+window.addEventListener("message", (e) => {
+  if (e.origin !== location.origin || e.source !== $("tracker").contentWindow)
+    return;
+  if (e.data.type === "corner-ready") {
+    bridgeReady = true;
+    return;
+  }
+  if (
+    e.data.type !== "corner-pose" ||
+    !cameraOn ||
+    !validPose(e.data.pose) ||
+    e.data.time <= poseFrameTime
+  )
+    return;
+  poseFrameTime = e.data.time;
+  lastPoseTime = performance.now();
+  debugRecorder.pose(e.data, lastPoseTime);
+  fighters[self].tracking = true;
+  const f = fighters[self];
+  const hasCameraPosition = validPose(e.data.cameraPose);
+  const raw = hasCameraPosition ? e.data.cameraPose : e.data.pose;
+  if (baseline === null) { f.footwork.reset(); baseline = true; }
+  const movement = f.footwork.update(raw, lastPoseTime, hasCameraPosition ? e.data.cameraInfo : null);
+  const p = movement.pose;
+  const hydrated = reviveAux(e.data.aux);
+  constrainFacing(p, hydrated);
+  fighters[self].pose = p;
+  f.poseTimestamp = lastPoseTime;
+  fighters[self].aux = hydrated;
+  fighters[self].headForward =
+    hydrated?.kind === "smpl"
+      ? headForwardFromSmplAux(hydrated)
+      : reviveVector(e.data.headForward);
+  fighters[self].footDirections =
+    hydrated?.kind === "smpl" ? footDirectionsFromSmplAux(hydrated) : null;
+  fighters[self].detected = fighters[self].detector.update(p, lastPoseTime);
+  f.lateral = f.radial = 0;
+  f.lateralTarget = clamp((f.lateralOrigin || 0) + movement.lateral, -50, 50);
+  f.radialTarget = $("depth").checked ? clamp((f.radialOrigin || 0) + movement.radial, -50, 50) : f.radialApplied || 0;
+  f.footContacts = movement.contacts;
+  f.footVisible = movement.footVisible;
+  $("trackingStatus").textContent =
+    e.data.backend === "nlf"
+      ? "NLF-S • rastreamento ativo"
+      : "MediaPipe • rastreamento ativo";
+  if (!movement.framed) $("trackingStatus").textContent = "Mostre o tronco • deslocamento suspenso";
+  else if (movement.footVisible.some(v=>!v)) $("trackingStatus").textContent = "NLF-S • rastreamento ativo • pés fora da imagem";
+});
+$("cameraButton").onclick = async () => {
+  try {
+    const bridge = $("tracker").contentWindow.cornerTracking;
+    if (!bridge)
+      throw Error("Rastreamento ainda está carregando. Tente novamente.");
+    if (cameraOn) {
+      bridge.stop();
+      cameraOn = false;
+      fighters[self].tracking = false;
+      actors[self]?.guardContact.reset();
+      $("preview").hidden = true;
+      $("cameraButton").textContent = "Ativar webcam";
+      $("trackingStatus").textContent = "Webcam desligada • luta pausada";
+      return;
+    }
+    cameraOn = true;
+    fighters[self].tracking = false;
+    fighters[self].lateralOrigin = fighters[self].lateralTarget || 0;
+    fighters[self].radialOrigin = fighters[self].radialTarget || 0;
+    actors[self]?.feet.reset();
+    actors[self]?.guardContact.reset();
+    if (actors[self]) actors[self].groundInitialized = false;
+    baseline = null;
+    poseFrameTime = -1;
+    lastPoseTime = 0;
+    document.getElementById("trackingStatus").textContent =
+      "Preparando NLF-S • aguarde…";
+    await bridge.start();
+    $("cameraButton").textContent = "Desativar webcam";
+    $("preview").srcObject = bridge.video.srcObject;
+    $("preview").hidden = false;
+    $("trackingStatus").textContent =
+      "Aguardando NLF-S • fique inteiro no enquadramento";
+  } catch (e) {
+    cameraOn = false;
+    $("trackingStatus").textContent = "Webcam: " + e.message;
+  }
+};
+$("calibrate").onclick = () => {
+  if (actors[self]) {
+    resetHeadCalibration(actors[self].rig);
+    resetRetargetFilters(actors[self].rig);
+    actors[self].guardContact.reset();
+  }
+  fighters[self].lateralOrigin = fighters[self].lateralTarget || 0;
+  fighters[self].radialOrigin = fighters[self].radialTarget || 0;
+  actors[self]?.feet.reset();
+  if (actors[self]) actors[self].groundInitialized = false;
+  baseline = null;
+  notify("Centro e referência da cabeça recalibrados");
+};
+const net = new DuelConnection(
+  (m) => {
+    if (m.type === "joined") {
+      self = m.slot;
+      ready = false;
+      reset();
+      enter(true);
+      syncAvatar(self, $("avatarSelect").value);
+    }
+    if (m.type === "ready") {
+      ready = true;
+      reset();
+      $("match").close();
+      notify("Lutadores prontos", 2);
+    }
+    if (m.type === "disconnected") {
+      ready = false;
+      notify("Luta pausada", 3);
+    }
+    if (m.type === "input" && self === 0 && validPose(m.pose)) {
+      const f = fighters[1];
+      f.tracking = !!m.tracking;
+      syncAvatar(1, m.avatarId);
+      f.pose = m.pose;
+      f.poseTimestamp = performance.now();
+      f.aux = reviveAux(m.aux);
+      f.lateral = clamp(Number(m.lateral) || 0, -1, 1);
+      f.lateralTarget = clamp(Number(m.lateralTarget) || 0, -50, 50);
+      f.radialTarget = clamp(Number(m.radialTarget) || 0, -50, 50);
+      f.footContacts = Array.isArray(m.footContacts) ? m.footContacts.slice(0,2).map(Boolean) : null;
+      f.footVisible = Array.isArray(m.footVisible) ? m.footVisible.slice(0,2).map(Boolean) : null;
+      f.radial = clamp(Number(m.radial) || 0, -1, 1);
+      f.lastInput = performance.now();
+      if (Array.isArray(m.attacks))
+        for (const a of m.attacks.slice(0, 2))
+          if (
+            [0, 1].includes(a.hand) &&
+            performance.now() - (f.lastRemoteAttack?.[a.hand] || 0) > 300
+          ) {
+            f.lastRemoteAttack ??= [0, 0];
+            f.lastRemoteAttack[a.hand] = performance.now();
+            f.attacks.push({
+              hand: a.hand,
+              start: performance.now(),
+              hit: false,
+              speed: clamp(Number(a.speed) || 2.2, COMBAT.minSpeed, 6),
+            });
+          }
+    }
+    if (m.type === "state" && self === 1 && Array.isArray(m.fighters)) {
+      clock = m.clock;
+      round = m.round;
+      for (let i = 0; i < 2; i++) {
+        const f = m.fighters[i];
+        if (i !== self) syncAvatar(i, f.avatarId);
+        if (
+          !validPose(f.pose) ||
+          ![f.x, f.z, f.yaw, f.hp, f.stun].every(Number.isFinite)
+        )
+          continue;
+        Object.assign(fighters[i], {
+          x: clamp(f.x, -2.55, 2.55),
+          z: clamp(f.z, -2.55, 2.55),
+          yaw: f.yaw,
+          tracking: !!f.tracking,
+          hp: clamp(f.hp, 0, 100),
+          stun: f.stun,
+          dizzy: clamp(Number(f.dizzy) || 0, 0, 5),
+          recoil: clamp(Number(f.recoil) || 0, 0, 1),
+          weakened: clamp(Number(f.weakened) || 0, 0, 2),
+          tracking: !!f.tracking,
+          score: Number(f.score) || 0,
+        });
+        if (f.stats && typeof f.stats === "object")
+          for (const k of Object.keys(fighters[i].stats))
+            fighters[i].stats[k] = Number(f.stats[k]) || 0;
+        if (i !== self) {
+          fighters[i].pose = f.pose;
+          fighters[i].poseTimestamp = performance.now();
+          fighters[i].aux = reviveAux(f.aux);
+          fighters[i].footContacts = Array.isArray(f.footContacts) ? f.footContacts.slice(0,2).map(Boolean) : null;
+          fighters[i].footVisible = Array.isArray(f.footVisible) ? f.footVisible.slice(0,2).map(Boolean) : null;
+          fighters[i].lateralApplied = Number(f.lateralApplied) || 0;
+          fighters[i].radialApplied = Number(f.radialApplied) || 0;
+        } else {
+          // Preserve locally predicted steps not yet acknowledged by host.
+          const pending =
+            (fighters[i].lateralApplied || 0) - (Number(f.lateralApplied) || 0);
+          const peer = m.fighters[1 - i];
+          if (peer && [peer.x, peer.z].every(Number.isFinite))
+          { orbitalShift(fighters[i], peer, pending);
+            radialShift(fighters[i], peer, (fighters[i].radialApplied || 0) - (Number(f.radialApplied) || 0)); }
+        }
+      }
+      if (m.effect && m.effect.seq > lastEffect) {
+        lastEffect = m.effect.seq;
+        impact(m.effect.pos, m.effect.blocked, m.effect);
+      }
+      if (m.result) finish(m.result, false);
+    }
+  },
+  (s) => {
+    $("roomStatus").textContent = s;
+    $("networkStatus").textContent = s.toUpperCase();
+  },
+);
+$("server").value =
+  localStorage.getItem("cornerServer") ||
+  "wss://corner-relay.lnyx9r.easypanel.host";
+$("join").onclick = () => {
+  const url = $("server").value.trim(),
+    room = $("room").value.trim().toUpperCase();
+  if (!/^wss?:\/\//.test(url) || !/^[A-Z0-9_-]{3,24}$/.test(room)) {
+    $("roomStatus").textContent =
+      "Use ws:// ou wss:// e código com 3–24 letras/números.";
+    return;
+  }
+  localStorage.setItem("cornerServer", url);
+  net.connect(url, room, $("transport").value);
+};
+let finalResult = null;
+function finish(result, broadcast = true) {
+  if (finalResult) return;
+  finalResult = result;
+  active = false;
+  const victim = result.ko && result.winner !== null ? 1 - result.winner : null;
+  ko = { start: performance.now(), vstart: vclock, victim, shown: false, delay: result.ko ? 2600 : 1500 };
+  document.body.classList.remove("dazed");
+  sound.setMusicMode("ko");
+  if (result.ko) {
+    sound.ko();
+    hitstopUntil = performance.now() + 220;
+    slowmoUntil = performance.now() + 1500;
+    shake.add(0.9, 6);
+    flashes.burst(20);
+    banner("K.O.!", "ko", 2400);
+  } else {
+    sound.bell();
+    banner(result.winner === null ? "EMPATE!" : "FIM DE LUTA", "end", 1500);
+  }
+  $("resultTitle").textContent =
+    result.winner === null
+      ? "Empate!"
+      : result.winner === self
+        ? "Vitória!"
+        : "Não foi dessa vez.";
+  $("result").dataset.outcome = result.winner === null ? "draw" : result.winner === self ? "win" : "loss";
+  $("resultText").textContent = result.reason;
+  const s = fighters[self].stats;
+  $("resultStats").innerHTML = [
+    [fighters[self].score, "golpes limpos"],
+    [s.maxCombo, "maior combo"],
+    [s.chin, "no queixo"],
+    [s.fastest ? s.fastest.toFixed(1) + "<small>m/s</small>" : "–", "soco mais rápido"],
+  ]
+    .map(([v, l]) => "<div><b>" + v + "</b><span>" + l + "</span></div>")
+    .join("");
+  if (online && self === 0 && broadcast) net.send(snapshot());
+}
+const switching = [false, false];
+function syncAvatar(i, id) {
+  if (
+    !["boxer-prism31", "boxeador", "fighter-web"].includes(id) ||
+    fighters[i].avatarId === id ||
+    switching[i]
+  )
+    return;
+  switching[i] = true;
+  createActor(i, id)
+    .catch((e) => notify("Erro no avatar do oponente"))
+    .finally(() => (switching[i] = false));
+}
+function snapshot() {
+  return {
+    type: "state",
+    clock,
+    round,
+    effect,
+    result: finalResult,
+    fighters: fighters.map((f) => ({
+      x: f.x,
+      z: f.z,
+      yaw: f.yaw,
+      hp: f.hp,
+      stun: f.stun,
+      dizzy: f.dizzy,
+      recoil: f.recoil,
+      weakened: f.weakened,
+      stats: f.stats,
+      pose: f.pose,
+      aux: f.aux,
+      tracking: !!f.tracking,
+      score: f.score,
+      avatarId: f.avatarId,
+      lateralApplied: f.lateralApplied || 0,
+      radialApplied: f.radialApplied || 0,
+      footContacts: f.footContacts,
+      footVisible: f.footVisible,
+    })),
+  };
+}
+function worldPoint(f, p) {
+  return [
+    f.x + p[0] * Math.cos(f.yaw) + p[2] * Math.sin(f.yaw),
+    p[1],
+    f.z - p[0] * Math.sin(f.yaw) + p[2] * Math.cos(f.yaw),
+  ];
+}
+const WORDS = {
+  clean: ["POW!", "BAM!", "PÁ!", "WHAM!"],
+  body: ["TUM!", "THUD!"],
+  chin: ["CRACK!"],
+  finisher: ["BOOM!", "KAPOW!"],
+  counter: ["CONTRA!"],
+  arm: ["TOC!"],
+  guard: ["DEFESA!"],
+};
+const hudSide = (i) => (i === self ? 0 : 1);
+const powerShownAt = [0, 0];
+function restartAnimation(el, ...classes) {
+  el.classList.remove(...classes);
+  void el.offsetWidth;
+  el.classList.add(...classes);
+}
+let bannerUntil = 0;
+function banner(text, kind = "", ms = 1200) {
+  const el = $("banner");
+  el.textContent = text;
+  el.dataset.kind = kind;
+  restartAnimation(el, "show");
+  bannerUntil = performance.now() + ms;
+}
+function popWord(pos, kind, power) {
+  const v = new THREE.Vector3(...pos).project(camera);
+  if (v.z > 1 || Math.abs(v.x) > 1.2 || Math.abs(v.y) > 1.2) return;
+  const layer = $("fxLayer");
+  if (layer.childElementCount > 5) layer.firstElementChild.remove();
+  const word = document.createElement("span");
+  const list = WORDS[kind] || WORDS.clean;
+  word.textContent = list[Math.floor(Math.random() * list.length)];
+  word.className = "pow pow-" + kind;
+  word.style.left = ((v.x + 1) / 2) * innerWidth + "px";
+  word.style.top = ((1 - v.y) / 2) * innerHeight + "px";
+  word.style.setProperty("--rot", (Math.random() * 24 - 12).toFixed(1) + "deg");
+  word.style.setProperty("--size", (0.8 + power * 0.55).toFixed(2));
+  word.addEventListener("animationend", () => word.remove());
+  layer.append(word);
+}
+function showPower(i, power) {
+  const side = hudSide(i);
+  $("pow" + side).style.width = Math.round(10 + power * 90) + "%";
+  $("pow" + side).parentElement.dataset.level = power > 0.85 ? "max" : power > 0.55 ? "strong" : power > 0.25 ? "good" : "weak";
+  $("powLabel" + side).textContent = power > 0.85 ? "MÁXIMO!" : power > 0.55 ? "FORTE" : power > 0.25 ? "BOM" : "FRACO";
+  powerShownAt[side] = performance.now();
+}
+function showCombo(i, n) {
+  if (!(n >= 2)) return;
+  const el = $("combo" + hudSide(i));
+  el.innerHTML = "<b>" + n + "</b><span>GOLPES</span>";
+  restartAnimation(el, "show");
+  sound.combo(n);
+}
+function impact(pos, blocked, hit = null) {
+  const kind = WORDS[hit?.kind] ? hit.kind : blocked ? "guard" : hit?.head === false ? "body" : "clean";
+  const power = clamp(Number(hit?.power ?? 0.5) || 0, 0, 1);
+  const victim = [0, 1].includes(hit?.victim) ? hit.victim : null;
+  const attacker = victim === null ? null : 1 - victim;
+  const dir = Array.isArray(hit?.dir) && hit.dir.length === 3 && hit.dir.every(Number.isFinite) ? hit.dir.slice() : null;
+  const big = kind === "chin" || kind === "finisher";
+  const t = performance.now();
+  sound.impact({ kind, power, head: hit?.head !== false });
+  fx.hit(pos, kind, power, dir);
+  if (victim !== null && dir)
+    fighters[victim].reaction = { dir, head: hit?.head !== false, blocked, kind, power, start: vclock };
+  // Hit-stop sells weight; blocks get a shorter stop.
+  hitstopUntil = Math.max(hitstopUntil, t + (blocked ? 35 : big ? 110 : 45 + power * 35));
+  if (big) slowmoUntil = t + 320;
+  const weight = victim === self ? 1.25 : attacker === self ? 0.8 : 0.5;
+  shake.add((blocked ? 0.12 : big ? 0.65 : 0.22 + power * 0.25) * weight, blocked ? 0 : big ? 5 : 1.5 + power * 2);
+  if (!blocked) flashes.burst(big ? 9 : Math.round(power * 4));
+  if (victim !== null && actors[victim] && !blocked) {
+    const a = actors[victim];
+    a.flashStart = vclock;
+    a.flashPeak = big ? 0.55 : 0.32;
+    a.flashColor.value.set(big ? "#fff1b8" : "#ffffff");
+  }
+  // Strong head shots leave a mark where they land.
+  if (victim !== null && !blocked && hit?.head !== false && (power >= 0.5 || big)) {
+    const head = actors[victim]?.rig.bones.get("head")?.bone.getWorldPosition(new THREE.Vector3());
+    if (head) {
+      const toward = new THREE.Vector3(fighters[attacker].x - fighters[victim].x, 0, fighters[attacker].z - fighters[victim].z).normalize();
+      const direction = kind === "chin" ? toward.add(new THREE.Vector3(0, -1.3, 0)) : new THREE.Vector3(...pos).sub(head).add(toward.multiplyScalar(0.05));
+      addBruise(victim, direction, kind === "chin" ? 0.8 : 0.3 + power * 0.35);
+    }
+  }
+  if (kind === "arm" && attacker !== null && [0, 1].includes(hit?.hand))
+    fighters[attacker].blockHold = { hand: hit.hand, guard: [0, 1].includes(hit.arm) ? hit.arm : hit.hand, start: vclock, point: null };
+  popWord(pos, kind, power);
+  if (attacker !== null) {
+    showPower(attacker, power);
+    if (!blocked) showCombo(attacker, hit?.combo);
+  }
+  if (victim !== null) restartAnimation($("hud").querySelectorAll(".fighter")[hudSide(victim)], blocked ? "blocked" : "hit");
+  if (victim === self && !blocked) restartAnimation($("screenFx"), big ? "chin" : "hurt");
+  if (victim === self && !blocked) {
+    sound.hurtMuffle(big ? 1 : 0.35 + power * 0.35);
+    if (big) sound.ring();
+  }
+  if (hit?.dizzy && victim !== null) {
+    sound.chirps(COMBAT.dizzySeconds);
+    banner(victim === self ? "TONTO!" : "TONTO! FINALIZE!", "dizzy", 1400);
+  } else if (kind === "arm")
+    notify(attacker === self ? "Na guarda! Sua guarda abriu" : victim === self ? "Defendeu! Contra-ataque agora" : "Bloqueio", 0.9);
+  else if (kind === "chin") notify("No queixo!", 0.9);
+  else if (kind === "counter") notify("Contra-ataque • dano extra", 0.9);
+  else if (kind === "finisher") notify("Golpe de misericórdia", 0.9);
+  else if (hit?.weakened) notify(victim === self ? "Golpe no fígado • seus socos enfraquecem" : "Fígado! Socos dele enfraquecem", 1.1);
+}
+// Sparring partner: guard rhythm with real openings, telegraphed punches,
+// covering after being hit and pressure when the player is dazed.
+function updateBot(bot, player, now, dt) {
+  const ai = (bot.ai ??= { mode: "guard", until: now + 1600, next: now + 1500, guard: 1, punch: null, attack: 0, lastHand: 1 });
+  if (bot.dizzy > 0) ai.mode = "dizzy";
+  else if (ai.mode === "dizzy") (ai.mode = "cover"), (ai.until = now + 900);
+  else if (now > ai.until) {
+    ai.mode = ai.mode === "guard" && Math.random() < 0.6 ? "open" : "guard";
+    ai.until = now + (ai.mode === "open" ? 900 + Math.random() * 1000 : 1200 + Math.random() * 1500);
+  }
+  const target = { guard: 1, cover: 1, open: 0.2, dizzy: 0 }[ai.mode];
+  ai.guard += (target - ai.guard) * (1 - Math.exp(-dt * 8));
+  const pressing = player.dizzy > 0;
+  if (!ai.punch && now > ai.next && bot.stun <= 0 && bot.recoil <= 0 && bot.dizzy <= 0 && ai.mode !== "cover") {
+    const candidates = sparringLibrary?.clips.filter(c => c.hand !== ai.lastHand);
+    const clip = candidates?.length ? candidates[Math.floor(Math.random() * candidates.length)] : null;
+    const hand = clip ? clip.hand : ai.lastHand === 0 ? 1 : Math.random() < 0.7 ? 0 : 1;
+    ai.lastHand = hand;
+    ai.punch = {
+      hand,
+      body: Math.random() < 0.25,
+      start: now,
+      windup: pressing ? 110 : 190,
+      speed: (pressing ? 3.1 : 2.2) + Math.random() * 1.3,
+      launched: false,
+      blockedAt: 0,
+      clip,
+    };
+  }
+  let attack = 0, hand = -1, body = false;
+  if (ai.punch) {
+    const p = ai.punch, age = now - p.start;
+    hand = p.hand;
+    body = p.body;
+    if (p.clip) {
+      const elapsed = age / 1000;
+      if (!p.launched && elapsed >= p.clip.launch && !p.blockedAt) {
+        p.launched = true;
+        bot.attacks.push({ hand, start: now, hit: false, mocap: true, speed: p.clip.speed });
+      }
+      attack = clamp((elapsed - p.clip.launch + .12) / .15, 0, 1);
+      ai.captured = playStrike(p.clip, elapsed, sparringLibrary.guard);
+      if (p.blockedAt) {
+        p.blockFrame ||= ai.captured;
+        ai.captured = mixFrames(p.blockFrame, sparringLibrary.guard, (now - p.blockedAt) / 180);
+      }
+      if (elapsed >= p.clip.duration || (p.blockedAt && now - p.blockedAt >= 180)) {
+        ai.punch = null;
+        ai.next = now + (pressing ? 450 + Math.random() * 350 : 1100 + Math.random() * 1000);
+      }
+    } else if (age < p.windup) attack = -0.15 * Math.sin(((age / p.windup) * Math.PI) / 2);
+    else {
+      if (!p.launched) {
+        p.launched = true;
+        bot.attacks.push({ hand, start: now, hit: false, speed: p.speed });
+      }
+      const u = (age - p.windup) / 260;
+      attack = Math.sin(clamp(u, 0, 1) * Math.PI);
+      if (p.blockedAt) attack = Math.min(attack, p.blockedValue * Math.max(0, 1 - (now - p.blockedAt) / 160));
+      if (u >= 1) {
+        ai.punch = null;
+        ai.next = now + (pressing ? 450 + Math.random() * 350 : 1100 + Math.random() * 1000);
+      }
+    }
+  }
+  ai.attack = attack;
+  const procedural = sparringPose(now / 1000, { guard: ai.guard, hand: sparringLibrary ? -1 : hand, attack, body, dizzy: bot.dizzy > 0 ? 1 : 0 });
+  let display = poseFrame(procedural);
+  if (sparringLibrary && bot.dizzy <= 0) {
+    display = mixFrames(display, sparringLibrary.guard, ai.guard);
+    if (ai.punch?.clip || ai.captured) {
+      display = ai.captured || display;
+      if (!ai.punch) ai.captured = null;
+    }
+    if (ai.release) {
+      display = mixFrames(ai.release.frame, display, (now - ai.release.at) / 180);
+      if (now - ai.release.at >= 180) ai.release = null;
+    }
+  }
+  bot.pose = display.pose;
+  bot.aux = reviveAux({ kind: 'smpl', ...display.aux });
+  bot.poseTimestamp = now;
+  bot.lateral = bot.dizzy > 0 ? Math.sin(now / 300) * 0.2 : Math.sin(now / 1800) * 0.25;
+  // Hovers at jab range (a face-aimed straight lands up to ~0.9 m) and steps in to throw.
+  const range = ai.punch ? 0.76 : pressing ? 0.8 : 0.86;
+  const distance = Math.hypot(player.x - bot.x, player.z - bot.z);
+  bot.radial = bot.dizzy > 0 ? -0.25 : clamp((distance - range) * 2.5, -0.5, 0.7);
+  bot.footContacts = [true, true];
+  bot.footVisible = [false, false];
+  bot.proceduralFeet = true;
+}
+function onBotHit(bot, blocked) {
+  const ai = bot.ai;
+  if (!ai || blocked) return;
+  if (ai.punch?.clip) {
+    ai.release = { frame: poseFrame(bot.pose, bot.aux), at: vclock };
+    ai.punch = null;
+    ai.captured = null;
+    bot.attacks = [];
+    ai.next = vclock + 1000;
+  } else if (ai.punch && !ai.punch.launched) ai.punch = null;
+  if (bot.dizzy <= 0) (ai.mode = "cover"), (ai.until = vclock + 650 + Math.random() * 450);
+}
+function simulate(dt, now) {
+  if (!active || (online && !ready)) return;
+  const f = fighters[self];
+  if (!cameraOn || !f.tracking || now - lastPoseTime > 500) {
+    f.lateral = f.radial = 0;
+    f.attacks = [];
+    f.detected = [];
+    if (cameraOn && lastPoseTime && now - lastPoseTime < 1500) return;
+    $("trackingStatus").textContent = cameraOn
+      ? lastPoseTime === 0
+        ? "Aguardando a primeira pose do NLF-S…"
+        : "Rastreamento sem atualização • luta pausada"
+      : "Ative a webcam para entrar na luta";
+    return;
+  }
+  if (
+    online &&
+    (!fighters[1 - self].tracking ||
+      (self === 0 && now - (fighters[1].lastInput || 0) > 1000))
+  ) {
+    $("fightState").textContent = "AGUARDANDO WEBCAM";
+    return;
+  }
+  $("fightState").textContent = online ? "DUELO ONLINE" : "TREINAMENTO";
+  if (!liveAnnounced) {
+    liveAnnounced = true;
+    banner("ROUND " + round + " • LUTE!", "round", 1500);
+    sound.bell();
+  }
+  for (const hit of f.detected || []) {
+    f.attacks.push({
+      hand: hit.hand,
+      start: now,
+      hit: false,
+      mocap: true,
+      speed: hit.speed,
+      previous: hit.previous ? worldPoint(f, hit.previous) : null,
+    });
+    // Immediate feedback on every punch, hit or miss.
+    sound.whoosh(punchPower(hit.speed));
+    showPower(self, punchPower(hit.speed));
+  }
+  f.detected = [];
+  if (online && self === 1) {
+    applyLateralPose(f, fighters[0]);
+    f.attacks = f.attacks.filter((a) => now - a.start < 400);
+    return;
+  }
+  if (!online) {
+    updateBot(fighters[1], fighters[0], now, dt);
+  } else if (now - (fighters[1].lastInput || 0) > 1000) {
+    fighters[1].lateral = fighters[1].radial = 0;
+    fighters[1].attacks = [];
+  }
+  fighters[self].tracking = true;
+  clock -= dt;
+  for (let i = 0; i < 2; i++) {
+    const a = fighters[i],
+      b = fighters[1 - i];
+    applyLateralPose(a, b);
+    a.stun = Math.max(0, a.stun - dt);
+    a.dizzy = Math.max(0, a.dizzy - dt);
+    a.recoil = Math.max(0, a.recoil - dt);
+    a.weakened = Math.max(0, a.weakened - dt);
+    a.dizzyImmune = Math.max(0, a.dizzyImmune - dt);
+    // Only the analytic bot uses velocity/autoadvance. Human position is
+    // entirely owned by camera translation, including deliberate retreat.
+    if (!online && i !== self) orbitalStep(a, b, a.lateral * (a.stun ? 0.65 : 1), a.radial, dt, {min:COMBAT.minDistance,max:4.8});
+    else a.yaw = Math.atan2(b.x-a.x, b.z-a.z);
+    for (const atk of a.attacks) {
+      const age = now - atk.start;
+      if (atk.hit || age > 300) continue;
+      // Damage follows the fastest wrist speed seen during the punch.
+      if (atk.mocap && i === self)
+        atk.speed = Math.max(atk.speed || 0, a.detector.speed[atk.hand] || 0);
+      const mesh = hitboxes[i] && hitboxes[1 - i];
+      // Pose-space start points are not comparable with mesh space: restart the sweep.
+      if (mesh && !atk.meshSweep) (atk.previous = null), (atk.meshSweep = true);
+      const current = mesh ? hitboxes[i].gloves[atk.hand].slice() : worldPoint(a, a.pose[12 + atk.hand]),
+        previous = atk.previous || current;
+      atk.previous = current;
+      if (!atk.mocap && age <= 30) continue;
+      // A dazed or recoiling fighter cannot raise a working guard.
+      const open = b.dizzy > 0 || b.recoil > 0;
+      const res = mesh
+        ? resolvePunchBox(previous, current, hitboxes[1 - i], { arms: !open })
+        : resolvePunch(previous, current, b.pose, (p) => worldPoint(b, p), { arms: !open });
+      if (!res) continue;
+      atk.hit = true;
+      const speed = clamp(atk.speed || 2.2, COMBAT.minSpeed, 6),
+        power = punchPower(speed);
+      const guard = res.target === "head" && !open && guarded(b.pose);
+      const counter = b.recoil > 0 || b.attacks.some((x) => !x.hit && now - x.start < 260);
+      const chin = res.chin && !guard && power >= COMBAT.chinPower;
+      const kind =
+        res.target === "arm" ? "arm"
+        : guard ? "guard"
+        : b.dizzy > 0 ? "finisher"
+        : chin ? "chin"
+        : counter ? "counter"
+        : res.target === "body" ? "body"
+        : "clean";
+      const blocked = kind === "arm" || kind === "guard";
+      const damage = punchDamage({
+        speed,
+        target: res.target,
+        chin,
+        guard,
+        dizzy: b.dizzy > 0,
+        counter,
+        weakened: a.weakened > 0 || a.dizzy > 0,
+      });
+      b.hp = Math.max(0, b.hp - damage);
+      let dizzyStart = false, weakenedStart = false;
+      if (blocked) {
+        b.stats.blocked++;
+        a.combo = 0;
+        // The punch stopped on the guard: the puncher's own guard is left open.
+        if (kind === "arm") a.recoil = COMBAT.recoilSeconds;
+      } else {
+        a.score++;
+        a.stats.clean++;
+        a.combo = now < a.comboUntil ? a.combo + 1 : 1;
+        a.comboUntil = now + 1300;
+        a.stats.maxCombo = Math.max(a.stats.maxCombo, a.combo);
+        a.stats.fastest = Math.max(a.stats.fastest, speed);
+        b.combo = 0;
+        if (res.target === "head") {
+          b.headHits = b.headHits.filter((t) => now - t < 3000);
+          b.headHits.push(now);
+          b.stun = Math.max(b.stun, 0.45 + 0.4 * power);
+          if (chin) a.stats.chin++;
+          if ((chin || b.headHits.length >= 3) && b.dizzy <= 0 && b.dizzyImmune <= 0 && b.hp > 0) {
+            b.dizzy = chin ? COMBAT.dizzySeconds : 1.8;
+            b.stun = b.dizzy;
+            b.dizzyImmune = b.dizzy + COMBAT.dizzyImmunity;
+            b.headHits = [];
+            dizzyStart = true;
+          }
+        } else {
+          b.stun = Math.max(b.stun, 0.25);
+          if (power > 0.6) {
+            b.weakened = 1.2;
+            b.stun = Math.max(b.stun, 0.6);
+            weakenedStart = true;
+          }
+        }
+      }
+      if (!online && i === self) onBotHit(b, blocked);
+      if (!online && i !== self && kind === "arm" && a.ai?.punch)
+        (a.ai.punch.blockedAt = now), (a.ai.punch.blockedValue = a.ai.attack);
+      const direction = new THREE.Vector3(...current).sub(new THREE.Vector3(...previous));
+      if (direction.lengthSq() < 0.0001) direction.set(b.x - a.x, 0, b.z - a.z);
+      direction.normalize();
+      let pos = res.point;
+      if (res.target !== "arm") {
+        const box = mesh ? hitboxes[1 - i] : null;
+        const center = new THREE.Vector3(...(box
+          ? chin ? box.chin.c : res.target === "head" ? box.head.c : box.body.b
+          : chin ? worldPoint(b, chinPoint(b.pose)) : res.target === "head" ? worldPoint(b, b.pose[15]) : worldPoint(b, b.pose[7])));
+        const surface = new THREE.Vector3(...previous).sub(center);
+        if (surface.lengthSq() < 0.0001) surface.copy(direction).negate();
+        const radius = box
+          ? chin ? 0.03 : res.target === "head" ? box.head.r - GLOVE_RADIUS : box.body.r - GLOVE_RADIUS
+          : chin ? 0.06 : res.target === "head" ? 0.2 : 0.26;
+        pos = surface.normalize().multiplyScalar(radius).add(center).toArray();
+      }
+      effect = {
+        seq: (effect?.seq || 0) + 1,
+        pos,
+        blocked,
+        kind,
+        power,
+        damage,
+        victim: 1 - i,
+        hand: atk.hand,
+        arm: res.arm,
+        head: res.target !== "body",
+        dir: direction.toArray(),
+        combo: blocked ? 0 : a.combo,
+        dizzy: dizzyStart,
+        weakened: weakenedStart,
+      };
+      impact(effect.pos, blocked, { ...effect, mocap: !!atk.mocap });
+    }
+    a.attacks = a.attacks.filter((x) => now - x.start < 380);
+  }
+  if (fighters.some((x) => x.hp <= 0))
+    finish({ winner: fighters[0].hp > 0 ? 0 : 1, reason: "Nocaute", ko: true });
+  if (clock <= 0) {
+    if (round < 3) {
+      round++;
+      clock = 90;
+      sound.bell();
+      banner("ROUND " + round, "round", 1600);
+    } else
+      finish({
+        winner:
+          fighters[0].hp === fighters[1].hp
+            ? null
+            : fighters[0].hp > fighters[1].hp
+              ? 0
+              : 1,
+        reason: "Decisão por pontos",
+      });
+  }
+}
+function applyLateralPose(f, peer) {
+  const target = f.lateralTarget || 0,
+    previous = f.lateralApplied || 0;
+  const delta = clamp(target - previous, -0.25, 0.25);
+  orbitalShift(f, peer, delta);
+  f.lateralApplied = previous + delta;
+  const radialPrevious = f.radialApplied || 0;
+  const radialDelta = clamp((f.radialTarget || 0)-radialPrevious,-.25,.25);
+  radialShift(f,peer,radialDelta);
+  f.radialApplied = radialPrevious + radialDelta;
+}
+function applyImpactReaction(actor, reaction, t) {
+  if (!reaction) return;
+  const age = Math.max(0, (t - reaction.start) / 1000);
+  const big = reaction.kind === "chin" || reaction.kind === "finisher";
+  if (age > (big ? 0.9 : 0.55)) return;
+  const envelope = (1 - Math.exp(-age / 0.018)) * Math.exp(-age / (big ? 0.22 : 0.13));
+  const direction = new THREE.Vector3(...reaction.dir).normalize();
+  let axis = new THREE.Vector3(0, 1, 0).cross(direction);
+  if (axis.lengthSq() < 0.001) axis.set(1, 0, 0);
+  axis.normalize();
+  const power = reaction.power ?? 0.5;
+  const strength = reaction.blocked ? 0.18 : reaction.head ? (big ? 1.7 : 0.75 + power * 0.5) : 0.6 + power * 0.6;
+  // Head shots snap the head back; body shots fold the trunk toward the punch.
+  const chain = reaction.head || reaction.blocked
+    ? [["spine2", 0.045], ["neck", 0.17], ["head", 0.23]]
+    : [["spine", -0.1], ["spine1", -0.09], ["spine2", -0.08], ["head", 0.08]];
+  for (const [name, angle] of chain) {
+    const bone = actor.rig.bones.get(name)?.bone;
+    if (!bone?.parent) continue;
+    const localAxis = axis
+      .clone()
+      .applyQuaternion(
+        bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert(),
+      );
+    bone.quaternion.premultiply(
+      new THREE.Quaternion().setFromAxisAngle(
+        localAxis,
+        angle * strength * envelope,
+      ),
+    );
+    bone.updateWorldMatrix(false, true);
+  }
+}
+// A punch that meets the guard stops on the forearm, holds, then recoils:
+// two-bone IK on the rendered arm, independent of the live mocap target.
+function applyBlockHold(i) {
+  const f = fighters[i], hold = f.blockHold, a = actors[i], d = actors[1 - i];
+  if (!hold || !a || !d) return;
+  const age = (vclock - hold.start) / 1000;
+  if (age > 0.42) {
+    f.blockHold = null;
+    return;
+  }
+  const bone = (actor, name) => actor.rig.bones.get(name)?.bone;
+  const at = (b) => b.getWorldPosition(new THREE.Vector3());
+  const side = hold.hand ? "right" : "left";
+  const arm = bone(a, side + "Arm"), fore = bone(a, side + "ForeArm"), hand = bone(a, side + "Hand");
+  if (!arm || !fore || !hand) return;
+  const shoulder = at(arm), live = at(hand);
+  if (!hold.point) {
+    const guard = hold.guard ? "right" : "left";
+    const e = bone(d, guard + "ForeArm"), w = bone(d, guard + "Hand");
+    hold.point = live.clone();
+    if (e && w) {
+      const elbow = at(e), wrist = at(w);
+      const glove = wrist.clone().add(wrist.clone().sub(elbow).multiplyScalar(0.3));
+      const onReach = new THREE.Vector3(), onGuard = new THREE.Vector3();
+      const ray = new THREE.Ray(shoulder, live.clone().sub(shoulder).normalize());
+      if (ray.distanceSqToSegment(elbow, glove, onReach, onGuard) < 0.09) {
+        const away = onReach.clone().sub(onGuard);
+        if (away.lengthSq() < 1e-6) away.copy(shoulder).sub(onGuard);
+        hold.point = onGuard.addScaledVector(away.normalize(), 0.11);
+      }
+    }
+    hold.back = shoulder.clone().sub(hold.point).normalize();
+  }
+  const target = hold.point.clone().addScaledVector(hold.back, Math.sin(clamp(age / 0.3, 0, 1) * Math.PI) * 0.07);
+  const release = clamp((age - 0.12) / 0.3, 0, 1);
+  target.lerp(live, release * release * (3 - 2 * release));
+  solveTwoBone(arm, fore, hand, target, a.group.getWorldDirection(new THREE.Vector3()));
+}
+// Direction-only arm retargeting on cartoon proportions (wide shoulders, short
+// arms, big head) spreads a tight guard ~2x wider. Re-place each glove where
+// the player's wrist is relative to their shoulders/head, rescaled per axis to
+// the avatar (lateral by shoulder width, height/depth by arm or head size).
+function alignHandsToBody(a, pose) {
+  if (!validPose(pose)) return;
+  const V = (p) => new THREE.Vector3(...p);
+  const bone = (n) => a.rig.bones.get(n)?.bone;
+  const local = (b) => a.group.worldToLocal(b.getWorldPosition(new THREE.Vector3()));
+  const sides = ["left", "right"].map((s) => ({ arm: bone(s + "Arm"), fore: bone(s + "ForeArm"), hand: bone(s + "Hand") }));
+  const head = bone("head");
+  if (!head || sides.some((s) => !s.arm || !s.fore || !s.hand)) return;
+  const nS = [V(pose[8]), V(pose[9])], nCenter = nS[0].clone().add(nS[1]).multiplyScalar(0.5);
+  const nWidth = nS[0].distanceTo(nS[1]);
+  const nArm = [0, 1].map((h) => V(pose[8 + h]).distanceTo(V(pose[10 + h])) + V(pose[10 + h]).distanceTo(V(pose[12 + h])));
+  const nHead = pose[15][1] - nCenter.y;
+  const aS = sides.map((s) => local(s.arm)), aCenter = aS[0].clone().add(aS[1]).multiplyScalar(0.5);
+  const aWidth = aS[0].distanceTo(aS[1]);
+  const aArm = sides.map((s) => local(s.arm).distanceTo(local(s.fore)) + local(s.fore).distanceTo(local(s.hand)));
+  const headCenter = a.headSurface ? a.group.worldToLocal(head.localToWorld(a.headSurface.center.clone())) : local(head);
+  const aHead = headCenter.y - aCenter.y;
+  if (nWidth < 0.15 || nHead < 0.1 || aWidth < 0.05 || aHead < 0.05) return;
+  sides.forEach((s, h) => {
+    if (nArm[h] < 0.2) return;
+    const d = V(pose[12 + h]).sub(nCenter), armScale = aArm[h] / nArm[h];
+    const target = new THREE.Vector3(d.x * (aWidth / nWidth), d.y * (d.y > 0 ? aHead / nHead : armScale), d.z * armScale).add(aCenter);
+    const rotation = s.hand.getWorldQuaternion(new THREE.Quaternion());
+    solveTwoBone(s.arm, s.fore, s.hand, a.group.localToWorld(target), a.group.getWorldDirection(new THREE.Vector3()));
+    s.hand.quaternion.copy(s.hand.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(rotation));
+    s.hand.updateWorldMatrix(false, true);
+  });
+}
+function renderActor(i, now, dt = 0, fxDt = 0) {
+  const a = actors[i],
+    f = fighters[i];
+  if (!a) return;
+  // Feed once per inference/network sample, then sample a continuous timeline.
+  // The analytic sparring animation already updates every simulation tick.
+  let display = { pose: f.pose, aux: f.aux };
+  if (active && online && i !== self) {
+    if (presentedSource[i] !== f.pose) {
+      presentation[i].push(f.pose, f.aux, now);
+      presentedSource[i] = f.pose;
+    }
+    const sample = presentation[i].sample(now, smooth);
+    if (sample && smooth > 0)
+      display = { pose: sample.pose, aux: reviveAux(sample.aux) };
+  }
+  // Hands, shoulders and facial references use the newest inference frame; buffering this fast
+  // motion added a full inference interval before the quaternion filter.
+  if (display.pose !== f.pose) {
+    for (let j = 8; j <= 13; j++) display.pose[j] = f.pose[j].slice();
+    display.aux ||= {};
+    // Missing facial references are missing now, even if the buffered pose
+    // still has eyes from before the opponent covered their face.
+    for (const key of ['head', 'neck', 'jaw', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'nose'])
+      delete display.aux[key];
+    for (const [key, value] of Object.entries(f.aux || {})) {
+      if (
+        /^(left|right)_(collar|shoulder|elbow|wrist|hand|pinky|index|thumb|middle)/.test(
+          key,
+        ) || /^(head|neck|jaw|left_eye|right_eye|left_ear|right_ear|nose)$/.test(key)
+      )
+        display.aux[key] = value?.clone?.() || value;
+    }
+  }
+  updateAvatarPose({
+    model: a.root,
+    rig: a.rig,
+    pose: display.pose,
+    nameToIndex: JOINTS,
+    motion: a.motion,
+    aux: display.aux,
+    headForward:
+      display.aux?.kind === "smpl"
+        ? headForwardFromSmplAux(display.aux)
+        : f.headForward,
+    footDirections:
+      display.aux?.kind === "smpl"
+        ? footDirectionsFromSmplAux(display.aux)
+        : f.footDirections,
+    allowFeet: true,
+    footMode: "yawFromDir",
+    plantGround: !f.footContacts || !a.groundInitialized,
+    groundY: a.groundY ?? 0,
+    timestampMs: smooth === 0 ? null : now,
+    sampleTimestampMs: f.poseTimestamp ?? now,
+    presentationTimestampMs: now,
+    headCalibrationKey: i === self
+      ? (cameraOn && f.tracking ? "webcam" : "preview")
+      : (online ? "peer" : "sparring"),
+    useWitness: true,
+  });
+  if (f.footContacts && !a.groundInitialized) {
+    a.motion.basePosition.copy(a.root.position);
+    a.motion.referencePelvis = new THREE.Vector3(...display.pose[0]);
+    a.groundInitialized = true;
+  }
+  debugRecorder.stage(i, 'retarget', a, display.pose);
+  alignHandsToBody(a, display.pose);
+  debugRecorder.stage(i, 'handAlignment', a);
+  applyImpactReaction(a, f.reaction, vclock);
+  a.group.position.set(f.x, 0.026, f.z);
+  a.group.rotation.y = f.yaw;
+  const tsec = vclock / 1000;
+  const fall = ko?.victim === i ? clamp((vclock - ko.vstart - 120) / 700, 0, 1) : 0;
+  if (fall > 0) {
+    // Drops backward, bounces once on the canvas, settles.
+    const e = fall < 0.7 ? Math.pow(fall / 0.7, 2) : 1 - Math.sin(((fall - 0.7) / 0.3) * Math.PI) * 0.08;
+    a.group.rotation.x = -1.42 * e;
+    a.group.rotation.z = 0;
+    a.group.position.y += Math.sin(1.42 * e) * 0.1;
+    a.group.updateWorldMatrix(true, true);
+  } else {
+    a.group.rotation.x = f.dizzy > 0 ? Math.sin(tsec * 8.4) * 0.018 : 0;
+    a.group.rotation.z = f.dizzy > 0 ? Math.sin(tsec * 4.2) * 0.05 : f.stun > 0 ? Math.sin(tsec * 26) * 0.025 : 0;
+    a.feet.apply(a,f,now);
+  }
+  debugRecorder.stage(i, 'feetAndReaction', a);
+  applyBlockHold(i);
+  debugRecorder.stage(i, 'blockHold', a);
+  const contactKey = i === self ? (cameraOn && f.tracking ? 'webcam' : 'preview') : (online ? 'peer' : 'sparring');
+  if (a.guardContact.trackingKey !== contactKey) { a.guardContact.reset(); a.guardContact.trackingKey = contactKey; }
+  a.guardContact.apply(a, now);
+  debugRecorder.stage(i, 'selfContact', a);
+  const localFirst = active && first && i === self;
+  a.clip.active.value = localFirst ? 1 : 0;
+  const headPosition = a.rig.bones.get("head").bone.getWorldPosition(new THREE.Vector3());
+  a.clip.head.value.copy(headPosition);
+  a.flash.value = a.flashPeak * Math.max(0, 1 - (vclock - a.flashStart) / 110);
+  const headBone = a.rig.bones.get("head").bone;
+  for (let k = 0; k < 4; k++) {
+    const b = bruises[i][k];
+    if (b) {
+      const w = headBone.localToWorld(b.local.clone());
+      a.bruise.value[k].set(w.x, w.y, w.z, b.w);
+    } else a.bruise.value[k].set(0, -10, 0, 0);
+  }
+  stars[i].update(headPosition, (f.dizzy > 0 || ko?.victim === i) && !localFirst, tsec, fxDt);
+  hitboxes[i] = meshHitBox(i);
+  // Motion trails: fast punches glow in the corner colour; any punch on a
+  // dazed opponent becomes a golden finisher streak.
+  const opponentDazed = fighters[1 - i].dizzy > 0;
+  ["leftHand", "rightHand"].forEach((name, h) => {
+    const bone = a.rig.bones.get(name)?.bone;
+    if (!bone) return;
+    const p = bone.getWorldPosition(new THREE.Vector3());
+    const prev = handPrevious[i][h];
+    const speed = prev && dt > 0 ? p.distanceTo(prev) / dt : 0;
+    handPrevious[i][h] = p.clone();
+    const finisher = opponentDazed && speed > 1.2 && speed < 15;
+    const fast = speed > 3.2 && speed < 15;
+    trails[i][h].update(
+      p,
+      finisher ? 1 : fast ? 0.5 : 0,
+      finisher ? "#ffb12e" : CORNER_COLORS[i],
+      (finisher ? 0.075 : 0.045) * (localFirst ? 0.55 : 1),
+      camera,
+      fxDt,
+    );
+  });
+  const hide = false;
+  a.root.traverse((n) => {
+    if (!n.isMesh) return;
+    if (n.userData.cornerOutline) {
+      n.visible = !localFirst;
+      return;
+    }
+    n.castShadow = n.receiveShadow = !localFirst;
+    n.visible = !hide;
+    for (const m of Array.isArray(n.material) ? n.material : [n.material]) {
+      m.side = localFirst
+        ? THREE.DoubleSide
+        : (m.userData.cornerOriginalSide ?? THREE.FrontSide);
+      m.transparent = false;
+      m.opacity = 1;
+      m.depthWrite = true;
+    }
+  });
+}
+function frame(now) {
+  debugRecorder.beginFrame(now);
+  const dt = clamp((now - last) / 1000, 0, 0.05);
+  last = now;
+  const frozen = now < hitstopUntil;
+  const timeScale = frozen ? 0.12 : now < slowmoUntil ? 0.35 : 1;
+  const fxDt = dt * timeScale;
+  vclock += fxDt * 1000;
+  // The panel tolerates short NLF gaps; the fight itself still pauses after 500 ms.
+  document.body.classList.toggle(
+    "pose-active",
+    active && cameraOn && fighters[self].tracking && now - lastPoseTime < 1500,
+  );
+  sound.update(dt);
+  acc += dt;
+  while (acc >= 1 / 60) {
+    simulate(1 / 60, now);
+    acc -= 1 / 60;
+  }
+  if (active && online && ready && now - sendTime > 33) {
+    if (self === 0) net.send(snapshot());
+    else
+      net.send({
+        type: "input",
+        tracking: cameraOn && now - lastPoseTime < 500,
+        avatarId: fighters[self].avatarId,
+        pose: fighters[self].pose,
+        aux: fighters[self].aux,
+        lateral: fighters[self].lateral,
+        lateralTarget: fighters[self].lateralTarget || 0,
+        radialTarget: fighters[self].radialTarget || 0,
+        footContacts: fighters[self].footContacts,
+        footVisible: fighters[self].footVisible,
+        radial: fighters[self].radial,
+        attacks: fighters[self].attacks
+          .filter((a) => !a.sent)
+          .map((a) => {
+            a.sent = true;
+            return { hand: a.hand, speed: a.speed || 0 };
+          }),
+      });
+    sendTime = now;
+  }
+  // Hit-stop: both fighters hold their pose for a few frames on impact.
+  if (!frozen) for (let i = 0; i < 2; i++) renderActor(i, now, dt, fxDt);
+  fx.update(frozen ? dt * 0.5 : fxDt);
+  flashes.update(dt, 0.35 + sound.excitement * 4);
+  arena.update(vclock / 1000, sound.excitement);
+  const clockText =
+    String(Math.floor(Math.max(0, clock) / 60)).padStart(2, "0") +
+    ":" +
+    String(Math.floor(Math.max(0, clock) % 60)).padStart(2, "0");
+  arena.drawBoard({
+    title: active || ko ? "ROUND " + round : "CORNER ★ WEBCAM BOXING",
+    timer: active || ko ? clockText : "VS",
+    hp: [fighters[0].hp, fighters[1].hp],
+    names: [0, 1].map((i) => (FIGHTER_INFO[fighters[i].avatarId] || ["?"])[0]),
+  });
+  const cinematic = ko && !$("result").open;
+  document.body.classList.toggle("cinematic", !!ko);
+  const lobby = !active && !ko;
+  if (lobby && innerWidth > 900) camera.setViewOffset(innerWidth, innerHeight, -innerWidth * 0.16, 0, innerWidth, innerHeight);
+  else if (camera.view?.enabled) camera.clearViewOffset();
+  if (cinematic) {
+    // KO replay: slow side-on orbit framing the fall line.
+    const loser = ko.victim ?? 1 - self, winner = 1 - loser;
+    const away = new THREE.Vector3(fighters[loser].x - fighters[winner].x, 0, fighters[loser].z - fighters[winner].z).normalize();
+    const focus = new THREE.Vector3(fighters[loser].x, 0, fighters[loser].z).addScaledVector(away, ko.victim === null ? -0.6 : 0.35);
+    const angle = Math.atan2(away.x, away.z) + Math.PI / 2 + (performance.now() - ko.start) * 0.00012;
+    targetCamera.set(focus.x + Math.sin(angle) * 2.3, 1.45, focus.z + Math.cos(angle) * 2.3);
+    // Stay inside the ropes so they never fill the frame.
+    targetCamera.x = clamp(targetCamera.x, -2.7, 2.7);
+    targetCamera.z = clamp(targetCamera.z, -2.7, 2.7);
+    camera.position.lerp(targetCamera, 1 - Math.exp(-dt * 3.5));
+    camera.lookAt(focus.x, 0.6, focus.z);
+    if (!ko.shown && performance.now() - ko.start > ko.delay) {
+      ko.shown = true;
+      sound.setMusicMode("result");
+      $("result").showModal();
+    }
+  } else if (active) {
+    const a = fighters[self],
+      b = fighters[1 - self],
+      forward = new THREE.Vector3(b.x - a.x, 0, b.z - a.z).normalize();
+    if (first) {
+      const eye = actors[self]?.rig.bones
+        .get("head")
+        ?.bone.getWorldPosition(new THREE.Vector3());
+      targetCamera
+        .copy(eye || new THREE.Vector3(a.x, 1.68, a.z))
+        .addScaledVector(forward, 0.08);
+      keepEyeOutsideUpperBody(actors[self], targetCamera, forward);
+      const opponentEye = actors[1 - self]?.rig.bones
+        .get("head")
+        ?.bone.getWorldPosition(new THREE.Vector3());
+      targetLook.copy(opponentEye || new THREE.Vector3(b.x, 1.72, b.z));
+    } else {
+      // Over the right shoulder: the old straight-behind view hid the opponent.
+      const right = new THREE.Vector3(-forward.z, 0, forward.x);
+      targetCamera.set(a.x, 3.0, a.z).addScaledVector(forward, -2.9).addScaledVector(right, 1.45);
+      targetLook.set(a.x + (b.x - a.x) * 0.85, 1.2, a.z + (b.z - a.z) * 0.85);
+    }
+    camera.position.copy(targetCamera);
+    camera.lookAt(targetLook);
+  } else if (!$("result").open) {
+    const angle = 0.8 + now * 0.000045;
+    targetCamera.set(Math.cos(angle) * 10.4, 4.1, Math.sin(angle) * 10.4);
+    camera.position.lerp(targetCamera, 0.025);
+    camera.lookAt(0, 0.8, 0);
+  }
+  const kick = shake.apply(camera, now / 1000, dt, first && active ? 0.035 : 0.14);
+  const fov = (first && active ? 90 : 48) + (first && active ? kick * 0.4 : kick);
+  if (Math.abs(camera.fov - fov) > 0.01) {
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+  }
+  eyeFill.visible = active && first;
+  eyeFill.position.copy(camera.position).add(new THREE.Vector3(0, 0.18, 0));
+  if (now > messageUntil) $("combatMessage").textContent = "";
+  if (now > bannerUntil) $("banner").classList.remove("show");
+  $("timer").textContent = clockText;
+  $("roundLabel").textContent = "ROUND " + round + " / 3";
+  const urgent = active && clock <= 10;
+  $("timer").classList.toggle("urgent", urgent);
+  if (urgent && Math.ceil(clock) !== lastTick) {
+    lastTick = Math.ceil(clock);
+    sound.tick(clock <= 5);
+  }
+  const me = fighters[self];
+  // Music reacts to your state: underwater when dazed, a bit dull on low HP,
+  // louder when the opponent is dazed and the finish is on.
+  sound.setState({
+    muffle: active ? (me.dizzy > 0 ? 1 : me.hp <= 25 ? 0.3 : 0) : 0,
+    wobble: active && me.dizzy > 0,
+    hype: active && fighters[1 - self].dizzy > 0,
+    urgent,
+  });
+  $("soundHint").hidden = active || sound.musicPlaying();
+  $("soundHint").textContent = sound.enabled ? "♪ Clique para ligar a música" : "♪ Som desligado • ligar";
+  document.body.classList.toggle("dazed", active && me.dizzy > 0);
+  document.body.classList.toggle("low-hp", active && me.hp <= 25);
+  if (active && me.hp <= 25 && now > heartbeatAt) {
+    heartbeatAt = now + 900;
+    sound.heartbeat();
+  }
+  const cards = $("hud").querySelectorAll(".fighter");
+  for (let i = 0; i < 2; i++) {
+    const f = fighters[i === 0 ? self : 1 - self];
+    $("hp" + i).style.width = f.hp + "%";
+    $("hpGhost" + i).style.width = f.hp + "%";
+    cards[i].classList.toggle("low", f.hp <= 25);
+    const [state, label] =
+      f.dizzy > 0 ? ["dizzy", "TONTO!"]
+      : f.recoil > 0 ? ["open", "GUARDA ABERTA"]
+      : f.weakened > 0 ? ["weak", "SEM FÔLEGO"]
+      : f.stun > 0 ? ["stun", "ATORDOADO"]
+      : guarded(f.pose) ? ["guard", "GUARDA ALTA"]
+      : ["ready", "EM COMBATE"];
+    $("stun" + i).textContent = label;
+    $("stun" + i).dataset.state = state;
+    if (now - powerShownAt[i] > 1100) $("pow" + i).style.width = "0%";
+  }
+  renderer.render(scene, camera);
+  debugRecorder.capture(now);
+  if (window.cornerDebug && !window.cornerDebug.paused)
+    window.cornerDebug.snapCamera = false;
+  if (!window.cornerDebug?.paused) requestAnimationFrame(frame);
+}
+function resize() {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  if (window.cornerDebug?.paused) {
+    requestAnimationFrame((t) => window.cornerDebug.frame(t));
+  }
+}
+window.addEventListener("resize", resize);
+resize();
+requestAnimationFrame(frame);
+window.cornerDebug = {
+  reviewPose: (pose) => {
+    cameraOn = true;
+    lastPoseTime = performance.now();
+    fighters[self].pose = pose;
+    fighters[self].poseTimestamp = performance.now();
+    fighters[self].aux = demoAux(pose);
+    fighters[self].tracking = true;
+  },
+  fighters,
+  actors,
+  audio: sound,
+  reviewImpact: (victim, dir, head = true, blocked = false) => {
+    impact(
+      worldPoint(fighters[victim], fighters[victim].pose[head ? 15 : 7]),
+      blocked,
+      { victim, dir, head },
+    );
+  },
+  reviewEffect: (e) =>
+    impact(e.pos ?? worldPoint(fighters[e.victim], fighters[e.victim].pose[e.head === false ? 7 : 15]), !!e.blocked, e),
+  finish,
+  camera,
+  scene,
+  renderer,
+  presentation: () => ({ vclock, ko, hitstopUntil, slowmoUntil, bruises, effect, hitboxes }),
+  frame,
+  paused: false,
+  snapCamera: false,
+  enter,
+  exit,
+  notify,
+  net,
+  sparringMotion: () => ({ loaded: !!sparringLibrary, clips: sparringLibrary?.clips.map(c => ({ id: c.id, hand: c.hand, duration: c.duration })) || [] }),
+  view: setView,
+  state: () => ({
+    active,
+    online,
+    self,
+    ready,
+    clock,
+    round,
+    smooth,
+    cameraOn,
+    loaded,
+    renderCalls: renderer.info.render.calls,
+  }),
+};
+const debugRecorder = new BoxingDebugRecorder({
+  button: $('debugRecord'), status: $('debugRecordStatus'), notify,
+  getVideo: () => $('tracker').contentWindow.cornerTracking?.video || $('preview'),
+  getBridge: () => $('tracker').contentWindow.cornerTracking,
+  getContext: () => ({ renderer, camera, actors,
+    state: { active, online, self, ready, clock, round, smooth, first, cameraOn,
+      trackingStatus: $('trackingStatus').textContent, lastPoseAbsoluteMs: performance.timeOrigin + lastPoseTime,
+      vclock, hitstopUntil, slowmoUntil, ko, depth: $('depth').checked, artStyle: $('artStyle').value,
+      venue: $('venue').value, fxShake: $('fxShake').checked, renderCalls: renderer.info.render.calls },
+    fighters: fighters.map(f => ({ avatarId: f.avatarId, x: f.x, z: f.z, yaw: f.yaw, hp: f.hp,
+      pose: f.pose.map(p => p.slice()), aux: Object.fromEntries(Object.entries(f.aux || {}).map(([k,v])=>[k,v?.toArray?.() || v])),
+      tracking: f.tracking, poseTimestamp: f.poseTimestamp, footContacts: f.footContacts, footVisible: f.footVisible,
+      lateralTarget: f.lateralTarget, lateralApplied: f.lateralApplied, radialTarget: f.radialTarget, radialApplied: f.radialApplied,
+      stun: f.stun, dizzy: f.dizzy, recoil: f.recoil, weakened: f.weakened, blockHold: f.blockHold, reaction: f.reaction })) }),
+});
+window.cornerDebug.recorder = debugRecorder;
+$("train").addEventListener("click", () => {
+  finalResult = null;
+});
+$("join").addEventListener("click", () => {
+  finalResult = null;
+});

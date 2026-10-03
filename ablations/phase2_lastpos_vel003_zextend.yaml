@@ -1,0 +1,19 @@
+# Best phase-2 ablation plus one-sided punch-depth supervision.
+team: phase2
+notes: "lastpos_vel003 + teacher-gated wrist-relative Z extension"
+
+model:
+  predict_sequence: true
+
+loss:
+  sequence_position_mode: last
+  w_vel: 0.003
+  w_dir: 0.0
+  w_z_extend: 0.005
+  z_extend_reach_thr: 0.85
+  z_extend_elbow_thr_deg: 160.0
+  z_extend_min_depth: 0.05
+  geometry_warmup_epochs: 3
+
+logging:
+  run_name: abl2_lastpos_vel003_zextend

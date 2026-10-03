@@ -7,18 +7,60 @@
  * - roll witness (forearm/shin pins upper-arm/thigh roll)
  * - trunk Gram-Schmidt basis (hips / spine)
  * - feet: yaw-from-dir (twist about up only) + plant soles on ground
- * - head: ears/eyes Gram-Schmidt basis (Pose-33)
- * - hands: palm aim from wrist/index/pinky (Pose-33; no finger curl)
+ * - head: calibrated full facial frame, body-relative occlusion/recovery
+ * - hands: palm across twists ForeArm (pronation) and Hand (same across, aim along knuckles).
+ *   Across comes from index/pinky only — never hand×forearm (that proxy inverts).
  * - One-Euro on bone local quaternions
  *
  * Not a line-for-line copy: MMD / fingers / face morphs omitted.
  */
 
 import * as THREE from "three";
+import { resolveHeadPose, headFacingFromAux } from "./avatar_head.js";
+export { resetHeadCalibration, getHeadRetargetDiagnostics } from "./avatar_head.js";
 
 const MIN_DIR = 1e-6;
 const WITNESS_FADE_LO = 0.15;
 const WITNESS_FADE_HI = 0.35;
+// Across-fade bounds. These gate how much of the twist/roll is applied.
+//
+// CAREFUL — `obs` (the projected across length) means two different things:
+//   * Torso callers (hips, spine, head) pass a RAW across — a hip or shoulder
+//     span in METRES — so the fade is a metric observability gate.
+//   * Hand callers pass a NORMALIZED across (computeHandPalmAxes normalizes),
+//     so `obs` is sin(angle between across and the bone axis) — dimensionless,
+//     always <= 1, and unrelated to how well the hand was observed.
+// Sharing one constant across both silently faded the palm roll. UNIT_* is the
+// angular pair for the normalized case: full roll past ~11.5 deg off-axis, and
+// only genuine degeneracy (across parallel to the bone) is rejected.
+const ACROSS_FADE_LO = 0.12;
+const ACROSS_FADE_HI = 0.32;
+const UNIT_ACROSS_FADE = { lo: 0.05, hi: 0.2 };
+
+// Rejeite medições inválidas antes de normalizar ou alimentar os filtros.
+function finiteVector(v) {
+  return !!v && Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
+}
+
+function validDirection(v) {
+  return finiteVector(v) && Number.isFinite(v.lengthSq()) && v.lengthSq() >= MIN_DIR;
+}
+
+function finitePoint(p) {
+  return !!p && [p[0], p[1], p[2]].every(Number.isFinite);
+}
+
+function validQuaternion(q) {
+  return !!q && [q.x, q.y, q.z, q.w].every(Number.isFinite)
+    && Number.isFinite(q.lengthSq()) && q.lengthSq() > 1e-12;
+}
+
+// O twist deve girar SOMENTE em torno do eixo longitudinal, inclusive a 180°.
+function axialRotation(from, to, axis, weight = 1) {
+  const sin = new THREE.Vector3().crossVectors(from, to).dot(axis);
+  const cos = THREE.MathUtils.clamp(from.dot(to), -1, 1);
+  return new THREE.Quaternion().setFromAxisAngle(axis, Math.atan2(sin, cos) * weight);
+}
 
 /** MediaPipe Pose-33 indices used for head / palm aux (viewer-space after YZ flip). */
 export const MP_AUX = {
@@ -63,7 +105,8 @@ class OneEuroFilter {
       return value;
     }
     const dt = (ts - this.prevTs) / 1000;
-    if (dt <= 0 || dt > 1.0) {
+    if (dt <= 0) return this.prev;
+    if (dt > 1.0) {
       this.prev = value;
       this.prevDeriv = 0;
       this.prevTs = ts;
@@ -131,12 +174,46 @@ class QuaternionOneEuroFilter {
   }
 }
 
+// Head filtering follows angular speed rather than four unrelated components.
+class AngularQuaternionOneEuroFilter {
+  constructor(minCutoff, beta, dCutoff = 1) {
+    Object.assign(this, { minCutoff, beta, dCutoff });
+    this.reset();
+  }
+  reset() { this.prev = null; this.raw = null; this.ts = null; this.speed = 0; }
+  filter(q, ts) {
+    if (!this.prev || ts - this.ts > 1000) {
+      this.prev = q.clone(); this.raw = q.clone(); this.ts = ts; this.speed = 0;
+      return q.clone();
+    }
+    const dt = (ts - this.ts) / 1000;
+    if (dt <= 0) return this.prev.clone();
+    const speed = this.raw.angleTo(q) / dt;
+    this.speed += OneEuroFilter.smoothing(this.dCutoff, dt) * (speed - this.speed);
+    this.prev.slerp(q, OneEuroFilter.smoothing(this.minCutoff + this.beta * this.speed, dt));
+    this.raw.copy(q); this.ts = ts;
+    return this.prev.clone();
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Rig helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Normalize a bone name for alias matching.
+ *
+ * DIGITS ARE SIGNIFICANT and must be kept: Mixamo distinguishes Spine/Spine1/
+ * Spine2 and HandIndex1/2/3 only by the number. Stripping them (the old
+ * `[^a-z]`) made "mixamorig:Spine1" normalize to "mixamorigspine", so the
+ * "spine1"/"spine2" aliases could never match on ANY rig — the solver silently
+ * drove the whole torso with a single spine bone (which is what made the
+ * character hinge at one point instead of curving), and the hand childAliases
+ * fell through to "first bone child", which lands on the thumb on a full
+ * 5-finger rig.
+ */
 function normalizedBoneName(name) {
-  return (name || "").toLowerCase().replace(/[^a-z]/g, "");
+  return (name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 function findAvatarBone(bones, aliases) {
@@ -152,6 +229,139 @@ function findAvatarBone(bones, aliases) {
   );
 }
 
+/** Eigen-decomposition of a symmetric 3x3 via cyclic Jacobi. Returns eigenvalues
+ *  ascending plus their eigenvectors. */
+function symmetricEigen3(C) {
+  const A = [C[0].slice(), C[1].slice(), C[2].slice()];
+  const V = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  for (let sweep = 0; sweep < 16; sweep++) {
+    const off = Math.abs(A[0][1]) + Math.abs(A[0][2]) + Math.abs(A[1][2]);
+    if (off < 1e-18) break;
+    for (const [p, q] of [[0, 1], [0, 2], [1, 2]]) {
+      if (Math.abs(A[p][q]) < 1e-20) continue;
+      const theta = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+      const sgn = theta >= 0 ? 1 : -1;
+      const t = sgn / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+      const c = 1 / Math.sqrt(t * t + 1);
+      const s = t * c;
+      for (let k = 0; k < 3; k++) {
+        const akp = A[k][p], akq = A[k][q];
+        A[k][p] = c * akp - s * akq;
+        A[k][q] = s * akp + c * akq;
+      }
+      for (let k = 0; k < 3; k++) {
+        const apk = A[p][k], aqk = A[q][k];
+        A[p][k] = c * apk - s * aqk;
+        A[q][k] = s * apk + c * aqk;
+      }
+      for (let k = 0; k < 3; k++) {
+        const vkp = V[k][p], vkq = V[k][q];
+        V[k][p] = c * vkp - s * vkq;
+        V[k][q] = s * vkp + c * vkq;
+      }
+    }
+  }
+  const order = [0, 1, 2].sort((i, j) => A[i][i] - A[j][j]);
+  return {
+    values: order.map((i) => A[i][i]),
+    vectors: order.map((i) => new THREE.Vector3(V[0][i], V[1][i], V[2][i])),
+  };
+}
+
+/**
+ * Normal of the best-fit plane through `pts`, or null if the plane is not
+ * well determined (a straight chain has no unique plane: its two smallest
+ * eigenvalues collapse together and the "normal" is arbitrary).
+ */
+function fittedPlaneNormal(pts) {
+  if (pts.length < 4) return null;
+  const c = new THREE.Vector3();
+  for (const p of pts) c.add(p);
+  c.multiplyScalar(1 / pts.length);
+  const C = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+  for (const p of pts) {
+    const d = [p.x - c.x, p.y - c.y, p.z - c.z];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) C[i][j] += d[i] * d[j];
+  }
+  const { values, vectors } = symmetricEigen3(C);
+  if (!(values[1] > 1e-18) || values[0] / values[1] > 0.5) return null;
+  const n = vectors[0];
+  return n.lengthSq() > MIN_DIR ? n.normalize() : null;
+}
+
+/**
+ * Rest palm-across derived from the rig's OWN finger geometry.
+ *
+ * Why not the old estimate: `restDirection × up` assumes a T-pose with palms
+ * facing down. Most rigs are not modelled that way — this boxer's arms hang
+ * ~66° below horizontal — so that axis misses the real palm plane (measured
+ * 41° off on the left hand, 35° on the right). Aligning a wrong rest across to
+ * the fit's palm rotates the applied pronation away from the target, which is
+ * what left the fist lateral instead of turning palm-down on the punch.
+ *
+ * Why not glove-mesh PCA: a boxing glove is a rounded mitt, not a flat hand.
+ * Measured on this GLB the hand vertex cloud is ~10x12x10 cm with principal
+ * values 6.57 / 6.12 / 4.22 — the two in-plane axes are nearly degenerate, so
+ * the "widest axis" is noise. It flipped the LEFT hand ~180° relative to the
+ * right (the two hands ended up with opposing acrosses).
+ *
+ * What works: the palm across IS the finger FLEXION axis. Fingers bend in a
+ * plane; that plane's normal is the medial-lateral axis of the palm. Fitting a
+ * plane to [hand + one finger chain] is well conditioned even when a single
+ * cross product is not (the chain is nearly collinear, S2/S1 ~ 0.10). Measured:
+ * the two independently modelled hands agree to 3.3° under mirroring, versus
+ * 33-37° for subsets of the chain — including the hand root is what stabilises
+ * it, because it extends the baseline.
+ *
+ * A plane normal's sign is arbitrary, so anchor it to the old heuristic, which
+ * only has to be within 90° to disambiguate (it is 35-41° away).
+ * Returns the across in ROOT space, or null if the rig has no usable chain.
+ */
+function deriveRestPalmAcross(handRest, inverseRoot) {
+  const toRoot = (b) => b.getWorldPosition(new THREE.Vector3()).applyQuaternion(inverseRoot);
+  const handPos = toRoot(handRest.bone);
+
+  // Sign reference only — needs to be within 90°, and it is 35-41° away here.
+  const ref = new THREE.Vector3()
+    .crossVectors(handRest.restDirectionInRoot, new THREE.Vector3(0, 1, 0));
+  if (ref.lengthSq() < MIN_DIR) return null;
+  ref.normalize();
+
+  // One plane PER FINGER, then average — do NOT fit a single plane to the whole
+  // hand. On a rig with all five fingers the points fan out across the palm, so
+  // the single best-fit plane IS the palm and its normal is the palm normal —
+  // 90° from the across. Per finger, the plane is that finger's flexion plane
+  // and its normal is the across, which is what we want. (This rig exposes only
+  // an index chain, so the averaging is a no-op here and the measured 3.3°
+  // mirror agreement still holds.)
+  const acc = new THREE.Vector3();
+  let used = 0;
+  const handWorld = handRest.bone.getWorldPosition(new THREE.Vector3());
+  for (const root of handRest.bone.children) {
+    if (!root.isBone && root.type !== "Bone") continue;
+    // The thumb opposes the palm; its flexion plane is not the palm's.
+    if (normalizedBoneName(root.name).includes("thumb")) continue;
+    // Mixamo FBX ships duplicate nodes (fighter-web: 124 nodes for 52 names),
+    // including a copy of the hand parented to the hand itself, sitting at the
+    // same position. It is not a finger — averaging its "plane" in would skew
+    // the palm axis. Same coincident-node rule the rig builder uses above.
+    if (root.getWorldPosition(new THREE.Vector3()).distanceTo(handWorld) <= 1e-5) continue;
+    const pts = [handPos];
+    const walk = (b) => {
+      pts.push(toRoot(b));
+      for (const ch of b.children) if (ch.isBone || ch.type === "Bone") walk(ch);
+    };
+    walk(root);
+    const n = fittedPlaneNormal(pts);
+    if (!n) continue;
+    if (n.dot(ref) < 0) n.negate();
+    acc.add(n);
+    used += 1;
+  }
+  if (!used || acc.lengthSq() < MIN_DIR) return null;
+  return acc.normalize();
+}
+
 /** Build Mixamo rig map with rest caches + MiKaPo-style witness rest vectors. */
 export function buildAvatarRig(model) {
   const allBones = [];
@@ -160,10 +370,20 @@ export function buildAvatarRig(model) {
   });
   const specs = [
     ["hips", ["hips"], ["spine"]],
-    ["spine", ["spine"]],
-    ["spine1", ["spine1"]],
-    ["spine2", ["spine2"]],
-    ["neck", ["neck"]],
+    // The trunk chain NAMES its reference child. Without childAliases the aim
+    // axis is whichever child the exporter happened to list first, and Spine2
+    // has three (LeftShoulder, RightShoulder, Neck). On the boxeador GLB that is
+    // LeftShoulder, so the upper spine's "along the chain" axis sat 26.5° off
+    // vertical with a 0.42 lateral share, and the retarget aimed that sideways
+    // axis at a vertical target — a permanent torso twist. Measured on real NLF
+    // frames, naming the child cut the boxeador's constant hip→shoulder twist
+    // error from -3.6° to -1.0°; fighter-web, whose exporter lists Neck first,
+    // was unchanged at +4.8° (the control). Same exporter-order hazard the hand
+    // childAliases already guard against.
+    ["spine", ["spine"], ["spine1"]],
+    ["spine1", ["spine1"], ["spine2"]],
+    ["spine2", ["spine2"], ["neck", "spine3"]],
+    ["neck", ["neck"], ["head"]],
     ["head", ["head"]],
     ["leftArm", ["leftarm"]],
     ["leftForeArm", ["leftforearm"]],
@@ -193,27 +413,59 @@ export function buildAvatarRig(model) {
         ) > 1e-5
       );
     });
-    const child =
-      children?.find((node) =>
-        childAliases?.some((alias) => normalizedBoneName(node.name).endsWith(alias)),
-      ) || children?.[0];
-    if (!bone || !child || !bone.parent) continue;
-    const restDirection = child
-      .getWorldPosition(new THREE.Vector3())
-      .sub(bone.getWorldPosition(new THREE.Vector3()))
-      .normalize();
+    // Resolve childAliases in ALIAS order, not child order. Scanning children
+    // first makes the result depend on how the exporter happened to order them:
+    // on fighter-web that picked Index on the left hand and Middle on the right,
+    // so the two hands ended up aimed off different reference fingers.
+    let child = null;
+    for (const alias of childAliases || []) {
+      child = children?.find((node) => normalizedBoneName(node.name).endsWith(alias)) || null;
+      if (child) break;
+    }
+    child = child || children?.[0] || null;
+    if (!bone || !bone.parent) continue;
+    // A leaf bone has no child to point at (e.g. FBXLoader does not expose
+    // Mixamo's HeadTop_End, so Head is childless). Fall back to continuing the
+    // chain: parent -> bone. That is the same axis the child would have given,
+    // just measured one link earlier, so nothing downstream needs to know.
+    const boneWorld = bone.getWorldPosition(new THREE.Vector3());
+    let restDirection;
+    if (child) {
+      restDirection = child.getWorldPosition(new THREE.Vector3()).sub(boneWorld);
+
+    } else if (bone.parent.isBone || bone.parent.type === "Bone") {
+      restDirection = boneWorld.clone().sub(bone.parent.getWorldPosition(new THREE.Vector3()));
+    } else {
+      continue;
+    }
     if (restDirection.lengthSq() < MIN_DIR) continue;
+    restDirection.normalize();
+    // Bone-local form of the same axis. For a child bone this equals
+    // child.position.normalize(); deriving it from restDirection keeps the two
+    // cases on one formula.
+    const restLocalDirection = restDirection
+      .clone()
+      .applyQuaternion(bone.getWorldQuaternion(new THREE.Quaternion()).invert())
+      .normalize();
     bones.set(key, {
       bone,
-      child,
+      child: child || null,
       restLocalQuaternion: bone.quaternion.clone(),
       restLocalPosition: bone.position.clone(),
-      restLocalDirection: child.position.clone().normalize(),
+      restLocalDirection,
       restQuaternionInRoot: inverseRoot
         .clone()
         .multiply(bone.getWorldQuaternion(new THREE.Quaternion())),
       restDirectionInRoot: restDirection.clone().applyQuaternion(inverseRoot),
     });
+    if (key === "head" && !child) {
+      // A leaf skull has no anatomical aim axis. Its neck->head segment must
+      // not be used to straighten the FACE. Keep the native authored head
+      // frame captured before calibration/posing, including later rig rebuilds.
+      bone.userData.mikapoHeadBindInRoot ??= inverseRoot.clone()
+        .multiply(bone.getWorldQuaternion(new THREE.Quaternion())).toArray();
+      bones.get(key).restFaceInRoot = new THREE.Quaternion().fromArray(bone.userData.mikapoHeadBindInRoot);
+    }
   }
 
   const hips = bones.get("hips");
@@ -240,15 +492,53 @@ export function buildAvatarRig(model) {
       if (spine) spine.restAcrossInRoot = shoulderAcross.clone();
     }
   }
-  // Hands: rest palm-across ≈ boneDir × up (T-pose palms face down)
-  for (const name of ["leftHand", "rightHand"]) {
-    const hand = bones.get(name);
-    if (!hand) continue;
-    const across = new THREE.Vector3().crossVectors(
-      hand.restDirectionInRoot,
-      new THREE.Vector3(0, 1, 0),
-    );
-    if (across.lengthSq() > MIN_DIR) hand.restAcrossInRoot = across.normalize();
+  // Trunk bones keep a canonical UPRIGHT blend reference. Rigs are authored in
+  // different neutral poses: fighter-web ships with the torso already leaning
+  // ~21° forward and the neck ~52°, so blending `strength` toward the RAW rest
+  // leaves that authored lean in every frame — the character looks hunched next
+  // to a T-pose rig on the same pose. Blending toward the bone's UPRIGHT
+  // orientation instead makes `strength` mean "how far from neutral toward the
+  // target", independent of the authored rest. T-pose rigs (rest ≈ upright) are
+  // unchanged: for them restUprightInRoot ≈ restQuaternionInRoot.
+  const trunkUp = new THREE.Vector3(0, 1, 0);
+  for (const name of ["hips", "spine", "spine1", "spine2", "neck", "head"]) {
+    const rest = bones.get(name);
+    if (!rest) continue;
+    const dir = rest.restDirectionInRoot.clone();
+    if (dir.lengthSq() < MIN_DIR) continue;
+    const up = new THREE.Quaternion().setFromUnitVectors(dir.normalize(), trunkUp);
+    rest.restUprightInRoot = up.multiply(rest.restQuaternionInRoot.clone());
+  }
+  // ForeArm + Hand: rest palm-across fitted from the rig's own FINGER geometry,
+  // not from the T-pose estimate (boneDir × up). This GLB's rest is an A-pose,
+  // so that estimate sat 41° (left) / 35° (right) off the real palm plane, which
+  // rotated the applied pronation away from the fit's palm — the fist stayed
+  // lateral instead of turning palm-down on the punch. See deriveRestPalmAcross.
+  for (const [handKey, foreKey] of [
+    ["leftHand", "leftForeArm"],
+    ["rightHand", "rightForeArm"],
+  ]) {
+    const hand = bones.get(handKey);
+    const fore = bones.get(foreKey);
+    if (!hand || !fore) continue;
+    // The ForeArm is driven with the PALM across (pronation lives there), so it
+    // must share the hand's rest reference. Giving it its own `dir × up` had the
+    // two bones rolling against axes ~25° apart on this rig.
+    const across = deriveRestPalmAcross(hand, inverseRoot);
+    if (across) {
+      hand.restAcrossInRoot = across.clone();
+      fore.restAcrossInRoot = across.clone();
+    } else {
+      // Fallback (rig without index bones / no usable glove geometry): keep the
+      // old T-pose estimate so aim-only rigs behave as before.
+      for (const bone of [hand, fore]) {
+        const est = new THREE.Vector3().crossVectors(
+          bone.restDirectionInRoot,
+          new THREE.Vector3(0, 1, 0),
+        );
+        if (est.lengthSq() > MIN_DIR) bone.restAcrossInRoot = est.normalize();
+      }
+    }
   }
 
   // Character forward in root at rest ≈ across × up for arms facing bend.
@@ -274,6 +564,7 @@ export function buildAvatarRig(model) {
 
 export function createAvatarMotion() {
   return {
+    headCalibrationEpoch: 0,
     referencePelvis: null,
     referenceShoulders: null,
     referenceHips: null,
@@ -284,6 +575,7 @@ export function createAvatarMotion() {
 
 /** @param {THREE.Object3D|null} model @param {ReturnType<typeof createAvatarMotion>} motion */
 export function resetAvatarMotion(model, motion) {
+  motion.headCalibrationEpoch = (motion.headCalibrationEpoch || 0) + 1;
   motion.referencePelvis = null;
   motion.referenceShoulders = null;
   motion.referenceHips = null;
@@ -296,6 +588,37 @@ export function resetAvatarMotion(model, motion) {
 // ---------------------------------------------------------------------------
 
 const filterBank = new WeakMap();
+const activePoseFrames = new WeakMap();
+const solvedWorldFrames = new WeakMap();
+
+function writeBoneLocal(rig, name, rest, q) {
+  if (!validQuaternion(q)) return false;
+  rest.bone.quaternion.copy(q);
+  rest.bone.updateWorldMatrix(false, true);
+  activePoseFrames.get(rig)?.written.add(name);
+  return true;
+}
+
+function restoreUnobservedBones(model, rig, frame) {
+  const held = [...rig.bones].filter(([name]) => !frame.written.has(name) && !frame.restOnly.has(name));
+  if (!held.length) return;
+  // Guarde os alvos mundo dos ossos resolvidos antes de restaurar um pai.
+  // Caso contrário, reter o antebraço também giraria uma mão válida.
+  const worlds = new Map([...rig.bones].filter(([name]) => frame.written.has(name))
+    .map(([name, rest]) => [name, rest.bone.getWorldQuaternion(new THREE.Quaternion())]));
+  const names = new Map([...rig.bones].map(([name, rest]) => [rest.bone, name]));
+  model.traverse((bone) => {
+    const name = names.get(bone);
+    if (name == null) return;
+    if (frame.written.has(name)) {
+      const parent = bone.parent.getWorldQuaternion(new THREE.Quaternion());
+      bone.quaternion.copy(parent.invert().multiply(worlds.get(name)));
+    } else if (!frame.restOnly.has(name)) {
+      bone.quaternion.copy(frame.previous.get(name));
+    }
+    bone.updateWorldMatrix(false, true);
+  });
+}
 
 function filtersFor(rig) {
   let bank = filterBank.get(rig);
@@ -313,12 +636,14 @@ export function resetRetargetFilters(rig) {
 }
 
 function filterBoneLocal(rig, name, q, timestampMs) {
-  if (timestampMs == null) return q;
+  if (!validQuaternion(q) || timestampMs == null || !Number.isFinite(timestampMs)) return q;
   const bank = filtersFor(rig);
   let f = bank.byName.get(name);
   if (!f) {
-    const { minCutoff, beta, dCutoff } = bank.smoothing;
-    f = new QuaternionOneEuroFilter(minCutoff, beta, dCutoff);
+    const { minCutoff, beta, dCutoff } = bank.overrides?.get(name) || bank.smoothing;
+    f = name === "head" || name === "neck"
+      ? new AngularQuaternionOneEuroFilter(minCutoff, beta, dCutoff)
+      : new QuaternionOneEuroFilter(minCutoff, beta, dCutoff);
     bank.byName.set(name, f);
   }
   return f.filter(q, timestampMs);
@@ -328,27 +653,32 @@ export function setRetargetSmoothing(rig, minCutoff, beta) {
   const bank = filtersFor(rig);
   bank.smoothing = { minCutoff, beta, dCutoff: bank.smoothing.dCutoff };
   bank.byName.clear();
+  bank.overrides ??= new Map();
+  for (const name of ["head", "neck"])
+    bank.overrides.set(name, { minCutoff: minCutoff * 8 / 3, beta: beta * 8 / 3, dCutoff: bank.smoothing.dCutoff });
 }
 
 // ---------------------------------------------------------------------------
 // Core rotation writers (MiKaPo direction + witness)
 // ---------------------------------------------------------------------------
 
-function applyWorldRotationToBone(model, rest, targetWorld, strength = 1, timestampMs, rig, name) {
+function applyWorldRotationToBone(model, rest, targetWorld, strength = 1, timestampMs, rig, name, blendBaseWorld = null) {
+  if (!validQuaternion(targetWorld) || !Number.isFinite(strength)) return false;
   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
   const restWorld = rootWorld.clone().multiply(rest.restQuaternionInRoot);
-  const blendedWorld = restWorld.clone().slerp(targetWorld, strength);
+  const base = blendBaseWorld || restWorld;
+  const blendedWorld = base.clone().slerp(targetWorld, strength);
   const parentWorld = rest.bone.parent.getWorldQuaternion(new THREE.Quaternion());
   let local = parentWorld.clone().invert().multiply(blendedWorld);
+  if (!validQuaternion(local)) return false;
   local = filterBoneLocal(rig, name, local, timestampMs);
-  rest.bone.quaternion.copy(local);
-  rest.bone.updateWorldMatrix(false, true);
+  return writeBoneLocal(rig, name, rest, local);
 }
 
 /** Shortest-arc aim: rest child dir → live dir (both in root space). */
 function rotateBoneToward(model, rig, name, directionInRoot, strength = 1, timestampMs = null) {
   const rest = rig?.bones.get(name);
-  if (!rest || directionInRoot.lengthSq() < MIN_DIR) return false;
+  if (!rest || !validDirection(directionInRoot)) return false;
   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
   const restDirectionWorld = rest.restDirectionInRoot.clone().applyQuaternion(rootWorld).normalize();
   const targetDirectionWorld = directionInRoot.clone().normalize().applyQuaternion(rootWorld).normalize();
@@ -356,16 +686,32 @@ function rotateBoneToward(model, rig, name, directionInRoot, strength = 1, times
   const correction = new THREE.Quaternion().setFromUnitVectors(restDirectionWorld, targetDirectionWorld);
   const restWorld = rootWorld.clone().multiply(rest.restQuaternionInRoot);
   const targetWorld = correction.multiply(restWorld.clone());
-  applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name);
-  return true;
+  const blendBase = rest.restUprightInRoot
+    ? rootWorld.clone().multiply(rest.restUprightInRoot)
+    : restWorld;
+  return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
 }
 
 /**
- * Aim + twist using an across vector (hips / spine), equivalent to MiKaPo basis-lite.
+ * Aim + twist using an across vector (hips / spine / palm).
+ * Twist orientado no plano ⊥ eixo do osso, sem inverter a palma após 90°.
+ * A contribuição é reduzida quando o across fica quase paralelo ao osso.
  */
-function rotateBoneWithAcross(model, rig, name, directionInRoot, acrossInRoot, strength = 1, timestampMs = null) {
+function rotateBoneWithAcross(
+  model,
+  rig,
+  name,
+  directionInRoot,
+  acrossInRoot,
+  strength = 1,
+  timestampMs = null,
+  fade = null,
+) {
+  const fadeLo = fade ? fade.lo : ACROSS_FADE_LO;
+  const fadeHi = fade ? fade.hi : ACROSS_FADE_HI;
   const rest = rig?.bones.get(name);
-  if (!rest?.restAcrossInRoot || directionInRoot.lengthSq() < MIN_DIR || acrossInRoot.lengthSq() < MIN_DIR) {
+  if (!rest || !validDirection(directionInRoot)) return false;
+  if (!rest.restAcrossInRoot) {
     return rotateBoneToward(model, rig, name, directionInRoot, strength, timestampMs);
   }
   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
@@ -374,33 +720,42 @@ function rotateBoneWithAcross(model, rig, name, directionInRoot, acrossInRoot, s
   const align = new THREE.Quaternion().setFromUnitVectors(restDirectionWorld, targetDirectionWorld);
   const restWorld = rootWorld.clone().multiply(rest.restQuaternionInRoot);
   let targetWorld = align.clone().multiply(restWorld);
-
-  const alignedAcross = rest.restAcrossInRoot
-    .clone()
-    .applyQuaternion(rootWorld)
-    .applyQuaternion(align)
-    .addScaledVector(
-      targetDirectionWorld,
-      -rest.restAcrossInRoot
-        .clone()
-        .applyQuaternion(rootWorld)
-        .applyQuaternion(align)
-        .dot(targetDirectionWorld),
-    );
-  const desiredAcross = acrossInRoot
-    .clone()
-    .applyQuaternion(rootWorld)
-    .addScaledVector(
-      targetDirectionWorld,
-      -acrossInRoot.clone().applyQuaternion(rootWorld).dot(targetDirectionWorld),
-    );
-  if (alignedAcross.lengthSq() > MIN_DIR && desiredAcross.lengthSq() > MIN_DIR) {
-    targetWorld = new THREE.Quaternion()
-      .setFromUnitVectors(alignedAcross.normalize(), desiredAcross.normalize())
+  let blendBase = rest.restUprightInRoot
+    ? rootWorld.clone().multiply(rest.restUprightInRoot)
+    : restWorld;
+  const isPalm = /^(left|right)(Hand|ForeArm)$/.test(name);
+  if (isPalm) {
+    const previous = activePoseFrames.get(rig)?.previousWorld.get(name)
+      || rest.bone.getWorldQuaternion(new THREE.Quaternion());
+    if (validQuaternion(previous)) {
+      const previousDir = rest.restLocalDirection.clone().applyQuaternion(previous).normalize();
+      targetWorld = new THREE.Quaternion().setFromUnitVectors(previousDir, targetDirectionWorld)
+        .multiply(previous);
+      // Preserve a continuidade também em ±180°: a força live interpola a partir
+      // da última pose, não do repouso (que escolheria o outro arco a cada volta).
+      blendBase = previous;
+    }
+  }
+  if (!validDirection(acrossInRoot)) {
+    return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
+  }
+  const alignedAcross = rest.restAcrossInRoot.clone()
+    .applyQuaternion(rest.restQuaternionInRoot.clone().invert())
+    .applyQuaternion(targetWorld);
+  alignedAcross.addScaledVector(targetDirectionWorld, -alignedAcross.dot(targetDirectionWorld));
+  const desiredAcross = acrossInRoot.clone().applyQuaternion(rootWorld);
+  desiredAcross.addScaledVector(targetDirectionWorld, -desiredAcross.dot(targetDirectionWorld));
+  const obs = desiredAcross.length();
+  if (alignedAcross.lengthSq() > MIN_DIR && obs >= fadeLo) {
+    alignedAcross.normalize();
+    desiredAcross.normalize();
+    let t = (obs - fadeLo) / (fadeHi - fadeLo);
+    t = Math.min(1, Math.max(0, t));
+    t = t * t * (3 - 2 * t);
+    targetWorld = axialRotation(alignedAcross, desiredAcross, targetDirectionWorld, t)
       .multiply(targetWorld);
   }
-  applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name);
-  return true;
+  return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
 }
 
 /**
@@ -417,7 +772,7 @@ function rotateBoneWithWitness(
   timestampMs = null,
 ) {
   const rest = rig?.bones.get(name);
-  if (!rest || directionInRoot.lengthSq() < MIN_DIR) return false;
+  if (!rest || !validDirection(directionInRoot)) return false;
 
   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
   const restDirW = rest.restDirectionInRoot.clone().applyQuaternion(rootWorld).normalize();
@@ -425,9 +780,14 @@ function rotateBoneWithWitness(
   const shortest = new THREE.Quaternion().setFromUnitVectors(restDirW, liveDirW);
   const restWorld = rootWorld.clone().multiply(rest.restQuaternionInRoot);
   let targetWorld = shortest.clone().multiply(restWorld.clone());
+  const previous = activePoseFrames.get(rig)?.previousWorld.get(name);
+  if (/^(left|right)Arm$/.test(name) && validQuaternion(previous)) {
+    const previousDir = rest.restLocalDirection.clone().applyQuaternion(previous).normalize();
+    targetWorld = new THREE.Quaternion().setFromUnitVectors(previousDir, liveDirW).multiply(previous);
+  }
 
   const restWit = rest.restWitnessInRoot;
-  if (restWit && witnessDirInRoot && witnessDirInRoot.lengthSq() > MIN_DIR) {
+  if (validDirection(restWit) && validDirection(witnessDirInRoot)) {
     const liveWitW = witnessDirInRoot.clone().normalize().applyQuaternion(rootWorld).normalize();
     const restWitW = restWit.clone().applyQuaternion(rootWorld).normalize();
 
@@ -440,31 +800,20 @@ function rotateBoneWithWitness(
       if (restPerp.lengthSq() > 1e-3) {
         restPerp.normalize();
         // Orthonormal bases: X=dir? MiKaPo uses (ref, restWit⊥, ref×wit) as columns via quatFromBasis.
-        // Here: map restDir→liveDir and restPerp→livePerp via two-step FromUnitVectors composition.
-        const mapDir = new THREE.Quaternion().setFromUnitVectors(restDirW, liveDirW);
-        const mappedRestPerp = restPerp.clone().applyQuaternion(mapDir);
-        const mapRoll = new THREE.Quaternion().setFromUnitVectors(
-          mappedRestPerp.normalize(),
-          livePerp,
-        );
-        const witnessed = mapRoll.multiply(mapDir).multiply(restWorld.clone());
-
+        // Primeiro alinhe a direção; depois aplique somente rotação axial.
+        const mappedRestPerp = rest.restWitnessInRoot.clone()
+          .applyQuaternion(rest.restQuaternionInRoot.clone().invert()).applyQuaternion(targetWorld);
+        mappedRestPerp.addScaledVector(liveDirW, -mappedRestPerp.dot(liveDirW));
         let t = (perpLen - WITNESS_FADE_LO) / (WITNESS_FADE_HI - WITNESS_FADE_LO);
         t = Math.min(1, Math.max(0, t));
         t = t * t * (3 - 2 * t);
-        if (targetWorld.dot(witnessed) < 0) {
-          witnessed.x *= -1;
-          witnessed.y *= -1;
-          witnessed.z *= -1;
-          witnessed.w *= -1;
-        }
-        targetWorld.slerp(witnessed, t);
+        const mapRoll = axialRotation(mappedRestPerp.normalize(), livePerp, liveDirW, t);
+        targetWorld = mapRoll.multiply(targetWorld);
       }
     }
   }
 
-  applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name);
-  return true;
+  return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name);
 }
 
 /**
@@ -479,10 +828,10 @@ function rotateFoot(
   rig,
   name,
   directionInRoot,
-  { mode = "yawFromDir", strength = 0.9, timestampMs = null } = {},
+  { mode = "yawFromDir", strength = 0.9, pitchStrength = 0, timestampMs = null } = {},
 ) {
   const rest = rig?.bones.get(name);
-  if (!rest || !directionInRoot || directionInRoot.lengthSq() < MIN_DIR) return false;
+  if (!rest || !validDirection(directionInRoot)) return false;
   if (mode === "rest") return false;
 
   if (mode === "direction") {
@@ -510,7 +859,17 @@ function rotateFoot(
   // Soft clamp: wild MediaPipe frames shouldn't spin the shoe past ~120°
   yaw = THREE.MathUtils.clamp(yaw, -2.1, 2.1) * strength;
 
-  const targetWorld = new THREE.Quaternion().setFromAxisAngle(upWorld, yaw).multiply(restWorld);
+  let targetWorld = new THREE.Quaternion().setFromAxisAngle(upWorld, yaw).multiply(restWorld);
+  if (pitchStrength > 0) {
+    // Pitch (plantar/dorsiflexion) from the live ankle→toe elevation; roll stays untouched.
+    const livePitch = Math.asin(THREE.MathUtils.clamp(liveW.clone().normalize().dot(upWorld), -1, 1));
+    const restPitch = Math.asin(THREE.MathUtils.clamp(restToe.clone().normalize().dot(upWorld), -1, 1));
+    const dPitch = THREE.MathUtils.clamp(livePitch - restPitch, -1.15, 1.15) * pitchStrength;
+    const pitchAxis = new THREE.Vector3().crossVectors(upWorld, liveH).normalize();
+    if (pitchAxis.lengthSq() > MIN_DIR) {
+      targetWorld = new THREE.Quaternion().setFromAxisAngle(pitchAxis, -dPitch).multiply(targetWorld);
+    }
+  }
   applyWorldRotationToBone(model, rest, targetWorld, 1, timestampMs, rig, name);
   return true;
 }
@@ -521,7 +880,7 @@ function rotateFoot(
 
 function posePoint(pose, nameToIndex, name, shoulderCenter, shoulderWidth) {
   const idx = nameToIndex[name];
-  if (idx == null || !pose[idx]) return null;
+  if (idx == null || !finitePoint(pose[idx])) return null;
   const point = pose[idx];
   return new THREE.Vector3(
     (point[0] - shoulderCenter.x) / shoulderWidth,
@@ -532,7 +891,7 @@ function posePoint(pose, nameToIndex, name, shoulderCenter, shoulderWidth) {
 
 function updateRootTranslation(model, rig, pose, nameToIndex, shoulderCenter, shoulderWidth, motion) {
   const pelvisIdx = nameToIndex.pelvis;
-  if (pelvisIdx == null) return;
+  if (pelvisIdx == null || !finitePoint(pose[pelvisIdx])) return;
   const pelvis = new THREE.Vector3(...pose[pelvisIdx]);
   if (!motion.referencePelvis) {
     motion.referencePelvis = pelvis.clone();
@@ -561,7 +920,7 @@ function updateJointTranslations(model, rig, pose, nameToIndex, shoulderWidth, m
 
   const li = nameToIndex[leftName];
   const ri = nameToIndex[rightName];
-  if (li == null || ri == null) return;
+  if (li == null || ri == null || !finitePoint(pose[li]) || !finitePoint(pose[ri])) return;
   const leftSource = new THREE.Vector3(...pose[li]);
   const rightSource = new THREE.Vector3(...pose[ri]);
   if (!motion[refKey]) {
@@ -696,16 +1055,21 @@ export function auxFromPose33(frame33, flip = false) {
  */
 export function auxFromSmpl(auxSmpl, flip = false) {
   if (!auxSmpl) return null;
-  const need = [
+  const keys = [
+    "pelvis", "left_hip", "right_hip",
     "left_ankle", "right_ankle", "left_foot", "right_foot",
     "left_wrist", "right_wrist", "left_hand", "right_hand",
     "left_elbow", "right_elbow",
-    "left_shoulder", "right_shoulder", "neck", "head",
+    "left_shoulder", "right_shoulder", "left_collar", "right_collar",
+    "spine1", "spine2", "spine3", "neck", "head",
+    "jaw", "left_eye", "right_eye",
+    "left_index", "right_index", "left_pinky", "right_pinky",
+    "left_middle", "right_middle", "left_thumb", "right_thumb",
   ];
   const out = { kind: "smpl" };
-  for (const name of need) {
+  for (const name of keys) {
     const p = auxSmpl[name];
-    if (!p) return null;
+    if (!p) continue;
     if (flip) out[name] = flipMpPointToViewer(p);
     else if (p.isVector3) out[name] = p.clone();
     else out[name] = new THREE.Vector3(p[0] ?? p.x, p[1] ?? p.y, p[2] ?? p.z);
@@ -728,7 +1092,7 @@ export function footDirectionsFromSmplAux(aux) {
  */
 function smplHeadBasis(aux) {
   if (!aux?.left_shoulder || !aux?.right_shoulder || !aux?.neck || !aux?.head) return null;
-  const across = aux.right_shoulder.clone().sub(aux.left_shoulder);
+  const across = aux.left_shoulder.clone().sub(aux.right_shoulder);
   const up = aux.head.clone().sub(aux.neck);
   if (across.lengthSq() < MIN_DIR || up.lengthSq() < MIN_DIR) return null;
   const forward = new THREE.Vector3().crossVectors(across, up);
@@ -736,77 +1100,45 @@ function smplHeadBasis(aux) {
   return { across, up: up.normalize(), forward: forward.normalize() };
 }
 
-/** Horizontal head-forward from shoulders × neck→head. */
+/** Horizontal facial forward, with shoulders × neck→head as fallback. */
 export function headForwardFromSmplAux(aux) {
-  const basis = smplHeadBasis(aux);
-  if (!basis) return null;
-  const forward = basis.forward.clone();
+  const forward = headFacingFromAux(aux) || smplHeadBasis(aux)?.forward.clone();
+  if (!forward) return null;
   forward.y = 0;
   if (forward.lengthSq() < MIN_DIR) return null;
   return forward.normalize();
 }
 
-function applyHeadFromSmpl(model, rig, aux, timestampMs) {
-  const basis = smplHeadBasis(aux);
-  if (!basis) return;
-  // Neck aims along skull up (same idea as nose−earMid soft aim).
-  rotateBoneToward(model, rig, "neck", basis.up, 0.5, timestampMs);
-  // Head bone: aim primary axis along up; twist with shoulder across (stable).
-  // Using face-forward as primary flipped the skull 90–180° on Mixamo.
-  rotateBoneWithAcross(model, rig, "head", basis.up, basis.across, 0.75, timestampMs);
-  // Soft yaw from face forward (legacy path) so looking L/R still works.
-  if (rig.bones.get("head")) {
-    const headBone = rig.bones.get("head");
-    const flat = basis.forward.clone().setY(0);
-    if (flat.lengthSq() > MIN_DIR) {
-      flat.normalize();
-      const restFwd = new THREE.Vector3(0, 0, 1);
-      const yaw = Math.atan2(
-        new THREE.Vector3().crossVectors(restFwd, flat).y,
-        THREE.MathUtils.clamp(restFwd.dot(flat), -1, 1),
-      );
-      const localYaw = THREE.MathUtils.clamp(yaw, -0.9, 0.9) * 0.65;
-      let q = headBone.bone.quaternion.clone()
-        .multiply(new THREE.Quaternion().setFromAxisAngle(headBone.restLocalDirection, localYaw));
-      q = filterBoneLocal(rig, "head", q, timestampMs);
-      headBone.bone.quaternion.copy(q);
-      headBone.bone.updateWorldMatrix(false, true);
-    }
-  }
-}
-
 function applyHeadFromAux(model, rig, aux, timestampMs) {
-  if (aux?.kind === "smpl" || (aux?.head && aux?.neck && !aux?.left_ear)) {
-    applyHeadFromSmpl(model, rig, aux, timestampMs);
-    return;
+  const trunk = ["spine2", "spine1", "spine"].map(n => rig.bones.get(n)).find(Boolean);
+  if (!trunk) return;
+  const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
+  const torso = rootWorld.clone().invert()
+    .multiply(trunk.bone.getWorldQuaternion(new THREE.Quaternion()))
+    .multiply((trunk.restUprightInRoot || trunk.restQuaternionInRoot).clone().invert());
+  const frame = activePoseFrames.get(rig);
+  const cervicalUp = finiteVector(aux?.head) && finiteVector(aux?.neck)
+    ? aux.head.clone().sub(aux.neck) : null;
+  const rotations = resolveHeadPose(rig, aux, {
+    torso, cervicalUp, motion: frame.motion,
+    time: frame.presentationTimestampMs, sampleTime: frame.sampleTimestampMs,
+    calibrationKey: frame.headCalibrationKey,
+  });
+  for (const name of ["neck", "head"]) {
+    const rest = rig.bones.get(name);
+    if (!rest) continue;
+    const target = rootWorld.clone().multiply(rotations[name])
+      .multiply(rest.restFaceInRoot || rest.restUprightInRoot || rest.restQuaternionInRoot);
+    applyWorldRotationToBone(model, rest, target, 1, timestampMs, rig, name);
   }
-  if (!aux?.left_ear || !aux?.right_ear || !aux?.left_eye || !aux?.right_eye || !aux?.nose) return;
-  // Directions only from aux (ok if aux Y not planted — offsets cancel).
-  const leftEar = aux.left_ear;
-  const rightEar = aux.right_ear;
-  const earMid = leftEar.clone().add(rightEar).multiplyScalar(0.5);
-  const eyeMid = aux.left_eye.clone().add(aux.right_eye).multiplyScalar(0.5);
-  const across = leftEar.clone().sub(rightEar);
-  let forward = eyeMid.clone().sub(earMid);
-  if (forward.lengthSq() < MIN_DIR) forward = aux.nose.clone().sub(earMid);
-  if (forward.lengthSq() < MIN_DIR || across.lengthSq() < MIN_DIR) return;
-
-  // Neck: aim along head-up roughly (ear mid → nose)
-  const neckDir = aux.nose.clone().sub(earMid);
-  if (neckDir.lengthSq() > MIN_DIR) {
-    rotateBoneToward(model, rig, "neck", neckDir.normalize(), 0.5, timestampMs);
-  }
-  rotateBoneWithAcross(model, rig, "head", forward.normalize(), across, 0.85, timestampMs);
 }
-
-/** Live-tunable SMPL/Pose33 hand palm polarity (see Live → Calibrar mãos). */
-export const handRetargetOpts = {
+/** Live-tunable SMPL/Pose33 hand palm polarity (see Live → Calibrar mãos). */export const handRetargetOpts = {
   palmEnabled: true,
-  /** false = forearm×forward; true = forward×forearm */
+  /** Kept for the Live calib UI; ignored — hand×forearm across is never used. */
   swapCrossOrder: true,
   negateAcrossLeft: true,
   negateAcrossRight: false,
-  /** Skip across twist — only aim wrist→hand (isolates palm roll bugs). */
+  /** Skip ForeArm pronation — only aim Hand along palm forward. */
   aimOnly: false,
 };
 
@@ -821,6 +1153,7 @@ export function getHandRetargetOpts() {
 
 /**
  * Compute palm forward/across in viewer space (for retarget + debug arrows).
+ * Across is index/pinky only. Without fingers, across is null (aim, no twist).
  * @returns {{ forward: THREE.Vector3, across: THREE.Vector3|null }|null}
  */
 export function computeHandPalmAxes(aux, side) {
@@ -828,48 +1161,150 @@ export function computeHandPalmAxes(aux, side) {
   const wrist = aux[`${side}_wrist`];
   const index = aux[`${side}_index`];
   const pinky = aux[`${side}_pinky`];
+  if (!finiteVector(wrist) || (index && !finiteVector(index)) || (pinky && !finiteVector(pinky))) return null;
   if (wrist && index && pinky) {
     const forward = index.clone().add(pinky).multiplyScalar(0.5).sub(wrist);
     if (forward.lengthSq() < MIN_DIR) return null;
     let across = pinky.clone().sub(index);
     if (handRetargetOpts.negateAcrossLeft && side === "left") across.negate();
     if (handRetargetOpts.negateAcrossRight && side === "right") across.negate();
+    const span = across.length(), reach = forward.length();
+    if (span < 0.006 || span > 0.14 || span < reach * 0.12 || span > reach * 2.5) {
+      return { forward: forward.normalize(), across: null };
+    }
     return { forward: forward.normalize(), across: across.normalize() };
   }
   const hand = aux[`${side}_hand`];
-  const elbow = aux[`${side}_elbow`];
-  if (!wrist || !hand) return null;
+  if (!finiteVector(hand)) return null;
   const forward = hand.clone().sub(wrist);
   if (forward.lengthSq() < MIN_DIR) return null;
-  let across = null;
-  if (elbow) {
-    const forearm = wrist.clone().sub(elbow);
-    across = handRetargetOpts.swapCrossOrder
-      ? new THREE.Vector3().crossVectors(forward, forearm)
-      : new THREE.Vector3().crossVectors(forearm, forward);
-  }
-  if (!across || across.lengthSq() < MIN_DIR) {
-    across = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0));
-  }
-  if (handRetargetOpts.negateAcrossLeft && side === "left") across.negate();
-  if (handRetargetOpts.negateAcrossRight && side === "right") across.negate();
-  if (across.lengthSq() < MIN_DIR) {
-    return { forward: forward.normalize(), across: null };
-  }
-  return { forward: forward.normalize(), across: across.normalize() };
+  return { forward: forward.normalize(), across: null };
 }
 
-function applyHandPalmFromAux(model, rig, aux, side, timestampMs) {
+function applyHandAimFromAux(model, rig, aux, side, timestampMs, fitPalm = false) {
   if (!handRetargetOpts.palmEnabled) return;
   const handName = side === "left" ? "leftHand" : "rightHand";
   if (!rig.bones.get(handName) || !aux) return;
   const axes = computeHandPalmAxes(aux, side);
   if (!axes) return;
-  if (handRetargetOpts.aimOnly || !axes.across) {
-    rotateBoneToward(model, rig, handName, axes.forward, 0.85, timestampMs);
+  // ForeArm already carries pronation. Hand still needs the same across in world
+  // space; otherwise shortest-arc aim leaves the fist at rest roll (~90° off).
+  // Fit usa força 1; live mantém 0,85 entre poses consecutivas válidas.
+  const strength = fitPalm ? 1.0 : 0.85;
+  if (handRetargetOpts.aimOnly) {
+    rotateBoneToward(model, rig, handName, axes.forward, strength, timestampMs);
     return;
   }
-  rotateBoneWithAcross(model, rig, handName, axes.forward, axes.across, 0.85, timestampMs);
+  rotateBoneWithAcross(model, rig, handName, axes.forward, axes.across, strength, timestampMs, UNIT_ACROSS_FADE);
+}
+
+/**
+ * Standing-neutral collar elevation/azimuth in the live torso frame (viewer Y-up).
+ * Benchmark NLF mean elev ≈ 0°; T-pose SMPL-X cano is ~+40° and is NOT a relaxed shrug zero.
+ */
+const SMPL_SHOULDER_NEUTRAL = { elev: 0, az: 0 };
+
+/**
+ * Clavicle: keep Mixamo rest as the visual zero, add only (live − neutral) deltas from NLF.
+ * Absolute SMPL collar aim lifts Mixamo because Mixamo rest points down and SMPL neutral is flatter.
+ */
+function applyShoulderFromSmpl(model, rig, aux, side, timestampMs) {
+  const name = side === "left" ? "leftShoulder" : "rightShoulder";
+  const rest = rig?.bones.get(name);
+  const collar = aux?.[`${side}_collar`];
+  const sh = aux?.[`${side}_shoulder`];
+  if (!rest || !collar || !sh || !aux.left_shoulder || !aux.right_shoulder || !aux.neck) {
+    return false;
+  }
+
+  // Torso frame from live shoulders + neck (more stable than spine1 on bent poses).
+  const hipMid = (aux.left_hip && aux.right_hip)
+    ? aux.left_hip.clone().add(aux.right_hip).multiplyScalar(0.5)
+    : (aux.pelvis ? aux.pelvis.clone() : null);
+  const upU = hipMid
+    ? aux.neck.clone().sub(hipMid)
+    : aux.neck.clone().sub(aux.spine1 || collar);
+  const across = aux.right_shoulder.clone().sub(aux.left_shoulder);
+  if (upU.lengthSq() < MIN_DIR || across.lengthSq() < MIN_DIR) return false;
+  upU.normalize();
+  const acrossU = across.addScaledVector(upU, -across.dot(upU));
+  if (acrossU.lengthSq() < MIN_DIR) return false;
+  acrossU.normalize();
+  const fwdU = new THREE.Vector3().crossVectors(acrossU, upU);
+  if (fwdU.lengthSq() < MIN_DIR) return false;
+  fwdU.normalize();
+
+  const live = sh.clone().sub(collar);
+  if (live.lengthSq() < MIN_DIR) return false;
+  live.normalize();
+
+  const latU = acrossU.clone().multiplyScalar(side === "left" ? -1 : 1).normalize();
+  const liveElev = Math.asin(THREE.MathUtils.clamp(live.dot(upU), -1, 1));
+  const liveAz = Math.atan2(live.dot(fwdU), live.dot(latU));
+  const dElev = THREE.MathUtils.clamp(liveElev - SMPL_SHOULDER_NEUTRAL.elev, -1.2, 1.2);
+  let dAz = liveAz - SMPL_SHOULDER_NEUTRAL.az;
+  dAz = Math.atan2(Math.sin(dAz), Math.cos(dAz));
+  dAz = THREE.MathUtils.clamp(dAz, -1.2, 1.2);
+
+  // Mixamo rest spherical coords in upright root; recompose on LIVE torso axes.
+  const upR = new THREE.Vector3(0, 1, 0);
+  const restDir = rest.restDirectionInRoot.clone().normalize();
+  const latR = restDir.clone().addScaledVector(upR, -restDir.dot(upR));
+  if (latR.lengthSq() < MIN_DIR) return false;
+  latR.normalize();
+  const restElev = Math.asin(THREE.MathUtils.clamp(restDir.dot(upR), -1, 1));
+  const restAz = Math.atan2(restDir.dot(new THREE.Vector3(0, 0, -1)), restDir.dot(latR));
+  const e = restElev + dElev;
+  const az = restAz + dAz;
+  const targetDir = latU.clone().multiplyScalar(Math.cos(e) * Math.cos(az))
+    .addScaledVector(fwdU, Math.cos(e) * Math.sin(az))
+    .addScaledVector(upU, Math.sin(e));
+  if (targetDir.lengthSq() < MIN_DIR) return false;
+  return rotateBoneToward(model, rig, name, targetDir.normalize(), 1, timestampMs);
+}
+
+/**
+ * Baker-top v2: add the fit's LOCAL bone-axis rolls (pronation, spine torsion)
+ * as a world-space twist about the LIVE bone axis, on top of the position-based
+ * aim. Direction always comes from positions (the fit's joint directions), so
+ * the pose can never go inverted/broken; only the roll about the axis is taken
+ * from the fit's rotations. `twist` = { boneName: deg } per frame, about the
+ * live axis in viewer space. The roll is a LOCAL quantity (the child joint's
+ * rotation about the parent's bone axis), so it is small, stable and free of
+ * the axis-angle decomposition ambiguity of full-frame transfer.
+ */
+export function applyFitTwists(model, rig, twist, pose, nameToIndex, aux, timestampMs = null) {
+  if (!model || !rig || !twist) return;
+  const P = (name) => {
+    const idx = nameToIndex[name];
+    if (idx == null || !finitePoint(pose[idx])) return null;
+    return new THREE.Vector3(pose[idx][0], pose[idx][1], pose[idx][2]);
+  };
+  const axisFor = (name) => {
+    if (name === "leftForeArm" || name === "rightForeArm") {
+      const el = P(name === "leftForeArm" ? "left_elbow" : "right_elbow");
+      const wr = P(name === "leftForeArm" ? "left_wrist" : "right_wrist");
+      return el && wr ? wr.clone().sub(el) : null;
+    }
+    if (name === "spine1") {
+      return aux?.spine2 && aux?.spine1 ? aux.spine2.clone().sub(aux.spine1) : null;
+    }
+    if (name === "spine2") {
+      return aux?.spine3 && aux?.spine2 ? aux.spine3.clone().sub(aux.spine2) : null;
+    }
+    return null;
+  };
+  for (const [name, deg] of Object.entries(twist)) {
+    const rest = rig?.bones.get(name);
+    if (!rest) continue;
+    const axis = axisFor(name);
+    if (!validDirection(axis) || !Number.isFinite(Number(deg))) continue;
+    axis.normalize();
+    const cur = rest.bone.getWorldQuaternion(new THREE.Quaternion());
+    const roll = new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(Number(deg) || 0));
+    const targetWorld = roll.multiply(cur);
+    applyWorldRotationToBone(model, rest, targetWorld, 1, timestampMs, rig, name);
+  }
 }
 
 /**
@@ -878,7 +1313,7 @@ function applyHandPalmFromAux(model, rig, aux, side, timestampMs) {
  * @param {object} opts
  * @param {object|null} [opts.aux]  pose-33 viewer-space points from auxFromPose33
  * @param {boolean} [opts.plantGround=true]
- * @param {number} [opts.groundY=0]
+ * @param {number} [opts.groundY=0}
  * @param {'direction'|'yawFromDir'|'flat'|'yaw'|'rest'} [opts.footMode='yawFromDir']
  */
 export function updateAvatarPose({
@@ -893,87 +1328,186 @@ export function updateAvatarPose({
   footMode = "yawFromDir",
   timestampMs = null,
   headForward = null,
+  sampleTimestampMs = null,
+  presentationTimestampMs = null,
+  headCalibrationKey = null,
   footDirections = null,
   useWitness = true,
+  useCollarShoulders = false,
+  useSurfaceBody = false,
+  surfaceAux = null,
   aux = null,
   plantGround = true,
   groundY = 0,
+  twist = null,
+  fitPalm = false,
 }) {
-  if (!model || !rig || !pose) return;
+  if (!model || !rig || !pose || !nameToIndex || !motion) return;
 
-  for (const rest of rig.bones.values()) {
+  // Um frame sem referência corporal válida não deve alterar pose ou filtros.
+  const ls = nameToIndex.left_shoulder;
+  const rs = nameToIndex.right_shoulder;
+  if (![ls, rs, nameToIndex.left_hip, nameToIndex.right_hip]
+      .every((i) => i != null && finitePoint(pose[i]))) return;
+  const leftShoulder = new THREE.Vector3(...pose[ls]);
+  const rightShoulder = new THREE.Vector3(...pose[rs]);
+  const shoulderCenter = leftShoulder.clone().add(rightShoulder).multiplyScalar(0.5);
+  const shoulderWidth = leftShoulder.distanceTo(rightShoulder);
+  if (!Number.isFinite(shoulderWidth) || shoulderWidth < 0.02) return;
+
+  const frame = { previous: new Map(), previousWorld: new Map(), written: new Set(), restOnly: new Set(),
+    motion, sampleTimestampMs, headCalibrationKey,
+    presentationTimestampMs: presentationTimestampMs ?? timestampMs ?? performance.now() };
+  if (!allowFeet || footMode === "rest") frame.restOnly = new Set(["leftFoot", "rightFoot"]);
+  if (!handRetargetOpts.palmEnabled) {
+    frame.restOnly.add("leftHand"); frame.restOnly.add("rightHand");
+  }
+  activePoseFrames.set(rig, frame);
+
+  model.updateWorldMatrix(true, true);
+  const prior = solvedWorldFrames.get(rig);
+  const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
+  for (const [name, rest] of rig.bones) {
+    const q = prior?.motion === motion && prior.bones.get(name);
+    frame.previousWorld.set(name, q ? rootWorld.clone().multiply(q) : rest.bone.getWorldQuaternion(new THREE.Quaternion()));
+  }
+  for (const [name, rest] of rig.bones) {
+    frame.previous.set(name, validQuaternion(rest.bone.quaternion)
+      ? rest.bone.quaternion.clone() : rest.restLocalQuaternion.clone());
     rest.bone.quaternion.copy(rest.restLocalQuaternion);
     rest.bone.position.copy(rest.restLocalPosition);
   }
   model.updateWorldMatrix(true, true);
 
-  const ls = nameToIndex.left_shoulder;
-  const rs = nameToIndex.right_shoulder;
-  if (ls == null || rs == null) return;
-  const leftShoulder = new THREE.Vector3(...pose[ls]);
-  const rightShoulder = new THREE.Vector3(...pose[rs]);
-  const shoulderCenter = leftShoulder.clone().add(rightShoulder).multiplyScalar(0.5);
-  const shoulderWidth = leftShoulder.distanceTo(rightShoulder);
-  if (shoulderWidth < 0.02) return;
-
   const P = (name) => posePoint(pose, nameToIndex, name, shoulderCenter, shoulderWidth);
+  const B = (name) => (
+    useSurfaceBody && surfaceAux?.[name] ? surfaceAux[name].clone() : P(name)
+  );
 
   updateJointTranslations(model, rig, pose, nameToIndex, shoulderWidth, motion, "shoulder");
 
-  const leftHip = P("left_hip");
-  const rightHip = P("right_hip");
+  const leftHip = B("left_hip");
+  const rightHip = B("right_hip");
   if (!leftHip || !rightHip) return;
   const hipCenter = leftHip.clone().add(rightHip).multiplyScalar(0.5);
+  const isSmplAux = aux?.kind === "smpl";
   const torso = hipCenter.clone().negate();
-  torso.x *= 1.5;
-  torso.z *= 1.5;
+  if (!isSmplAux) {
+    // MediaPipe-era amplification hack; NLF trunk direction is trustworthy as-is.
+    torso.x *= 1.5;
+    torso.z *= 1.5;
+  }
 
-  updateRootTranslation(model, rig, pose, nameToIndex, shoulderCenter, shoulderWidth, motion);
-  rotateBoneWithAcross(model, rig, "hips", torso, rightHip.clone().sub(leftHip), 0.78, timestampMs);
-  updateJointTranslations(model, rig, pose, nameToIndex, shoulderWidth, motion, "hip");
-
-  const leftSh = P("left_shoulder");
-  const rightSh = P("right_shoulder");
-  if (!leftSh || !rightSh) return;
-  const shoulderAcross = rightSh.clone().sub(leftSh);
-
-  rotateBoneWithAcross(model, rig, "spine", torso, shoulderAcross, 0.28, timestampMs);
-  rotateBoneWithAcross(model, rig, "spine1", torso, shoulderAcross, 0.48, timestampMs);
-  rotateBoneWithAcross(model, rig, "spine2", torso, shoulderAcross, 0.7, timestampMs);
-
-  // Head: prefer Pose-33 ears/eyes; fallback soft neck aim + legacy yaw
-  if (aux) {
-    applyHeadFromAux(model, rig, aux, timestampMs);
-  } else {
-    const head = P("head");
-    if (head) rotateBoneToward(model, rig, "neck", head, 0.55, timestampMs);
-    if (headForward && rig.bones.get("head")) {
-      const headBone = rig.bones.get("head");
-      const forward = headForward.clone().setY(0);
-      if (forward.lengthSq() > MIN_DIR) {
-        forward.normalize();
-        if (!motion.referenceHeadForward) {
-          motion.referenceHeadForward = forward.clone();
-        } else {
-          const reference = motion.referenceHeadForward;
-          const yaw = Math.atan2(
-            new THREE.Vector3().crossVectors(reference, forward).y,
-            THREE.MathUtils.clamp(reference.dot(forward), -1, 1),
-          );
-          const localYaw = THREE.MathUtils.clamp(yaw, -0.8, 0.8) * 0.8;
-          let q = headBone.restLocalQuaternion
-            .clone()
-            .multiply(new THREE.Quaternion().setFromAxisAngle(headBone.restLocalDirection, localYaw));
-          q = filterBoneLocal(rig, "head", q, timestampMs);
-          headBone.bone.quaternion.copy(q);
-          headBone.bone.updateWorldMatrix(false, true);
+  // Spine chain, built BEFORE hips so the pelvis can share its first segment.
+  //
+  // NLF interior spine joints (spine1/2/3) oscillate with alternating-sign
+  // bends of 20-40° per segment even when the fitted SMPL-X mesh — whose skin
+  // averages every vertex over several bones (LBS) — shows a straight trunk.
+  // Invisible on the mesh, that zig-zag becomes a visible S-curve ("crooked
+  // bone") when retargeted 1:1 onto Mixamo bones. Two Laplacian passes on the
+  // interior waypoints kill the oscillation while preserving real sustained
+  // bends (forward lean): measured on nlf_fit_webcam1 f37/65/528/1052, the
+  // spine→spine1 kink dropped 35-51° → ≤15° with trunk lean unchanged (<1°).
+  let spineWaypoints = null;
+  if (aux?.spine1 && aux?.spine2 && aux?.spine3 && aux?.neck) {
+    spineWaypoints = [aux.pelvis, aux.spine1, aux.spine2, aux.spine3, aux.neck]
+      .filter((p) => p)
+      .map((p) => p.clone());
+    if (isSmplAux && spineWaypoints.length >= 3) {
+      for (let iter = 0; iter < 2; iter++) {
+        for (let i = 1; i < spineWaypoints.length - 1; i++) {
+          const mid = spineWaypoints[i - 1].clone().add(spineWaypoints[i + 1]).multiplyScalar(0.5);
+          spineWaypoints[i].lerp(mid, 0.5);
         }
       }
     }
   }
 
-  if (leftSh) rotateBoneToward(model, rig, "leftShoulder", leftSh, 0.8, timestampMs);
-  if (rightSh) rotateBoneToward(model, rig, "rightShoulder", rightSh, 0.8, timestampMs);
+  updateRootTranslation(model, rig, pose, nameToIndex, shoulderCenter, shoulderWidth, motion);
+  // Hips share the chain's first segment (pelvis→spine1) instead of the
+  // shoulder-normalised "-hipCenter": the two definitions disagreed by 17-30°
+  // per frame, a permanent extra kink at the hips→spine junction.
+  const hipsDir = spineWaypoints && spineWaypoints.length >= 2
+    ? spineWaypoints[1].clone().sub(spineWaypoints[0])
+    : torso;
+  rotateBoneWithAcross(
+    model, rig, "hips",
+    hipsDir.lengthSq() > MIN_DIR ? hipsDir : torso,
+    rightHip.clone().sub(leftHip), isSmplAux ? 0.95 : 0.78, timestampMs,
+  );
+  updateJointTranslations(model, rig, pose, nameToIndex, shoulderWidth, motion, "hip");
+
+  const leftSh = B("left_shoulder");
+  const rightSh = B("right_shoulder");
+  if (!leftSh || !rightSh) return;
+  const shoulderAcross = rightSh.clone().sub(leftSh);
+
+  // Multi-segment spine bending using SMPL spine points when available.
+  //
+  // The rig has 3 spine bones spanning hips→neck but SMPL-X has 4 segments
+  // there (pelvis→spine1→spine2→spine3→neck). Mapping each rig bone to the
+  // segment ABOVE it (dropping pelvis→spine1) shifts every bone one segment
+  // forward; in a bent trunk each segment leans further than the one below, so
+  // the errors add up the chain — measured as ~+9° of excess trunk lean.
+  //
+  // Fix: cover the WHOLE chain with a continuous chain parameterisation (bone i
+  // spans [i*seg/count, (i+1)*seg/count], interpolated between waypoints), so
+  // no segment is dropped and none is doubled. The stride derives from the
+  // waypoint count, which also generalises to rigs with 1, 2 or 4 spine bones.
+  if (spineWaypoints) {
+    // Waypoints were built (and de-zigzagged for SMPL aux) before the hips
+    // rotation above; reuse them here.
+    const waypoints = spineWaypoints;
+    const present = ["spine", "spine1", "spine2"].filter((n) => rig.bones.get(n));
+    const st = isSmplAux ? 0.95 : 0.7;
+    const count = present.length;
+    const seg = waypoints.length - 1;
+    const chainPoint = (u) => {
+      const s = Math.min(seg - 1, Math.floor(u));
+      const f = u - s;
+      return waypoints[s].clone().lerp(waypoints[s + 1], f);
+    };
+    for (let i = 0; i < count; i++) {
+      const a = chainPoint((i * seg) / count);
+      const b = chainPoint(((i + 1) * seg) / count);
+      const dir = b.clone().sub(a);
+      if (dir.lengthSq() > MIN_DIR) {
+        rotateBoneWithAcross(model, rig, present[i], dir, shoulderAcross, st, timestampMs);
+      }
+    }
+  } else {
+    rotateBoneWithAcross(model, rig, "spine", torso, shoulderAcross, 0.28, timestampMs);
+    rotateBoneWithAcross(model, rig, "spine1", torso, shoulderAcross, 0.48, timestampMs);
+    rotateBoneWithAcross(model, rig, "spine2", torso, shoulderAcross, 0.7, timestampMs);
+  }
+
+  // One facial solution and one filtered write per bone.
+  applyHeadFromAux(model, rig, aux, timestampMs);
+
+  const shoulderAux = useSurfaceBody && surfaceAux ? surfaceAux : aux;
+  const leftCollarDir = shoulderAux?.left_shoulder && shoulderAux?.left_collar
+    ? shoulderAux.left_shoulder.clone().sub(shoulderAux.left_collar) : null;
+  const rightCollarDir = shoulderAux?.right_shoulder && shoulderAux?.right_collar
+    ? shoulderAux.right_shoulder.clone().sub(shoulderAux.right_collar) : null;
+  const usedSmplShoulder = {
+    left: isSmplAux && applyShoulderFromSmpl(model, rig, aux, "left", timestampMs),
+    right: isSmplAux && applyShoulderFromSmpl(model, rig, aux, "right", timestampMs),
+  };
+
+  if (!usedSmplShoulder.left) {
+    if ((useCollarShoulders || useSurfaceBody || aux?.kind === "smpl") && leftCollarDir?.lengthSq() > MIN_DIR) {
+      rotateBoneToward(model, rig, "leftShoulder", leftCollarDir, 1.0, timestampMs);
+    } else if (leftSh) {
+      rotateBoneToward(model, rig, "leftShoulder", leftSh, 0.5, timestampMs);
+    }
+  }
+  if (!usedSmplShoulder.right) {
+    if ((useCollarShoulders || useSurfaceBody || aux?.kind === "smpl") && rightCollarDir?.lengthSq() > MIN_DIR) {
+      rotateBoneToward(model, rig, "rightShoulder", rightCollarDir, 1.0, timestampMs);
+    } else if (rightSh) {
+      rotateBoneToward(model, rig, "rightShoulder", rightSh, 0.5, timestampMs);
+    }
+  }
 
   for (const side of ["left", "right"]) {
     const sh = P(`${side}_shoulder`);
@@ -989,13 +1523,23 @@ export function updateAvatarPose({
     } else {
       rotateBoneToward(model, rig, arm, upperDir, 1, timestampMs);
     }
-    rotateBoneToward(model, rig, fore, foreDir, 1, timestampMs);
+    const palm = aux ? computeHandPalmAxes(aux, side) : null;
+    // Baker-top: when the fit's local pronation twist is provided, use it for the
+    // ForeArm roll (aim still from positions) instead of the noisy index-pinky across.
+    // Key presence (even 0) opts into the fit roll path.
+    const fitBone = side === "left" ? "leftForeArm" : "rightForeArm";
+    const hasFitTwist = twist != null && Object.prototype.hasOwnProperty.call(twist, fitBone);
+    if (handRetargetOpts.palmEnabled && !handRetargetOpts.aimOnly && !hasFitTwist) {
+      rotateBoneWithAcross(model, rig, fore, foreDir, palm?.across, 1, timestampMs, UNIT_ACROSS_FADE);
+    } else {
+      rotateBoneToward(model, rig, fore, foreDir, 1, timestampMs);
+    }
   }
 
-  // Palm orientation from Pose-33 (no finger curl)
+  // Hand aims along palm forward; pronation already lives on ForeArm.
   if (aux) {
-    applyHandPalmFromAux(model, rig, aux, "left", timestampMs);
-    applyHandPalmFromAux(model, rig, aux, "right", timestampMs);
+    applyHandAimFromAux(model, rig, aux, "left", timestampMs, fitPalm);
+    applyHandAimFromAux(model, rig, aux, "right", timestampMs, fitPalm);
   }
 
   for (const side of ["left", "right"]) {
@@ -1039,9 +1583,34 @@ export function updateAvatarPose({
         footMode === "direction" ? "direction"
         : footMode === "rest" ? "rest"
         : "yawFromDir";
-      rotateFoot(model, rig, footName, dir, { mode, strength: 0.85, timestampMs });
+      rotateFoot(model, rig, footName, dir, {
+        mode,
+        strength: 0.85,
+        pitchStrength: aux?.kind === "smpl" ? 0.9 : 0,
+        timestampMs,
+      });
     }
   }
 
-  if (plantGround) plantAvatarOnGround(model, rig, groundY);
+  // Baker-top: add the fit's LOCAL rolls (pronation, torsion) about the live
+  // axis, after the position solve (aim never changes; only roll is refined).
+  if (twist) applyFitTwists(model, rig, twist, pose, nameToIndex, aux, timestampMs);
+
+  restoreUnobservedBones(model, rig, frame);
+  const inverseRoot = model.getWorldQuaternion(new THREE.Quaternion()).invert();
+  solvedWorldFrames.set(rig, { motion, bones: new Map([...rig.bones].map(([name, rest]) =>
+    [name, inverseRoot.clone().multiply(rest.bone.getWorldQuaternion(new THREE.Quaternion()))])) });
+  activePoseFrames.delete(rig);
+  if (plantGround && Number.isFinite(groundY)) plantAvatarOnGround(model, rig, groundY);
+}
+
+// Optional presentation tuning: callers that do not set overrides retain the
+// established solver behavior (Live, research viewers and offline retargeting).
+export function setRetargetBoneSmoothing(rig, names, minCutoff, beta) {
+  const bank = filtersFor(rig);
+  bank.overrides ??= new Map();
+  for (const name of names) {
+    bank.overrides.set(name, {minCutoff, beta, dCutoff: bank.smoothing.dCutoff});
+    bank.byName.delete(name);
+  }
 }

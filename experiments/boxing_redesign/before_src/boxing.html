@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CORNER • Boxing</title>
+    <link rel="stylesheet" href="/static/boxing.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="arena" aria-label="Ringue de boxe 3D"></canvas>
+    <div class="vignette"></div>
+    <header>
+      <a class="brand" href="/static/boxing.html"
+        >C<span>O</span>RNER<small>WEBCAM BOXING</small></a
+      >
+      <div class="live-tag">
+        <i></i><span id="networkStatus">ARENA DE TREINO</span>
+      </div>
+      <button id="settingsButton" class="ghost">
+        Configurações <span>⚙</span>
+      </button>
+    </header>
+    <section id="hud" hidden>
+      <div class="fighter left">
+        <small>CANTO AZUL</small><strong>VOCÊ</strong>
+        <div class="health"><i id="hp0"></i></div>
+        <span id="stun0">PRONTO</span>
+      </div>
+      <div class="round">
+        <small id="roundLabel">ROUND 01 / 03</small><b id="timer">01:30</b
+        ><span id="fightState">TREINAMENTO</span>
+      </div>
+      <div class="fighter right">
+        <small>CANTO VERMELHO</small><strong id="opponentName">SPARRING</strong>
+        <div class="health"><i id="hp1"></i></div>
+        <span id="stun1">PRONTO</span>
+      </div>
+    </section>
+    <main id="lobby">
+      <div class="eyebrow">ENTRE NO RINGUE</div>
+      <h1>Seu corpo.<br />Seu <em>combate.</em></h1>
+      <p>
+        Movimente-se. Proteja a guarda.<br />Encontre o momento do próximo
+        golpe.
+      </p>
+      <div class="hero-actions">
+        <button id="train" class="primary">
+          Começar treino <span>↗</span></button
+        ><button id="online" class="secondary">Lutar online</button>
+      </div>
+      <div class="hero-meta">
+        <span>01 <b>WEBCAM MOCAP</b></span
+        ><span>02 <b>DUELO EM TEMPO REAL</b></span>
+      </div>
+      <div id="loadStatus" class="muted">Preparando os lutadores…</div>
+    </main>
+    <aside id="guide" hidden>
+      <small>SEU CANTO</small>
+      <h3 id="guideTitle">Entre no ritmo</h3>
+      <p id="tip">
+        Corpo inteiro na câmera. Passos laterais circulam o oponente. Mãos junto
+        ao rosto protegem a guarda. Estenda o braço para golpear.
+      </p>
+      <div class="guide-actions">
+        <button id="cameraButton">Ativar webcam</button
+        ><button id="calibrate">Calibrar centro</button>
+      </div>
+      <span id="trackingStatus"
+        >Webcam necessária • aguardando rastreamento</span
+      ><video id="preview" autoplay muted playsinline hidden></video>
+    </aside>
+    <div id="combatMessage" role="status" aria-live="polite"></div>
+    <footer>
+      <span>CHAMPIONSHIP ARENA <i> / </i> NIGHT SESSION</span>
+      <div>
+        <button id="viewButton" class="ghost">Câmera: terceira pessoa</button
+        ><button id="exit" class="ghost" hidden>Sair do treino</button>
+      </div>
+    </footer>
+    <dialog id="settings">
+      <div class="dialog-top">
+        <small>AJUSTE SEU COMBATE</small
+        ><button data-close="settings" aria-label="Fechar configurações">
+          ×
+        </button>
+      </div>
+      <h2>Seu estilo de luta.</h2>
+      <label>Personagem<select id="avatarSelect"></select></label
+      ><label
+        >Visão<select id="view">
+          <option value="third">Terceira pessoa</option>
+          <option value="first">Primeira pessoa</option>
+        </select></label
+      ><label class="range-label"
+        >Suavização do avatar <output id="smoothValue">50%</output
+        ><input id="smooth" type="range" min="0" max="100" value="50"
+      /></label>
+      <p class="muted">
+        Menor valor: resposta rápida. Maior: movimento estável. Zero desliga o
+        filtro.
+      </p>
+      <label
+        >Ambiente<select id="venue">
+          <option value="night">Championship • noite</option>
+          <option value="dawn">Championship • luz dourada</option>
+        </select></label
+      ><label class="check"
+        ><input id="depth" type="checkbox" checked /> Avanço e recuo pelos passos
+        na webcam</label
+      >
+      <p class="muted">
+        Passos laterais circulam o adversário. Avance e recue pelo seu movimento.
+        Pés fora da imagem usam passos estimados; não precisam ficar sempre visíveis.
+      </p>
+      <label class="check"
+        ><input id="audio" type="checkbox" /> Sons do ringue</label
+      ><label
+        >Volume<input id="volume" type="range" min="0" max="100" value="50"
+      /></label>
+      <p class="muted">
+        Impactos, sino e torcida em camadas.
+        <a href="/assets/boxing_audio/CREDITS.md" target="_blank" rel="noopener"
+          >Créditos dos sons</a
+        >
+      </p>
+    </dialog>
+    <dialog id="match">
+      <div class="dialog-top">
+        <small>UM RINGUE. DOIS LUTADORES.</small
+        ><button data-close="match" aria-label="Fechar sala">×</button>
+      </div>
+      <h2>Convide seu oponente.</h2>
+      <label
+        >Servidor de salas<input
+          id="server"
+          placeholder="wss://seu-servidor/boxing" /></label
+      ><label
+        >Código da sala<input
+          id="room"
+          value="CORNER1"
+          maxlength="24"
+          autocomplete="off" /></label
+      ><label
+        >Conexão<select id="transport">
+          <option value="relay">Servidor intermediário</option>
+          <option value="p2p">P2P • com fallback para servidor</option>
+        </select></label
+      >
+      <p class="muted">
+        Compartilhe o código e o endereço do servidor. Apenas poses e comandos
+        entram no duelo.
+      </p>
+      <button id="join" class="primary">Entrar na sala ↗</button>
+      <p id="roomStatus" role="status"></p>
+    </dialog>
+    <dialog id="result">
+      <small>FIM DO COMBATE</small>
+      <h2 id="resultTitle">Vitória.</h2>
+      <p id="resultText"></p>
+      <button id="again" class="primary">Voltar ao seu canto ↗</button>
+    </dialog>
+    <iframe
+      id="tracker"
+      src="/live?gameBridge=1"
+      allow="camera"
+      title="Serviço local de rastreamento"
+      hidden
+    ></iframe>
+    <script type="module" src="/static/boxing.js"></script>
+  </body>
+</html>

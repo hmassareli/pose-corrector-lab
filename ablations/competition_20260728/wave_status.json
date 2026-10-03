@@ -1,0 +1,41 @@
+{
+  "n_rows": 8,
+  "top": [
+    {
+      "name": "baseline_dropaccel_best",
+      "hand_prox_mae_C": "0.0772",
+      "test_hard_mm": "194.7699",
+      "test_hard_impr_pct": "62.5352",
+      "punch_score": 0.49348055589787293
+    },
+    {
+      "name": "gpt_multilag_best",
+      "hand_prox_mae_C": "0.0775",
+      "test_hard_mm": "190.0567",
+      "test_hard_impr_pct": "63.4419",
+      "punch_score": 0.4912739860959927
+    },
+    {
+      "name": "me_seq_vel_z_bone_best",
+      "hand_prox_mae_C": "0.1072",
+      "test_hard_mm": "269.8114",
+      "test_hard_impr_pct": "48.1007",
+      "punch_score": 0.4786951091706933
+    },
+    {
+      "name": "me_seq_vel_z_best",
+      "hand_prox_mae_C": "0.1084",
+      "test_hard_mm": "262.674",
+      "test_hard_impr_pct": "49.4736",
+      "punch_score": 0.475084063165629
+    },
+    {
+      "name": "gpt_seq_vel_best",
+      "hand_prox_mae_C": "0.1095",
+      "test_hard_mm": "268.0023",
+      "test_hard_impr_pct": "48.4487",
+      "punch_score": 0.47175583100996565
+    }
+  ],
+  "leaderboard": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\ablations\\competition_20260728\\leaderboard.tsv"
+}

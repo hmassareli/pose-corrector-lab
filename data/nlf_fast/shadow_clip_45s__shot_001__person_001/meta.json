@@ -1,0 +1,22 @@
+{
+  "clip_id": "shadow_clip_45s__shot_001__person_001",
+  "backend": "NLF_S_multi_0.2.2_fast_joints24",
+  "mode": "fast",
+  "joint_key": "poses3d_joints24",
+  "axis_preset": "identity",
+  "stride": 2,
+  "fps": 23.976,
+  "n_frames": 124,
+  "detect_frames": 62,
+  "elapsed_s": 1.89,
+  "infer_ms_mean": 29.848232256969617,
+  "infer_ms_p50": 28.974549961276352,
+  "infer_ms_p95": 38.62343983491883,
+  "hd_cleanup": [
+    "data/nlf_fast/",
+    "data/models/nlf/",
+    "experiments/nlf_speed/"
+  ],
+  "units": "metres",
+  "viewer_source": "nlf_s"
+}

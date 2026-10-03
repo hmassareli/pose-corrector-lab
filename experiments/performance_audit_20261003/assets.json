@@ -1,0 +1,58 @@
+[
+  {
+    "name": "boxer_prism31_rig.glb",
+    "bytes": 73602572,
+    "extensions": [],
+    "images": [
+      {
+        "mime": "image/png",
+        "bytes": 15976828,
+        "size": [
+          4096,
+          4096
+        ]
+      }
+    ],
+    "primitives": [
+      {
+        "vertices": 763162,
+        "triangles": 1494256,
+        "attributes": [
+          "POSITION",
+          "NORMAL",
+          "TEXCOORD_0",
+          "JOINTS_0",
+          "WEIGHTS_0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "boxeador_mixamo_trellis.glb",
+    "bytes": 49267716,
+    "extensions": [],
+    "images": [
+      {
+        "mime": "image/png",
+        "bytes": 7693295,
+        "size": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "primitives": [
+      {
+        "vertices": 730862,
+        "triangles": 294525,
+        "attributes": [
+          "POSITION",
+          "NORMAL",
+          "TEXCOORD_0",
+          "JOINTS_0",
+          "WEIGHTS_0"
+        ]
+      }
+    ]
+  }
+]

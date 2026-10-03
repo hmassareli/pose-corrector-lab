@@ -1,0 +1,80 @@
+REPLAY 500/17641
+REPLAY 1000/17641
+REPLAY 1500/17641
+REPLAY 2000/17641
+REPLAY 2500/17641
+REPLAY 3000/17641
+REPLAY 3500/17641
+REPLAY 4000/17641
+REPLAY 4500/17641
+REPLAY 5000/17641
+REPLAY 5500/17641
+REPLAY 6000/17641
+REPLAY 6500/17641
+REPLAY 7000/17641
+REPLAY 7500/17641
+REPLAY 8000/17641
+REPLAY 8500/17641
+REPLAY 9000/17641
+REPLAY 9500/17641
+REPLAY 10000/17641
+REPLAY 10500/17641
+REPLAY 11000/17641
+REPLAY 11500/17641
+REPLAY 12000/17641
+REPLAY 12500/17641
+REPLAY 13000/17641
+REPLAY 13500/17641
+REPLAY 14000/17641
+REPLAY 14500/17641
+REPLAY 15000/17641
+REPLAY 15500/17641
+REPLAY 16000/17641
+REPLAY 16500/17641
+REPLAY 17000/17641
+REPLAY 17500/17641
+{
+  "frames": 17641,
+  "avatar": "Prism, both fighters",
+  "floorWithin2cm": 1,
+  "floorMax": 0.008015734892495827,
+  "overlaps": 0,
+  "maxDepth": 0,
+  "minDistance": 0.7200000000000002,
+  "contactMin": 0.003999292779621744,
+  "wristMax": 0.00015248406882790088,
+  "maxLegChangeRadians": 7.300048299977715e-08,
+  "maxLegComponentChange": 0,
+  "edge": [
+    {
+      "x": 2.55,
+      "z": 2.55,
+      "depth": -0.3879349469788686
+    },
+    {
+      "x": -2.55,
+      "z": 2.55,
+      "depth": -0.3898566721060309
+    },
+    {
+      "x": 2.55,
+      "z": -2.55,
+      "depth": -0.3898566720841028
+    },
+    {
+      "x": -2.55,
+      "z": -2.55,
+      "depth": -0.3890341573135243
+    },
+    {
+      "x": 0,
+      "z": 0,
+      "depth": -0.3898566720402742
+    }
+  ],
+  "bad": [],
+  "limitation": "Every accepted joint sample rendered, GPU draw skipped. Source is old NLF output; original bot/root poses held between60saved samples. Does not assert human punch ground truth or skin triangle collision beyond native capsules.",
+  "seconds": 31.101932699995814,
+  "errors": [],
+  "result": "PASS"
+}

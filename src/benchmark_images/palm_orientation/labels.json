@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "created": "2026-09-30",
+  "uploaded_count": 18,
+  "unique_count": 6,
+  "conventions": {
+    "hand_side": "lado anatomico da pessoa; direita aparece à esquerda na foto original",
+    "image_mirrored": false,
+    "palm_direction": "direcao da normal da palma, não a direção dos dedos",
+    "cima": "em direcao ao teto",
+    "baixo": "em direcao ao chao",
+    "lado_interno": "em direcao ao plano mediano do corpo; palmas uma para a outra quando ambas estendidas",
+    "labels_consumed_by_model": false,
+    "angular_ground_truth": false,
+    "duplicates": "mesmos pixels RGB contam uma vez; não são novas amostras ou sequencia temporal"
+  },
+  "samples": [
+    {
+      "id": "01_maos_abertas_ambas_palmas_cima",
+      "image": "01_maos_abertas_ambas_palmas_cima.jpg",
+      "sha256": "ba0e034cc671db2b134ff4deb16f0ec021a63edc4547d071281d2c8a7bf808e4",
+      "decoded_rgb_sha256": "20b324f27a0dea30dd0d9c8439c277c390f400b98c3b43ab6543cee52b40c280",
+      "size": [
+        3840,
+        2160
+      ],
+      "label_source": "inspecao_visual_dos_anexos_antes_da_inferencia",
+      "label_confidence": "alta",
+      "arms": "ambos_para_frente",
+      "hands": {
+        "right": {
+          "palm_direction": "cima",
+          "hand_state": "aberta",
+          "evaluate": true
+        },
+        "left": {
+          "palm_direction": "cima",
+          "hand_state": "aberta",
+          "evaluate": true
+        }
+      },
+      "source_attachment_numbers": [
+        1,
+        7,
+        13
+      ],
+      "notes": "Normal da palma aproximada; não é medição de ângulo 3D. Palma de punho fechado inferida pelo polegar e pelos dedos."
+    },
+    {
+      "id": "02_maos_abertas_ambas_palmas_lado_interno",
+      "image": "02_maos_abertas_ambas_palmas_lado_interno.jpg",
+      "sha256": "56caef95903c9b5b3f8ea5b18125daa7465a330c7acd06b65ecc12bc1ac3b2ef",
+      "decoded_rgb_sha256": "15ccbfc5f21e7ee0434fe863a072a60650e5230b470fedebd1de572e9fd52810",
+      "size": [
+        3840,
+        2160
+      ],
+      "label_source": "inspecao_visual_dos_anexos_antes_da_inferencia",
+      "label_confidence": "alta",
+      "arms": "ambos_para_frente",
+      "hands": {
+        "right": {
+          "palm_direction": "lado_interno",
+          "hand_state": "aberta",
+          "evaluate": true
+        },
+        "left": {
+          "palm_direction": "lado_interno",
+          "hand_state": "aberta",
+          "evaluate": true
+        }
+      },
+      "source_attachment_numbers": [
+        2,
+        8,
+        14
+      ],
+      "notes": "Normal da palma aproximada; não é medição de ângulo 3D. Palma de punho fechado inferida pelo polegar e pelos dedos."
+    },
+    {
+      "id": "03_punho_direito_fechado_palma_cima_polegar_estendido",
+      "image": "03_punho_direito_fechado_palma_cima_polegar_estendido.jpg",
+      "sha256": "ca9fd56eaae81431dca53830616243a39e48f66ae45180eed9d683ba6740f132",
+      "decoded_rgb_sha256": "9dd6ccbb5e448257df21cbfa482cf9770efcfd6b21d21cf899d7f8075cdd1fa0",
+      "size": [
+        3840,
+        2160
+      ],
+      "label_source": "inspecao_visual_dos_anexos_antes_da_inferencia",
+      "label_confidence": "moderada",
+      "arms": "direito_para_frente_esquerdo_relaxado",
+      "hands": {
+        "right": {
+          "palm_direction": "cima",
+          "hand_state": "fechada_polegar_estendido",
+          "evaluate": true
+        },
+        "left": {
+          "evaluate": false,
+          "reason": "braco_relaxado_fora_do_alvo_do_teste"
+        }
+      },
+      "source_attachment_numbers": [
+        3,
+        9,
+        15
+      ],
+      "notes": "Normal da palma aproximada; não é medição de ângulo 3D. Palma de punho fechado inferida pelo polegar e pelos dedos."
+    },
+    {
+      "id": "04_maos_abertas_ambas_palmas_baixo",
+      "image": "04_maos_abertas_ambas_palmas_baixo.jpg",
+      "sha256": "b435a295902abb096fbe29238c113107d3327392093111d442cb42d1d2b4981f",
+      "decoded_rgb_sha256": "1f86e5d9b8810f51e9c9e956ae90b2b41fb4cea188f2283d713ef22741a97af5",
+      "size": [
+        3840,
+        2160
+      ],
+      "label_source": "inspecao_visual_dos_anexos_antes_da_inferencia",
+      "label_confidence": "alta",
+      "arms": "ambos_para_frente",
+      "hands": {
+        "right": {
+          "palm_direction": "baixo",
+          "hand_state": "aberta",
+          "evaluate": true
+        },
+        "left": {
+          "palm_direction": "baixo",
+          "hand_state": "aberta",
+          "evaluate": true
+        }
+      },
+      "source_attachment_numbers": [
+        4,
+        10,
+        16
+      ],
+      "notes": "Normal da palma aproximada; não é medição de ângulo 3D. Palma de punho fechado inferida pelo polegar e pelos dedos."
+    },
+    {
+      "id": "05_punho_direito_fechado_palma_lado_interno",
+      "image": "05_punho_direito_fechado_palma_lado_interno.jpg",
+      "sha256": "1490d0c2d91d1dce59f55e34e62feba1bd382f6bb76382fa2f2acfe84e51fb37",
+      "decoded_rgb_sha256": "9032946d6e1a99f586619769b14be4ed881173ecacdba558d47dc51a31708e42",
+      "size": [
+        3840,
+        2160
+      ],
+      "label_source": "inspecao_visual_dos_anexos_antes_da_inferencia",
+      "label_confidence": "moderada",
+      "arms": "direito_para_frente_esquerdo_relaxado",
+      "hands": {
+        "right": {
+          "palm_direction": "lado_interno",
+          "hand_state": "fechada",
+          "evaluate": true
+        },
+        "left": {
+          "evaluate": false,
+          "reason": "braco_relaxado_fora_do_alvo_do_teste"
+        }
+      },
+      "source_attachment_numbers": [
+        5,
+        11,
+        17
+      ],
+      "notes": "Normal da palma aproximada; não é medição de ângulo 3D. Palma de punho fechado inferida pelo polegar e pelos dedos."
+    },
+    {
+      "id": "06_punho_direito_fechado_palma_baixo",
+      "image": "06_punho_direito_fechado_palma_baixo.jpg",
+      "sha256": "c6a6090b7ea924d2d834dd916a4b50b3588f8f5da84165f5d3f2041887a997b0",
+      "decoded_rgb_sha256": "4e2a112a9b264f42f7bca1fb902a74783a82cc2114d2001c88bba32da4f66d6f",
+      "size": [
+        3840,
+        2160
+      ],
+      "label_source": "inspecao_visual_dos_anexos_antes_da_inferencia",
+      "label_confidence": "moderada",
+      "arms": "direito_para_frente_esquerdo_relaxado",
+      "hands": {
+        "right": {
+          "palm_direction": "baixo",
+          "hand_state": "fechada",
+          "evaluate": true
+        },
+        "left": {
+          "evaluate": false,
+          "reason": "braco_relaxado_fora_do_alvo_do_teste"
+        }
+      },
+      "source_attachment_numbers": [
+        6,
+        12,
+        18
+      ],
+      "notes": "Normal da palma aproximada; não é medição de ângulo 3D. Palma de punho fechado inferida pelo polegar e pelos dedos."
+    }
+  ],
+  "attachments": [
+    {
+      "number": 1,
+      "original_name": "codex-clipboard-b915fea5-df81-48d5-bc05-c9a54b673fd3.jpg",
+      "sha256": "ba0e034cc671db2b134ff4deb16f0ec021a63edc4547d071281d2c8a7bf808e4",
+      "canonical_image": "01_maos_abertas_ambas_palmas_cima.jpg",
+      "deduplication": "primeiro_exemplar"
+    },
+    {
+      "number": 2,
+      "original_name": "codex-clipboard-e631767c-85a1-4ed7-bd8a-328c8c89996a.jpg",
+      "sha256": "56caef95903c9b5b3f8ea5b18125daa7465a330c7acd06b65ecc12bc1ac3b2ef",
+      "canonical_image": "02_maos_abertas_ambas_palmas_lado_interno.jpg",
+      "deduplication": "primeiro_exemplar"
+    },
+    {
+      "number": 3,
+      "original_name": "codex-clipboard-e5258ba4-4040-4efe-8cc0-dd7542676363.jpg",
+      "sha256": "ca9fd56eaae81431dca53830616243a39e48f66ae45180eed9d683ba6740f132",
+      "canonical_image": "03_punho_direito_fechado_palma_cima_polegar_estendido.jpg",
+      "deduplication": "primeiro_exemplar"
+    },
+    {
+      "number": 4,
+      "original_name": "codex-clipboard-77e1545c-50e2-4b36-9448-9d4af996c12c.jpg",
+      "sha256": "b435a295902abb096fbe29238c113107d3327392093111d442cb42d1d2b4981f",
+      "canonical_image": "04_maos_abertas_ambas_palmas_baixo.jpg",
+      "deduplication": "primeiro_exemplar"
+    },
+    {
+      "number": 5,
+      "original_name": "codex-clipboard-57a49d34-5dd1-4488-a5eb-afa1c7a5682e.jpg",
+      "sha256": "1490d0c2d91d1dce59f55e34e62feba1bd382f6bb76382fa2f2acfe84e51fb37",
+      "canonical_image": "05_punho_direito_fechado_palma_lado_interno.jpg",
+      "deduplication": "primeiro_exemplar"
+    },
+    {
+      "number": 6,
+      "original_name": "codex-clipboard-32264f68-5b00-407e-b059-e74d5581d858.jpg",
+      "sha256": "c6a6090b7ea924d2d834dd916a4b50b3588f8f5da84165f5d3f2041887a997b0",
+      "canonical_image": "06_punho_direito_fechado_palma_baixo.jpg",
+      "deduplication": "primeiro_exemplar"
+    },
+    {
+      "number": 7,
+      "original_name": "codex-clipboard-7b671ef3-aae8-4327-8ba0-9cb84871238f.jpg",
+      "sha256": "ba0e034cc671db2b134ff4deb16f0ec021a63edc4547d071281d2c8a7bf808e4",
+      "canonical_image": "01_maos_abertas_ambas_palmas_cima.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 8,
+      "original_name": "codex-clipboard-9a427779-5d16-46f4-8e83-89e5577bcc19.jpg",
+      "sha256": "56caef95903c9b5b3f8ea5b18125daa7465a330c7acd06b65ecc12bc1ac3b2ef",
+      "canonical_image": "02_maos_abertas_ambas_palmas_lado_interno.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 9,
+      "original_name": "codex-clipboard-e743aeae-681b-4f26-b987-fe6a4ad74723.jpg",
+      "sha256": "ca9fd56eaae81431dca53830616243a39e48f66ae45180eed9d683ba6740f132",
+      "canonical_image": "03_punho_direito_fechado_palma_cima_polegar_estendido.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 10,
+      "original_name": "codex-clipboard-82b0ac7c-8f3a-4991-a202-d3d794ab1fb0.jpg",
+      "sha256": "b435a295902abb096fbe29238c113107d3327392093111d442cb42d1d2b4981f",
+      "canonical_image": "04_maos_abertas_ambas_palmas_baixo.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 11,
+      "original_name": "codex-clipboard-dd7a47f7-2ed2-4102-8bc3-3628125d51b5.jpg",
+      "sha256": "1490d0c2d91d1dce59f55e34e62feba1bd382f6bb76382fa2f2acfe84e51fb37",
+      "canonical_image": "05_punho_direito_fechado_palma_lado_interno.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 12,
+      "original_name": "codex-clipboard-ce53703a-313d-415b-ad09-5be9afff68a5.jpg",
+      "sha256": "c6a6090b7ea924d2d834dd916a4b50b3588f8f5da84165f5d3f2041887a997b0",
+      "canonical_image": "06_punho_direito_fechado_palma_baixo.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 13,
+      "original_name": "codex-clipboard-a4721e72-6806-4549-b890-ffba396bc244.jpg",
+      "sha256": "ba0e034cc671db2b134ff4deb16f0ec021a63edc4547d071281d2c8a7bf808e4",
+      "canonical_image": "01_maos_abertas_ambas_palmas_cima.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 14,
+      "original_name": "codex-clipboard-2c7baed8-5235-455f-805e-333bae644adb.jpg",
+      "sha256": "56caef95903c9b5b3f8ea5b18125daa7465a330c7acd06b65ecc12bc1ac3b2ef",
+      "canonical_image": "02_maos_abertas_ambas_palmas_lado_interno.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 15,
+      "original_name": "codex-clipboard-b1278301-ef1d-4e09-b2df-801bf16368ee.jpg",
+      "sha256": "ca9fd56eaae81431dca53830616243a39e48f66ae45180eed9d683ba6740f132",
+      "canonical_image": "03_punho_direito_fechado_palma_cima_polegar_estendido.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 16,
+      "original_name": "codex-clipboard-20262d4f-7fca-476c-9420-3c1997093e39.jpg",
+      "sha256": "b435a295902abb096fbe29238c113107d3327392093111d442cb42d1d2b4981f",
+      "canonical_image": "04_maos_abertas_ambas_palmas_baixo.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 17,
+      "original_name": "codex-clipboard-ebf2cfb6-9736-4455-8c88-cf7bd69684c6.jpg",
+      "sha256": "1490d0c2d91d1dce59f55e34e62feba1bd382f6bb76382fa2f2acfe84e51fb37",
+      "canonical_image": "05_punho_direito_fechado_palma_lado_interno.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    },
+    {
+      "number": 18,
+      "original_name": "codex-clipboard-afb44223-b186-4b8c-9e3a-9fedf051a043.jpg",
+      "sha256": "c6a6090b7ea924d2d834dd916a4b50b3588f8f5da84165f5d3f2041887a997b0",
+      "canonical_image": "06_punho_direito_fechado_palma_baixo.jpg",
+      "deduplication": "pixels_RGB_identicos"
+    }
+  ]
+}

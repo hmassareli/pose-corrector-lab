@@ -1,0 +1,14 @@
+# GPT: seq + velocity + punch direction (active arms only).
+team: gpt
+notes: "predict_sequence + L_vel + L_dir on extending arms"
+
+model:
+  predict_sequence: true
+
+loss:
+  w_vel: 0.10
+  w_dir: 0.05
+  dir_reach_thr: 0.70
+
+logging:
+  run_name: abl_gpt_seq_vel_dir

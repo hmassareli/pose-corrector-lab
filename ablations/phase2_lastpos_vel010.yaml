@@ -1,0 +1,14 @@
+# Upper end of the normalized velocity-weight sweep.
+team: phase2
+notes: "last-frame position + full-window velocity; w_vel=0.01"
+
+model:
+  predict_sequence: true
+
+loss:
+  sequence_position_mode: last
+  w_vel: 0.01
+  w_dir: 0.0
+
+logging:
+  run_name: abl2_lastpos_vel010

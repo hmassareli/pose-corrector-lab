@@ -1,0 +1,119 @@
+[
+  {
+    "locale": "pt-BR",
+    "initial": {
+      "lang": "pt-BR",
+      "title": "HEAVY HANDS",
+      "training": "Treino",
+      "disabled": true,
+      "peakHidden": true,
+      "peak": "0 N",
+      "room": "HEAVY1"
+    },
+    "emptyResult": {
+      "stats": "\u2013PEAK\u2013FOR\u00c7A TOTAL\u2013M\u00c9DIA\u2013PRECIS\u00c3O",
+      "support": "Cabe\u00e7a\u2013Corpo\u2013Combo\u2013Mais r\u00e1pido\u2013No queixo0Defesas0Socos / min0,0Dano recebido0,0Maior golpe recebido\u2013Forte0Pesado0Devastador0",
+      "bars": 0,
+      "journal": {
+        "peak": null,
+        "total": null,
+        "average": null,
+        "hits": 0,
+        "attempts": 0,
+        "accuracy": null,
+        "headPeak": null,
+        "bodyPeak": null,
+        "tiers": {
+          "toque": 0,
+          "leve": 0,
+          "solido": 0,
+          "forte": 0,
+          "pesado": 0,
+          "devastador": 0
+        },
+        "fastest": null,
+        "maxCombo": 0,
+        "maxComboForce": 0,
+        "blocked": 0,
+        "perMinute": 0,
+        "damageReceived": 0,
+        "receivedPeak": 0
+      }
+    },
+    "switched": {
+      "lang": "en",
+      "title": "Victory",
+      "stats": "\u2013PEAK\u2013TOTAL FORCE\u2013AVERAGE\u2013ACCURACY"
+    },
+    "option": {
+      "reduced": true,
+      "stored": "on"
+    },
+    "persisted": {
+      "lang": "en",
+      "reduced": true,
+      "peak": 0,
+      "checked": true
+    },
+    "errors": []
+  },
+  {
+    "locale": "en-US",
+    "initial": {
+      "lang": "en",
+      "title": "HEAVY HANDS",
+      "training": "Training",
+      "disabled": true,
+      "peakHidden": false,
+      "peak": "1,235 N",
+      "room": "HEAVY1"
+    },
+    "emptyResult": {
+      "stats": "\u2013PEAK\u2013TOTAL FORCE\u2013AVERAGE\u2013ACCURACY",
+      "support": "Head\u2013Body\u2013Combo\u2013Fastest\u2013On the chin0Blocks0Punches / min0.0Damage taken0.0Hardest received\u2013Strong0Heavy0Devastating0",
+      "bars": 0,
+      "journal": {
+        "peak": null,
+        "total": null,
+        "average": null,
+        "hits": 0,
+        "attempts": 0,
+        "accuracy": null,
+        "headPeak": null,
+        "bodyPeak": null,
+        "tiers": {
+          "toque": 0,
+          "leve": 0,
+          "solido": 0,
+          "forte": 0,
+          "pesado": 0,
+          "devastador": 0
+        },
+        "fastest": null,
+        "maxCombo": 0,
+        "maxComboForce": 0,
+        "blocked": 0,
+        "perMinute": 0,
+        "damageReceived": 0,
+        "receivedPeak": 0
+      }
+    },
+    "switched": {
+      "lang": "pt-BR",
+      "title": "Vit\u00f3ria",
+      "stats": "\u2013PEAK\u2013FOR\u00c7A TOTAL\u2013M\u00c9DIA\u2013PRECIS\u00c3O"
+    },
+    "option": {
+      "reduced": true,
+      "stored": "on"
+    },
+    "persisted": {
+      "lang": "pt-BR",
+      "reduced": true,
+      "peak": 1234.5,
+      "checked": true
+    },
+    "errors": []
+  }
+]
+Independent UI review PASS

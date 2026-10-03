@@ -1,0 +1,13 @@
+# Isolate full-window positional supervision from temporal losses.
+team: phase2
+notes: "predict sequence; positional supervision on all frames; no temporal loss"
+
+model:
+  predict_sequence: true
+
+loss:
+  w_vel: 0.0
+  w_dir: 0.0
+
+logging:
+  run_name: abl2_seq_only

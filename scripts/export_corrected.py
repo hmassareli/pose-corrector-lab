@@ -19,9 +19,9 @@ LAB_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(LAB_ROOT / "src"))
 
 from pose_lab.align import body_frame_from_pose, from_body_frame, to_body_frame  # noqa: E402
-from pose_lab.data import apply_feature_ablation  # noqa: E402
+from pose_lab.data import apply_feature_ablation, feature_ablation_kwargs  # noqa: E402
 from pose_lab.features import build_feature_sequence  # noqa: E402
-from pose_lab.models import build_model  # noqa: E402
+from pose_lab.models import build_model, take_delta_last  # noqa: E402
 from pose_lab.skeleton import DELTA_DIM, N_TARGETS, TARGET_IDX  # noqa: E402
 from pose_lab.timebase import CANONICAL_FPS, resample_to_n_frames  # noqa: E402
 
@@ -162,11 +162,10 @@ def correct_clip(
     gate_conf: float,
     gate_eps: float,
     *,
-    zero_accel: bool = False,
-    zero_2d: bool = False,
+    feat_kw: dict | None = None,
 ) -> np.ndarray:
     feats = build_feature_sequence(mp, conf, poses_2d_norm=mp_2d, fps=CANONICAL_FPS)
-    feats = apply_feature_ablation(feats, zero_accel=zero_accel, zero_2d=zero_2d)
+    feats = apply_feature_ablation(feats, **(feat_kw or {}))
     out = mp.copy()
     # pad start with first window prediction repeated / causal warmup
     for t in range(mp.shape[0]):
@@ -176,7 +175,7 @@ def correct_clip(
             pad = np.repeat(window[:1], T - window.shape[0], axis=0)
             window = np.concatenate([pad, window], axis=0)
         x = torch.from_numpy(window[None].astype(np.float32)).to(device)
-        delta = model(x)["delta"][0].cpu().numpy()
+        delta = take_delta_last(model(x)["delta"])[0].cpu().numpy()
         if conf[t, TARGET_IDX].mean() >= gate_conf and float(np.linalg.norm(delta)) < gate_eps:
             continue
         out[t] = apply_delta(mp[t], delta)
@@ -223,8 +222,7 @@ def main() -> None:
     gate_conf = 0.0 if args.no_gate else float(ig.get("conf_high", 0.85))
     gate_eps = 0.0 if args.no_gate else float(ig.get("delta_eps", 0.02))
     fcfg = cfg.get("features") or {}
-    zero_accel = bool(fcfg.get("zero_accel", False))
-    zero_2d = bool(fcfg.get("zero_2d", False))
+    feat_kw = feature_ablation_kwargs(fcfg)
 
     clip_ids = _clip_ids_for_args(args)
     if args.clip:
@@ -233,7 +231,11 @@ def main() -> None:
             print(f"[export] warn: not in split/paired: {sorted(missing)}")
 
     args.out.mkdir(parents=True, exist_ok=True)
-    print(f"[export] clips={len(clip_ids)} T={T} F={F} gate_conf={gate_conf} eps={gate_eps}")
+    print(
+        f"[export] clips={len(clip_ids)} T={T} F={F} gate_conf={gate_conf} eps={gate_eps} "
+        f"multilag={feat_kw['multilag']} zero_tier_a="
+        f"{feat_kw['zero_ipsi'] and feat_kw['zero_bones'] and feat_kw['zero_inv_conf']}"
+    )
     t0 = time.time()
     for i, cid in enumerate(clip_ids, 1):
         d = args.paired / cid
@@ -249,8 +251,7 @@ def main() -> None:
             T,
             gate_conf,
             gate_eps,
-            zero_accel=zero_accel,
-            zero_2d=zero_2d,
+            feat_kw=feat_kw,
         )
 
         # Viewer joints must share the source-video / MediaPipe frame grid.

@@ -97,7 +97,14 @@ def make_landmarker(model_path: Path):
     return vision.PoseLandmarker.create_from_options(options)
 
 
-def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> dict:
+def run_one(
+    model_path: Path,
+    video: Path,
+    out_dir: Path,
+    complexity: int,
+    *,
+    preserve_lab_export: bool = False,
+) -> dict:
     import mediapipe as mp
 
     # Fresh landmarker per clip — VIDEO mode requires monotonic timestamps
@@ -111,7 +118,8 @@ def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> di
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
 
-    joints3d, joints2d, confs = [], [], []
+    joints3d, joints2d, confs, foot_landmarks, body_landmarks = [], [], [], [], []
+    landmarks33_world, landmarks33_image, landmarks33_conf = [], [], []
     fi = 0
     try:
         while True:
@@ -128,6 +136,11 @@ def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> di
                 joints3d.append(np.zeros((len(LAB_JOINTS), 3), dtype=np.float32))
                 joints2d.append(np.zeros((len(LAB_JOINTS), 2), dtype=np.float32))
                 confs.append(np.zeros((len(LAB_JOINTS),), dtype=np.float32))
+                foot_landmarks.append(np.zeros((4, 3), dtype=np.float32))
+                body_landmarks.append(np.zeros((4, 3), dtype=np.float32))
+                landmarks33_world.append(np.zeros((33, 3), dtype=np.float32))
+                landmarks33_image.append(np.zeros((33, 3), dtype=np.float32))
+                landmarks33_conf.append(np.zeros((33,), dtype=np.float32))
                 continue
 
             img_lms = res.pose_landmarks[0]
@@ -135,6 +148,18 @@ def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> di
             world = _lm_xyz(world_lms)
             vis = _lm_vis(img_lms)
             img = np.array([[lm.x * w, lm.y * h] for lm in img_lms], dtype=np.float64)
+            image_normalized = _lm_xyz(img_lms)
+            if world.shape != (33, 3) or image_normalized.shape != (33, 3):
+                raise ValueError(
+                    f"expected 33 MediaPipe landmarks, got world={world.shape} image={image_normalized.shape}"
+                )
+            landmarks33_world.append(world.astype(np.float32))
+            landmarks33_image.append(image_normalized.astype(np.float32))
+            landmarks33_conf.append(vis.astype(np.float32))
+            # Heel and toe landmarks retain the foot-facing information that the
+            # 16-joint lab skeleton intentionally omits.
+            foot_landmarks.append(world[[29, 31, 30, 32]].astype(np.float32))
+            body_landmarks.append(world[[11, 12, 23, 24]].astype(np.float32))
 
             lab3d, conf = mediapipe_array_to_lab(world, vis)
             lab2d = np.zeros((len(LAB_JOINTS), 2), dtype=np.float64)
@@ -160,9 +185,43 @@ def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> di
     j3 = np.stack(joints3d, axis=0) if joints3d else np.zeros((0, len(LAB_JOINTS), 3), np.float32)
     j2 = np.stack(joints2d, axis=0) if joints2d else np.zeros((0, len(LAB_JOINTS), 2), np.float32)
     cf = np.stack(confs, axis=0) if confs else np.zeros((0, len(LAB_JOINTS)), np.float32)
-    np.save(out_dir / "joints3d.npy", j3)
-    np.save(out_dir / "joints2d.npy", j2)
-    np.save(out_dir / "conf.npy", cf)
+    if not preserve_lab_export:
+        np.save(out_dir / "joints3d.npy", j3)
+        np.save(out_dir / "joints2d.npy", j2)
+        np.save(out_dir / "conf.npy", cf)
+    full_world = (
+        np.stack(landmarks33_world, axis=0)
+        if landmarks33_world else np.zeros((0, 33, 3), np.float32)
+    )
+    full_image = (
+        np.stack(landmarks33_image, axis=0)
+        if landmarks33_image else np.zeros((0, 33, 3), np.float32)
+    )
+    full_conf = (
+        np.stack(landmarks33_conf, axis=0)
+        if landmarks33_conf else np.zeros((0, 33), np.float32)
+    )
+    np.save(out_dir / "landmarks33_world.npy", full_world)
+    np.save(out_dir / "landmarks33_image.npy", full_image)
+    np.save(out_dir / "landmarks33_conf.npy", full_conf)
+    if not preserve_lab_export:
+        foot = np.stack(foot_landmarks, axis=0) if foot_landmarks else np.zeros((0, 4, 3), np.float32)
+        if foot.size:
+            foot[..., 1] *= -1.0
+            foot[..., 2] *= -1.0
+        body = np.stack(body_landmarks, axis=0) if body_landmarks else np.zeros((0, 4, 3), np.float32)
+        if body.size:
+            body[..., 1] *= -1.0
+            body[..., 2] *= -1.0
+        (out_dir / "foot_landmarks.json").write_text(
+            json.dumps({
+                "names": ["left_heel", "left_toe", "right_heel", "right_toe"],
+                "frames": foot.tolist(),
+                "body_names": ["left_shoulder", "right_shoulder", "left_hip", "right_hip"],
+                "body_frames": body.tolist(),
+            }),
+            encoding="utf-8",
+        )
 
     src = out_dir / "source.mp4"
     if not src.exists():
@@ -175,22 +234,24 @@ def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> di
         except OSError:
             shutil.copy2(video, src)
 
-    # Viewer-friendly axes (OpenCV Y-down → Y-up), same idea as teacher export
-    view = j3.copy()
-    if view.size:
-        view[..., 1] *= -1.0
-        view[..., 2] *= -1.0
-    save_viewer_payload(
-        out_dir / "viewer_payload.json",
-        video_url=f"/media/{out_dir.name}/source.mp4",
-        joints=view,
-        fps=float(fps),
-        bones=LAB_BONES,
-        joint_names=LAB_JOINTS,
-        title=f"MediaPipe — {out_dir.name}",
-    )
+    if not preserve_lab_export:
+        # Viewer-friendly axes (OpenCV Y-down → Y-up), same idea as teacher export
+        view = j3.copy()
+        if view.size:
+            view[..., 1] *= -1.0
+            view[..., 2] *= -1.0
+        save_viewer_payload(
+            out_dir / "viewer_payload.json",
+            video_url=f"/media/{out_dir.name}/source.mp4",
+            joints=view,
+            fps=float(fps),
+            bones=LAB_BONES,
+            joint_names=LAB_JOINTS,
+            title=f"MediaPipe — {out_dir.name}",
+        )
 
-    meta = {
+    meta_path = out_dir / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if preserve_lab_export and meta_path.is_file() else {
         "clip_id": out_dir.name,
         "source_video": str(video.resolve()),
         "backend": "mediapipe_tasks_pose_landmarker",
@@ -200,9 +261,19 @@ def run_one(model_path: Path, video: Path, out_dir: Path, complexity: int) -> di
         "width": w,
         "height": h,
         "joint_names": LAB_JOINTS,
-        "created_unix": time.time(),
     }
-    (out_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    meta.update({
+        "full_landmarks": {
+            "count": 33,
+            "world_file": "landmarks33_world.npy",
+            "world_axes": "MediaPipe Pose world landmarks (raw task coordinates)",
+            "image_file": "landmarks33_image.npy",
+            "image_axes": "MediaPipe normalized image x,y,z",
+            "confidence_file": "landmarks33_conf.npy",
+        },
+        "created_unix": time.time(),
+    })
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return meta
 
 
@@ -212,7 +283,24 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=LAB_ROOT / "data" / "mediapipe")
     ap.add_argument("--complexity", type=int, default=1, choices=(0, 1, 2))
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--skip-existing", action="store_true")
+    ap.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Skip clips that already have joints3d.npy under --out",
+    )
+    ap.add_argument(
+        "--video",
+        type=Path,
+        action="append",
+        default=[],
+        help="Process only this video (repeatable). Does NOT scan --people-root.",
+    )
+    ap.add_argument("--clip-id", action="append", default=[], help="Output ID for each --video (repeatable)")
+    ap.add_argument(
+        "--full-landmarks-only",
+        action="store_true",
+        help="Write only landmarks33_* files and metadata; preserve existing lab/training exports.",
+    )
     args = ap.parse_args()
 
     try:
@@ -224,16 +312,27 @@ def main() -> None:
 
     model_path = ensure_model(args.complexity)
 
-    clips = discover_people_clips(args.people_root)
+    if args.clip_id and len(args.clip_id) != len(args.video):
+        ap.error("--clip-id must be supplied once for every --video")
+
+    # Explicit --video list is exclusive: never also crawl people-root.
+    if args.video:
+        direct_ids = args.clip_id or [video.stem for video in args.video]
+        clips = list(zip(direct_ids, args.video))
+    else:
+        clips = discover_people_clips(args.people_root)
+
     if args.limit > 0:
         clips = clips[: args.limit]
     if not clips:
-        print(f"No people clips under {args.people_root}")
+        src = " --video list" if args.video else f" under {args.people_root}"
+        print(f"No clips{src}")
         sys.exit(1)
 
     args.out.mkdir(parents=True, exist_ok=True)
     print(
-        f"[mediapipe] clips={len(clips)} complexity={args.complexity} model={model_path.name}",
+        f"[mediapipe] clips={len(clips)} complexity={args.complexity} "
+        f"model={model_path.name} skip_existing={args.skip_existing}",
         flush=True,
     )
     ok = fail = skip = 0
@@ -241,9 +340,13 @@ def main() -> None:
         out_dir = args.out / clip_id
         if args.skip_existing and (out_dir / "joints3d.npy").exists():
             skip += 1
+            print(f"[skip] {i}/{len(clips)} {clip_id}", flush=True)
             continue
         try:
-            meta = run_one(model_path, path, out_dir, args.complexity)
+            meta = run_one(
+                model_path, path, out_dir, args.complexity,
+                preserve_lab_export=args.full_landmarks_only,
+            )
             ok += 1
             print(f"[ok] {i}/{len(clips)} {clip_id} T={meta['n_frames']}", flush=True)
         except Exception as e:

@@ -1,0 +1,139 @@
+{
+ "boxeador": {
+  "spec": {
+   "id": "boxeador",
+   "label": "Boxeador (Trellis GLB)",
+   "url": "/assets/boxeador_mixamo_trellis.glb",
+   "format": "glb",
+   "scale": 1,
+   "note": "index finger chain only"
+  },
+  "bone_nodes": 33,
+  "unique": 33,
+  "names": [
+   "mixamorigHips",
+   "mixamorigLeftUpLeg",
+   "mixamorigLeftLeg",
+   "mixamorigLeftFoot",
+   "mixamorigLeftToeBase",
+   "mixamorigLeftToe_End",
+   "mixamorigRightUpLeg",
+   "mixamorigRightLeg",
+   "mixamorigRightFoot",
+   "mixamorigRightToeBase",
+   "mixamorigRightToe_End",
+   "mixamorigSpine",
+   "mixamorigSpine1",
+   "mixamorigSpine2",
+   "mixamorigLeftShoulder",
+   "mixamorigLeftArm",
+   "mixamorigLeftForeArm",
+   "mixamorigLeftHand",
+   "mixamorigLeftHandIndex1",
+   "mixamorigLeftHandIndex2",
+   "mixamorigLeftHandIndex3",
+   "mixamorigLeftHandIndex4",
+   "mixamorigNeck",
+   "mixamorigHead",
+   "mixamorigHeadTop_End",
+   "mixamorigRightShoulder",
+   "mixamorigRightArm",
+   "mixamorigRightForeArm",
+   "mixamorigRightHand",
+   "mixamorigRightHandIndex1",
+   "mixamorigRightHandIndex2",
+   "mixamorigRightHandIndex3",
+   "mixamorigRightHandIndex4"
+  ],
+  "mapped": {
+   "hips": {
+    "bone": "mixamorigHips",
+    "child": "mixamorigSpine"
+   },
+   "spine": {
+    "bone": "mixamorigSpine",
+    "child": "mixamorigSpine1"
+   },
+   "spine1": {
+    "bone": "mixamorigSpine1",
+    "child": "mixamorigSpine2"
+   },
+   "spine2": {
+    "bone": "mixamorigSpine2",
+    "child": "mixamorigNeck"
+   },
+   "neck": {
+    "bone": "mixamorigNeck",
+    "child": "mixamorigHead"
+   },
+   "head": {
+    "bone": "mixamorigHead",
+    "child": "mixamorigHeadTop_End"
+   },
+   "leftArm": {
+    "bone": "mixamorigLeftArm",
+    "child": "mixamorigLeftForeArm"
+   },
+   "leftForeArm": {
+    "bone": "mixamorigLeftForeArm",
+    "child": "mixamorigLeftHand"
+   },
+   "rightArm": {
+    "bone": "mixamorigRightArm",
+    "child": "mixamorigRightForeArm"
+   },
+   "rightForeArm": {
+    "bone": "mixamorigRightForeArm",
+    "child": "mixamorigRightHand"
+   },
+   "leftShoulder": {
+    "bone": "mixamorigLeftShoulder",
+    "child": "mixamorigLeftArm"
+   },
+   "rightShoulder": {
+    "bone": "mixamorigRightShoulder",
+    "child": "mixamorigRightArm"
+   },
+   "leftHand": {
+    "bone": "mixamorigLeftHand",
+    "child": "mixamorigLeftHandIndex1"
+   },
+   "rightHand": {
+    "bone": "mixamorigRightHand",
+    "child": "mixamorigRightHandIndex1"
+   },
+   "leftUpLeg": {
+    "bone": "mixamorigLeftUpLeg",
+    "child": "mixamorigLeftLeg"
+   },
+   "leftLeg": {
+    "bone": "mixamorigLeftLeg",
+    "child": "mixamorigLeftFoot"
+   },
+   "rightUpLeg": {
+    "bone": "mixamorigRightUpLeg",
+    "child": "mixamorigRightLeg"
+   },
+   "rightLeg": {
+    "bone": "mixamorigRightLeg",
+    "child": "mixamorigRightFoot"
+   },
+   "leftFoot": {
+    "bone": "mixamorigLeftFoot",
+    "child": "mixamorigLeftToeBase"
+   },
+   "rightFoot": {
+    "bone": "mixamorigRightFoot",
+    "child": "mixamorigRightToeBase"
+   }
+  },
+  "fingers": {
+   "left": [
+    "mixamorigLeftHandIndex1"
+   ],
+   "right": [
+    "mixamorigRightHandIndex1"
+   ]
+  }
+ }
+}

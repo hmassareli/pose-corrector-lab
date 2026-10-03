@@ -1,0 +1,45 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head><body><script type="module">
+window.__R__ = null; window.__E__ = null;
+try {
+  const THREE = await import("three");
+  const { loadAvatar } = await import("/static/avatar_assets.js");
+  const { buildAvatarRig } = await import("/static/mikapo_mixamo_solver.js");
+  const id = new URLSearchParams(location.search).get("avatar");
+  const { root, spec } = await loadAvatar(id);
+  const rig = buildAvatarRig(root);
+  const V = (v) => [v.x, v.y, v.z];
+  const trunk = {};
+  for (const k of ["hips", "spine", "spine1", "spine2", "neck", "head"]) {
+    const r = rig.bones.get(k);
+    if (!r) continue;
+    // The bone's OWN authored rest axes, in root space. If the rigger kept a
+    // consistent convention these carry the body's medial-lateral direction
+    // regardless of how the limbs were posed for the rest pose, which a
+    // cross-body shoulder span does not.
+    const axes = {};
+    for (const [nm, v] of [["x", [1,0,0]], ["y", [0,1,0]], ["z", [0,0,1]]]) {
+      axes[nm] = V(new THREE.Vector3(...v).applyQuaternion(r.restQuaternionInRoot));
+    }
+    trunk[k] = {
+      bone: r.bone.name,
+      child: r.child ? r.child.name : null,
+      dir: V(r.restDirectionInRoot),
+      across: r.restAcrossInRoot ? V(r.restAcrossInRoot) : null,
+      hasUpright: !!r.restUprightInRoot,
+      axes,
+    };
+  }
+  // The raw span the builder uses for the shared trunk across.
+  const la = rig.bones.get("leftArm"), ra = rig.bones.get("rightArm");
+  let span = null;
+  if (la && ra) {
+    const inv = root.getWorldQuaternion(new THREE.Quaternion()).invert();
+    span = V(ra.bone.getWorldPosition(new THREE.Vector3())
+      .sub(la.bone.getWorldPosition(new THREE.Vector3()))
+      .normalize().applyQuaternion(inv));
+  }
+  window.__R__ = { spec, trunk, span };
+} catch (e) { window.__E__ = String(e && e.stack || e); }
+</script></body></html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Avatar sequence render (A/B solver)</title>
+  <style>
+    html, body { margin: 0; background: #222a31; overflow: hidden; }
+    #stage { position: relative; width: 720px; height: 960px; }
+    canvas { display: block; width: 720px; height: 960px; }
+    #label { position: absolute; top: 16px; left: 18px; color: #ffffff; font: bold 30px Arial, sans-serif; text-shadow: 0 0 6px rgba(0,0,0,0.9); pointer-events: none; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="stage">
+  <canvas id="canvas"></canvas>
+  <div id="label"></div>
+  </div>
+  <script type="module">
+    import * as THREE from "three";
+    import { loadAvatar } from "/static/avatar_assets.js";
+
+    const JOINT_NAMES = [
+      "pelvis", "left_hip", "right_hip", "left_knee", "right_knee",
+      "left_ankle", "right_ankle", "spine", "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow", "left_wrist", "right_wrist", "neck", "head",
+    ];
+    const JOINT_INDEX = Object.fromEntries(JOINT_NAMES.map((name, index) => [name, index]));
+    const query = new URLSearchParams(location.search);
+    const poseUrl = query.get("pose");
+    const solverUrl = query.get("solver") || "/static/mikapo_mixamo_solver.js";
+    const camSide = query.get("side") === "1";
+    const avatarId = query.get("avatar") || "boxeador";
+    const fps = Number(query.get("fps") || 30);
+    const canvas = document.getElementById("canvas");
+    const label = query.get("label");
+    if (label) document.getElementById("label").textContent = label;
+    window.__BAKE_READY__ = false;
+    window.__BAKE_ERROR__ = null;
+    window.__BAKE_SEQ_FRAME__ = -1;
+    window.__BAKE_SEQ_TOTAL__ = 0;
+
+    function toViewerSpace(pose) {
+      const pelvis = pose[0];
+      const lowestAnkle = Math.min(pose[5][1], pose[6][1]);
+      return pose.map((point) => [
+        point[0] - pelvis[0],
+        -point[1] + lowestAnkle,
+        -(point[2] - pelvis[2]),
+      ]);
+    }
+
+    function fail(error) {
+      window.__BAKE_ERROR__ = error?.message || String(error);
+      console.error(error);
+    }
+
+    async function main() {
+      if (!poseUrl) throw new Error("missing pose URL");
+      const data = await fetch(poseUrl).then((response) => {
+        if (!response.ok) throw new Error(`pose fetch failed: ${response.status}`);
+        return response.json();
+      });
+      const frames = Array.isArray(data) ? data : [data];
+      if (!frames.length || !frames[0].joints) throw new Error("pose file must be an array of {joints, aux_smpl}");
+      window.__BAKE_SEQ_TOTAL__ = frames.length;
+
+      const S = await import(solverUrl);
+      const {
+        auxFromSmpl,
+        buildAvatarRig,
+        createAvatarMotion,
+        footDirectionsFromSmplAux,
+        headForwardFromSmplAux,
+        resetAvatarMotion,
+        resetRetargetFilters,
+        updateAvatarPose,
+      } = S;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(1);
+      renderer.setSize(720, 960, false);
+      renderer.setClearColor(0x222a31, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = false;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 720 / 960, 0.01, 100);
+      if (camSide) {
+        camera.position.set(1.55, 1.0, 0.15);
+        camera.lookAt(0, 0.42, 0);
+      } else {
+        camera.position.set(1.55, 1.45, 2.35);
+        camera.lookAt(0, 0.9, 0);
+      }
+      scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+      scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+      const key = new THREE.DirectionalLight(0xffffff, 3.2);
+      key.position.set(2, 3, 2);
+      scene.add(key);
+      scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+
+      const { root: avatar } = await loadAvatar(avatarId);
+      // FBXLoader resolves as soon as the file is parsed; its texture maps load
+      // asynchronously after that, so wait for them before the first render
+      // (otherwise fighter-web renders black on the first frames).
+      const t0 = performance.now();
+      while (performance.now() - t0 < 8000) {
+        let missing = 0;
+        avatar.traverse((n) => {
+          if (!n.isMesh) return;
+          for (const m of Array.isArray(n.material) ? n.material : [n.material]) {
+            if (m.map && !(m.map.image && m.map.image.width)) missing += 1;
+          }
+        });
+        if (missing === 0) break;
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      // Same material pass as live.html: fighter-web is authored with dark albedo
+      // + emissive maps, so without lifting map→emissive it renders black.
+      avatar.traverse((node) => {
+        if (!node.isMesh) return;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        const materials = (Array.isArray(node.material) ? node.material : [node.material]);
+        node.material = Array.isArray(node.material) ? materials : materials[0];
+        for (const material of materials) {
+          if (!material) continue;
+          if (material.map) {
+            material.map.colorSpace = THREE.SRGBColorSpace;
+            material.color?.setRGB(1, 1, 1);
+          }
+          material.transparent = false;
+          material.alphaTest = 0;
+          material.depthWrite = true;
+          if (material.emissive) {
+            material.emissiveMap = material.map || null;
+            material.emissive.setRGB(1, 1, 1);
+            material.emissiveIntensity = material.map ? 0.48 : 0;
+          }
+          material.needsUpdate = true;
+        }
+      });
+      const rig = buildAvatarRig(avatar);
+      if (rig.bones.size < 4) throw new Error("Mixamo rig mapping failed");
+      window.__BAKE_RIG__ = rig;
+      window.__BAKE_AVATAR__ = avatar;
+      window.__BAKE_SOLVER__ = solverUrl;
+      window.__bakeRender = () => renderer.render(scene, camera);
+      scene.add(avatar);
+      avatar.updateWorldMatrix(true, true);
+
+      const motion = createAvatarMotion();
+      resetAvatarMotion(avatar, motion);
+      resetRetargetFilters(rig);
+
+      let frameIndex = 0;
+      window.__bakeSeqStep = () => {
+        if (frameIndex >= frames.length) return null;
+        const f = frames[frameIndex];
+        const pose = toViewerSpace(f.joints);
+        const aux = f.aux_smpl ? auxFromSmpl(f.aux_smpl, true) : null;
+        const surfaceAux = f.surface_smpl ? auxFromSmpl(f.surface_smpl, true) : null;
+        const footDirections = footDirectionsFromSmplAux(aux);
+        const headForward = headForwardFromSmplAux(aux);
+        updateAvatarPose({
+          model: avatar,
+          rig,
+          pose,
+          nameToIndex: JOINT_INDEX,
+          motion,
+          aux,
+          footDirections,
+          headForward,
+          allowFeet: true,
+          footMode: "yawFromDir",
+          plantGround: true,
+          groundY: 0,
+          timestampMs: 1000 + (frameIndex * 1000) / fps,
+          useWitness: true,
+          useCollarShoulders: query.get("collars") === "1",
+          useSurfaceBody: query.get("surface") === "1",
+          surfaceAux,
+          fitPalm: f.aux_smpl?.fitPalm === true,
+        });
+        renderer.render(scene, camera);
+        window.__BAKE_SEQ_FRAME__ = frameIndex;
+        frameIndex += 1;
+        return frameIndex;
+      };
+      window.__BAKE_READY__ = true;
+    }
+
+    main().catch(fail);
+  </script>
+</body>
+</html>

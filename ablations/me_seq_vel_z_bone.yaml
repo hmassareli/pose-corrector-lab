@@ -1,0 +1,14 @@
+# Me: seq + velocity + Z emphasis + real bone-length prior.
+team: me
+notes: "predict_sequence + L_vel + z_weight + w_bone_len"
+
+model:
+  predict_sequence: true
+
+loss:
+  w_vel: 0.10
+  z_weight: 1.5
+  w_bone_len: 0.10
+
+logging:
+  run_name: abl_me_seq_vel_z_bone

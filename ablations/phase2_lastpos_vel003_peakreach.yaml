@@ -1,0 +1,18 @@
+# Best phase-2 ablation plus one-sided normalized arm reach at teacher apex.
+team: phase2
+notes: "lastpos_vel003 + teacher-gated one-sided peak arm reach"
+
+model:
+  predict_sequence: true
+
+loss:
+  sequence_position_mode: last
+  w_vel: 0.003
+  w_dir: 0.0
+  w_peak_reach: 0.02
+  peak_reach_thr: 0.85
+  peak_reach_elbow_thr_deg: 160.0
+  geometry_warmup_epochs: 3
+
+logging:
+  run_name: abl2_lastpos_vel003_peakreach

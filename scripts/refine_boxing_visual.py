@@ -1,0 +1,17 @@
+from pathlib import Path
+root=Path(__file__).resolve().parents[1]/'viewer'
+p=root/'boxing.js';s=p.read_text(encoding='utf-8')
+s=s.replace("mat('#42506b')", "mat('#222b3f')").replace("mat('#957a6c')", "mat('#584c4c')")
+s=s.replace("'#b2d5ff','#222138',2", "'#b2d5ff','#161926',1.1")
+s=s.replace("cx.fillStyle='#40516a'", "cx.fillStyle='#253950'")
+s=s.replace("cx.strokeStyle='#77889b'", "cx.strokeStyle='#4f6680'")
+s=s.replace("cx.fillStyle='#c4c7c780'", "cx.fillStyle='#95abc160'")
+s=s.replace("renderer.toneMappingExposure=1.15", "renderer.toneMappingExposure=1.02")
+s=s.replace("fillAvatarSelect($('avatarSelect'),fighters[0].avatarId);", "fillAvatarSelect($('avatarSelect'),fighters[0].avatarId);for(const opt of $('avatarSelect').options)opt.textContent=({'boxer-prism31':'Prism • técnico','boxeador':'Titan • peso pesado','fighter-web':'Fighter • clássico'})[opt.value]||opt.textContent;")
+s=s.replace("if(active){const a=fighters[self]", "if(active){const a=fighters[self]")
+s=s.replace("camera.position.lerp(targetCamera,1-Math.exp(-dt*(first?18:8)))", "camera.position.lerp(targetCamera,window.cornerDebug?.snapCamera?1:1-Math.exp(-dt*(first?18:8)))")
+s=s.replace("requestAnimationFrame(frame);}\nfunction resize", "if(!window.cornerDebug?.paused)requestAnimationFrame(frame);}\nfunction resize")
+s=s.replace("window.cornerDebug={fighters,actors,", "window.cornerDebug={fighters,actors,frame,paused:false,snapCamera:false,")
+p.write_text(s,encoding='utf-8')
+p=root/'boxing.html';s=p.read_text(encoding='utf-8').replace('DUEL0','DUELO').replace('Áudio • aguardando assets Foley licenciados','Som • em produção').replace('Menor valor: resposta rápida.', 'Menor valor: resposta rápida.')
+p.write_text(s,encoding='utf-8')

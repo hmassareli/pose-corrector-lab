@@ -1,0 +1,40 @@
+{
+  "ready": true,
+  "device": "cuda",
+  "model": "data/models/nlf/nlf_s_multi_0.2.2.torchscript",
+  "error": null,
+  "ws_url": "ws://127.0.0.1:8781/nlf",
+  "crop": "yolov8n_sticky",
+  "nlf_query": "smplx55",
+  "dense": false,
+  "backend": "dml",
+  "backend_calibrated": true,
+  "backend_baseline": {
+    "p50": 9.01400001021102,
+    "mean": 9.154100000159815,
+    "p95": 9.978799996315502
+  },
+  "backend_candidates": {
+    "trt": {
+      "p50": 9.698699926957488,
+      "mean": 9.72347502829507,
+      "p95": 9.837560029700398
+    },
+    "dml": {
+      "p50": 8.634199853986502,
+      "mean": 8.606775023508817,
+      "p95": 8.994055050425231
+    },
+    "ov": {
+      "p50": 30.028900131583214,
+      "mean": 29.372600217660267,
+      "p95": 31.2907001003623
+    },
+    "ort": {
+      "p50": 36.837299820035696,
+      "mean": 36.43243325253328,
+      "p95": 36.85493995435536
+    }
+  },
+  "backend_rebalanced": 3
+}

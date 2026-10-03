@@ -1,0 +1,12 @@
+# GPT: full-window residual supervision + velocity trajectory loss.
+team: gpt
+notes: "predict_sequence + L_vel; keeps dropaccel features"
+
+model:
+  predict_sequence: true
+
+loss:
+  w_vel: 0.10
+
+logging:
+  run_name: abl_gpt_seq_vel

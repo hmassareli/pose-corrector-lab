@@ -1,0 +1,255 @@
+{
+  "report": {
+    "boxer-prism31": {
+      "limit": 110,
+      "rows": [
+        {
+          "pose": "jab 0.6",
+          "worstBone": "leftHand",
+          "twist": 28,
+          "jump": 0
+        },
+        {
+          "pose": "jab 0.7",
+          "worstBone": "leftHand",
+          "twist": 26,
+          "jump": 1
+        },
+        {
+          "pose": "jab 0.8",
+          "worstBone": "leftHand",
+          "twist": 25,
+          "jump": 2
+        },
+        {
+          "pose": "jab 0.9",
+          "worstBone": "leftHand",
+          "twist": 23,
+          "jump": 3
+        },
+        {
+          "pose": "jab 0.95",
+          "worstBone": "leftForeArm",
+          "twist": 18,
+          "jump": 5
+        },
+        {
+          "pose": "jab 0.98",
+          "worstBone": "leftForeArm",
+          "twist": 12,
+          "jump": 7
+        },
+        {
+          "pose": "jab 0.995",
+          "worstBone": "rightArm",
+          "twist": 10,
+          "jump": 10
+        },
+        {
+          "pose": "jab 1",
+          "worstBone": "rightHand",
+          "twist": 17,
+          "jump": 16
+        },
+        {
+          "pose": "guard",
+          "worstBone": "leftForeArm",
+          "twist": 37,
+          "jump": 0
+        },
+        {
+          "pose": "hook",
+          "worstBone": "leftArm",
+          "twist": 71,
+          "jump": 0
+        },
+        {
+          "pose": "uppercut",
+          "worstBone": "rightHand",
+          "twist": 37,
+          "jump": 0
+        },
+        {
+          "pose": "elbowUp",
+          "worstBone": "leftHand",
+          "twist": 57,
+          "jump": 0
+        },
+        {
+          "pose": "handsDown",
+          "worstBone": "rightHand",
+          "twist": 32,
+          "jump": 0
+        }
+      ]
+    },
+    "boxeador": {
+      "limit": 110,
+      "rows": [
+        {
+          "pose": "jab 0.6",
+          "worstBone": "leftForeArm",
+          "twist": 12,
+          "jump": 0
+        },
+        {
+          "pose": "jab 0.7",
+          "worstBone": "leftForeArm",
+          "twist": 11,
+          "jump": 1
+        },
+        {
+          "pose": "jab 0.8",
+          "worstBone": "leftForeArm",
+          "twist": 10,
+          "jump": 1
+        },
+        {
+          "pose": "jab 0.9",
+          "worstBone": "rightArm",
+          "twist": 8,
+          "jump": 2
+        },
+        {
+          "pose": "jab 0.95",
+          "worstBone": "rightArm",
+          "twist": 9,
+          "jump": 4
+        },
+        {
+          "pose": "jab 0.98",
+          "worstBone": "rightArm",
+          "twist": 10,
+          "jump": 5
+        },
+        {
+          "pose": "jab 0.995",
+          "worstBone": "rightHand",
+          "twist": 17,
+          "jump": 10
+        },
+        {
+          "pose": "jab 1",
+          "worstBone": "rightHand",
+          "twist": 34,
+          "jump": 17
+        },
+        {
+          "pose": "guard",
+          "worstBone": "leftHand",
+          "twist": 21,
+          "jump": 0
+        },
+        {
+          "pose": "hook",
+          "worstBone": "leftArm",
+          "twist": 64,
+          "jump": 0
+        },
+        {
+          "pose": "uppercut",
+          "worstBone": "rightArm",
+          "twist": 20,
+          "jump": 0
+        },
+        {
+          "pose": "elbowUp",
+          "worstBone": "leftHand",
+          "twist": 40,
+          "jump": 0
+        },
+        {
+          "pose": "handsDown",
+          "worstBone": "rightHand",
+          "twist": 43,
+          "jump": 0
+        }
+      ]
+    },
+    "fighter-web": {
+      "limit": 110,
+      "rows": [
+        {
+          "pose": "jab 0.6",
+          "worstBone": "leftHand",
+          "twist": 24,
+          "jump": 0
+        },
+        {
+          "pose": "jab 0.7",
+          "worstBone": "leftHand",
+          "twist": 22,
+          "jump": 1
+        },
+        {
+          "pose": "jab 0.8",
+          "worstBone": "leftHand",
+          "twist": 21,
+          "jump": 2
+        },
+        {
+          "pose": "jab 0.9",
+          "worstBone": "leftForeArm",
+          "twist": 18,
+          "jump": 3
+        },
+        {
+          "pose": "jab 0.95",
+          "worstBone": "rightForeArm",
+          "twist": 16,
+          "jump": 10
+        },
+        {
+          "pose": "jab 0.98",
+          "worstBone": "rightHand",
+          "twist": 12,
+          "jump": 3
+        },
+        {
+          "pose": "jab 0.995",
+          "worstBone": "leftArm",
+          "twist": 10,
+          "jump": 4
+        },
+        {
+          "pose": "jab 1",
+          "worstBone": "leftForeArm",
+          "twist": 19,
+          "jump": 12
+        },
+        {
+          "pose": "guard",
+          "worstBone": "leftHand",
+          "twist": 33,
+          "jump": 0
+        },
+        {
+          "pose": "hook",
+          "worstBone": "leftArm",
+          "twist": 71,
+          "jump": 0
+        },
+        {
+          "pose": "uppercut",
+          "worstBone": "rightForeArm",
+          "twist": 31,
+          "jump": 0
+        },
+        {
+          "pose": "elbowUp",
+          "worstBone": "leftHand",
+          "twist": 57,
+          "jump": 0
+        },
+        {
+          "pose": "handsDown",
+          "worstBone": "rightForeArm",
+          "twist": 34,
+          "jump": 0
+        }
+      ]
+    }
+  },
+  "failures": [],
+  "errors": []
+}

@@ -1,0 +1,4901 @@
+{
+ "samples": [
+  {
+   "t": 5823,
+   "nlfWristSepRel": 1.08,
+   "avatarGloveSepRel": 1.02,
+   "nlfWristBelowHead": [
+    0.913,
+    0.925
+   ],
+   "avatarHandBelowHead": [
+    0.498,
+    0.548
+   ],
+   "nlfWristFwd": [
+    0.497,
+    0.483
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.9,
+      -0.2,
+      -0.39
+     ],
+     "avatarAxes": [
+      [
+       -0.77,
+       -0.2,
+       -0.6
+      ],
+      [
+       -0.56,
+       -0.23,
+       0.79
+      ],
+      [
+       -0.3,
+       0.95,
+       0.07
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.91,
+      0.1,
+      0.4
+     ],
+     "avatarAxes": [
+      [
+       -0.78,
+       0.09,
+       0.62
+      ],
+      [
+       0.6,
+       -0.19,
+       0.78
+      ],
+      [
+       0.19,
+       0.98,
+       0.09
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 6617,
+   "nlfWristSepRel": 0.85,
+   "avatarGloveSepRel": 0.85,
+   "nlfWristBelowHead": [
+    0.637,
+    0.563
+   ],
+   "avatarHandBelowHead": [
+    0.283,
+    0.258
+   ],
+   "nlfWristFwd": [
+    0.522,
+    0.436
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.85,
+      -0.06,
+      -0.52
+     ],
+     "avatarAxes": [
+      [
+       -0.7,
+       -0.19,
+       -0.68
+      ],
+      [
+       -0.7,
+       0.3,
+       0.64
+      ],
+      [
+       0.09,
+       0.94,
+       -0.34
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.96,
+      0.2,
+      0.22
+     ],
+     "avatarAxes": [
+      [
+       -0.86,
+       0.31,
+       0.42
+      ],
+      [
+       0.49,
+       0.24,
+       0.84
+      ],
+      [
+       0.15,
+       0.92,
+       -0.36
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 7132,
+   "nlfWristSepRel": 0.93,
+   "avatarGloveSepRel": 0.92,
+   "nlfWristBelowHead": [
+    0.629,
+    0.557
+   ],
+   "avatarHandBelowHead": [
+    0.289,
+    0.239
+   ],
+   "nlfWristFwd": [
+    0.522,
+    0.525
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.92,
+      -0.13,
+      -0.38
+     ],
+     "avatarAxes": [
+      [
+       -0.79,
+       -0.27,
+       -0.55
+      ],
+      [
+       -0.61,
+       0.32,
+       0.72
+      ],
+      [
+       -0.01,
+       0.91,
+       -0.42
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.91,
+      0.25,
+      0.34
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.38,
+       0.53
+      ],
+      [
+       0.64,
+       0.24,
+       0.73
+      ],
+      [
+       0.15,
+       0.89,
+       -0.43
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 7639,
+   "nlfWristSepRel": 0.89,
+   "avatarGloveSepRel": 0.87,
+   "nlfWristBelowHead": [
+    0.608,
+    0.599
+   ],
+   "avatarHandBelowHead": [
+    0.245,
+    0.278
+   ],
+   "nlfWristFwd": [
+    0.441,
+    0.443
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.9,
+      -0.21,
+      -0.38
+     ],
+     "avatarAxes": [
+      [
+       -0.75,
+       -0.33,
+       -0.57
+      ],
+      [
+       -0.65,
+       0.27,
+       0.71
+      ],
+      [
+       -0.08,
+       0.9,
+       -0.42
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.9,
+      0.12,
+      0.43
+     ],
+     "avatarAxes": [
+      [
+       -0.77,
+       0.26,
+       0.59
+      ],
+      [
+       0.64,
+       0.37,
+       0.67
+      ],
+      [
+       -0.04,
+       0.89,
+       -0.45
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 8142,
+   "nlfWristSepRel": 0.85,
+   "avatarGloveSepRel": 0.93,
+   "nlfWristBelowHead": [
+    0.548,
+    0.51
+   ],
+   "avatarHandBelowHead": [
+    0.239,
+    0.211
+   ],
+   "nlfWristFwd": [
+    0.487,
+    0.428
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.82,
+      -0.16,
+      -0.54
+     ],
+     "avatarAxes": [
+      [
+       -0.65,
+       -0.33,
+       -0.69
+      ],
+      [
+       -0.75,
+       0.43,
+       0.5
+      ],
+      [
+       0.13,
+       0.84,
+       -0.53
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.92,
+      0.25,
+      0.3
+     ],
+     "avatarAxes": [
+      [
+       -0.79,
+       0.41,
+       0.46
+      ],
+      [
+       0.61,
+       0.45,
+       0.65
+      ],
+      [
+       0.07,
+       0.79,
+       -0.6
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 8654,
+   "nlfWristSepRel": 0.7,
+   "avatarGloveSepRel": 1.12,
+   "nlfWristBelowHead": [
+    0.432,
+    0.398
+   ],
+   "avatarHandBelowHead": [
+    0.203,
+    0.183
+   ],
+   "nlfWristFwd": [
+    0.475,
+    0.454
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.85,
+      -0.17,
+      -0.49
+     ],
+     "avatarAxes": [
+      [
+       -0.72,
+       -0.4,
+       -0.57
+      ],
+      [
+       -0.64,
+       0.69,
+       0.33
+      ],
+      [
+       0.26,
+       0.61,
+       -0.75
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.94,
+      0.21,
+      0.28
+     ],
+     "avatarAxes": [
+      [
+       -0.82,
+       0.44,
+       0.37
+      ],
+      [
+       0.57,
+       0.7,
+       0.43
+      ],
+      [
+       -0.07,
+       0.56,
+       -0.83
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 9165,
+   "nlfWristSepRel": 0.67,
+   "avatarGloveSepRel": 1.17,
+   "nlfWristBelowHead": [
+    0.415,
+    0.363
+   ],
+   "avatarHandBelowHead": [
+    0.208,
+    0.179
+   ],
+   "nlfWristFwd": [
+    0.489,
+    0.466
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.89,
+      -0.07,
+      -0.45
+     ],
+     "avatarAxes": [
+      [
+       -0.79,
+       -0.32,
+       -0.53
+      ],
+      [
+       -0.55,
+       0.75,
+       0.36
+      ],
+      [
+       0.29,
+       0.57,
+       -0.77
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.92,
+      0.2,
+      0.33
+     ],
+     "avatarAxes": [
+      [
+       -0.8,
+       0.43,
+       0.41
+      ],
+      [
+       0.59,
+       0.71,
+       0.39
+      ],
+      [
+       -0.12,
+       0.55,
+       -0.83
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 9946,
+   "nlfWristSepRel": 0.71,
+   "avatarGloveSepRel": 1.22,
+   "nlfWristBelowHead": [
+    0.399,
+    0.347
+   ],
+   "avatarHandBelowHead": [
+    0.193,
+    0.184
+   ],
+   "nlfWristFwd": [
+    0.479,
+    0.465
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.87,
+      -0.15,
+      -0.47
+     ],
+     "avatarAxes": [
+      [
+       -0.78,
+       -0.35,
+       -0.52
+      ],
+      [
+       -0.59,
+       0.69,
+       0.43
+      ],
+      [
+       0.21,
+       0.64,
+       -0.74
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.89,
+      0.14,
+      0.43
+     ],
+     "avatarAxes": [
+      [
+       -0.8,
+       0.36,
+       0.48
+      ],
+      [
+       0.55,
+       0.77,
+       0.32
+      ],
+      [
+       -0.26,
+       0.52,
+       -0.82
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 10460,
+   "nlfWristSepRel": 0.64,
+   "avatarGloveSepRel": 1.17,
+   "nlfWristBelowHead": [
+    0.391,
+    0.369
+   ],
+   "avatarHandBelowHead": [
+    0.218,
+    0.199
+   ],
+   "nlfWristFwd": [
+    0.517,
+    0.484
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.86,
+      -0.05,
+      -0.5
+     ],
+     "avatarAxes": [
+      [
+       -0.75,
+       -0.25,
+       -0.61
+      ],
+      [
+       -0.57,
+       0.72,
+       0.41
+      ],
+      [
+       0.33,
+       0.65,
+       -0.68
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.92,
+      0.1,
+      0.38
+     ],
+     "avatarAxes": [
+      [
+       -0.83,
+       0.32,
+       0.46
+      ],
+      [
+       0.53,
+       0.71,
+       0.45
+      ],
+      [
+       -0.19,
+       0.62,
+       -0.76
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 10971,
+   "nlfWristSepRel": 0.62,
+   "avatarGloveSepRel": 1.15,
+   "nlfWristBelowHead": [
+    0.381,
+    0.404
+   ],
+   "avatarHandBelowHead": [
+    0.177,
+    0.224
+   ],
+   "nlfWristFwd": [
+    0.537,
+    0.501
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.83,
+      -0.13,
+      -0.54
+     ],
+     "avatarAxes": [
+      [
+       -0.72,
+       -0.32,
+       -0.61
+      ],
+      [
+       -0.61,
+       0.72,
+       0.34
+      ],
+      [
+       0.33,
+       0.62,
+       -0.72
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      -0.04,
+      0.24
+     ],
+     "avatarAxes": [
+      [
+       -0.91,
+       0.2,
+       0.36
+      ],
+      [
+       0.37,
+       0.78,
+       0.51
+      ],
+      [
+       -0.18,
+       0.6,
+       -0.78
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 11478,
+   "nlfWristSepRel": 0.63,
+   "avatarGloveSepRel": 1.13,
+   "nlfWristBelowHead": [
+    0.399,
+    0.399
+   ],
+   "avatarHandBelowHead": [
+    0.226,
+    0.221
+   ],
+   "nlfWristFwd": [
+    0.541,
+    0.55
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.91,
+      -0.09,
+      -0.4
+     ],
+     "avatarAxes": [
+      [
+       -0.79,
+       -0.33,
+       -0.51
+      ],
+      [
+       -0.58,
+       0.66,
+       0.48
+      ],
+      [
+       0.18,
+       0.68,
+       -0.71
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.9,
+      0.04,
+      0.44
+     ],
+     "avatarAxes": [
+      [
+       -0.82,
+       0.26,
+       0.52
+      ],
+      [
+       0.51,
+       0.74,
+       0.44
+      ],
+      [
+       -0.27,
+       0.62,
+       -0.74
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 11990,
+   "nlfWristSepRel": 0.58,
+   "avatarGloveSepRel": 1.11,
+   "nlfWristBelowHead": [
+    0.386,
+    0.399
+   ],
+   "avatarHandBelowHead": [
+    0.204,
+    0.225
+   ],
+   "nlfWristFwd": [
+    0.55,
+    0.511
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.8,
+      -0.13,
+      -0.59
+     ],
+     "avatarAxes": [
+      [
+       -0.67,
+       -0.35,
+       -0.65
+      ],
+      [
+       -0.64,
+       0.71,
+       0.29
+      ],
+      [
+       0.36,
+       0.61,
+       -0.7
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.99,
+      0.03,
+      0.15
+     ],
+     "avatarAxes": [
+      [
+       -0.93,
+       0.26,
+       0.25
+      ],
+      [
+       0.35,
+       0.78,
+       0.52
+      ],
+      [
+       -0.06,
+       0.57,
+       -0.82
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 12500,
+   "nlfWristSepRel": 0.61,
+   "avatarGloveSepRel": 1.13,
+   "nlfWristBelowHead": [
+    0.365,
+    0.39
+   ],
+   "avatarHandBelowHead": [
+    0.185,
+    0.214
+   ],
+   "nlfWristFwd": [
+    0.477,
+    0.453
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.77,
+      -0.06,
+      -0.64
+     ],
+     "avatarAxes": [
+      [
+       -0.68,
+       -0.28,
+       -0.68
+      ],
+      [
+       -0.58,
+       0.77,
+       0.26
+      ],
+      [
+       0.45,
+       0.57,
+       -0.69
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      0.1,
+      0.2
+     ],
+     "avatarAxes": [
+      [
+       -0.9,
+       0.31,
+       0.3
+      ],
+      [
+       0.42,
+       0.79,
+       0.46
+      ],
+      [
+       -0.09,
+       0.54,
+       -0.84
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 13273,
+   "nlfWristSepRel": 1.32,
+   "avatarGloveSepRel": 1.42,
+   "nlfWristBelowHead": [
+    0.479,
+    0.127
+   ],
+   "avatarHandBelowHead": [
+    0.281,
+    0.011
+   ],
+   "nlfWristFwd": [
+    0.3,
+    0.857
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.91,
+      -0.29,
+      -0.29
+     ],
+     "avatarAxes": [
+      [
+       -0.82,
+       -0.39,
+       -0.43
+      ],
+      [
+       -0.51,
+       0.14,
+       0.85
+      ],
+      [
+       -0.27,
+       0.91,
+       -0.31
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.45,
+      0.78,
+      0.44
+     ],
+     "avatarAxes": [
+      [
+       -0.25,
+       0.91,
+       0.33
+      ],
+      [
+       0.94,
+       0.15,
+       0.3
+      ],
+      [
+       0.22,
+       0.39,
+       -0.9
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 13786,
+   "nlfWristSepRel": 0.76,
+   "avatarGloveSepRel": 1.18,
+   "nlfWristBelowHead": [
+    0.412,
+    0.359
+   ],
+   "avatarHandBelowHead": [
+    0.212,
+    0.202
+   ],
+   "nlfWristFwd": [
+    0.545,
+    0.631
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.91,
+      -0.24,
+      -0.33
+     ],
+     "avatarAxes": [
+      [
+       -0.8,
+       -0.4,
+       -0.45
+      ],
+      [
+       -0.6,
+       0.54,
+       0.58
+      ],
+      [
+       0.01,
+       0.74,
+       -0.67
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.78,
+      0.33,
+      0.54
+     ],
+     "avatarAxes": [
+      [
+       -0.65,
+       0.5,
+       0.57
+      ],
+      [
+       0.72,
+       0.64,
+       0.26
+      ],
+      [
+       -0.24,
+       0.58,
+       -0.78
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 14297,
+   "nlfWristSepRel": 1.74,
+   "avatarGloveSepRel": 1.6,
+   "nlfWristBelowHead": [
+    0.455,
+    0.44
+   ],
+   "avatarHandBelowHead": [
+    0.253,
+    0.228
+   ],
+   "nlfWristFwd": [
+    0.646,
+    0.652
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.91,
+      -0.17,
+      -0.37
+     ],
+     "avatarAxes": [
+      [
+       -0.82,
+       -0.31,
+       -0.47
+      ],
+      [
+       -0.56,
+       0.55,
+       0.62
+      ],
+      [
+       0.07,
+       0.78,
+       -0.63
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.34,
+      0.92,
+      -0.19
+     ],
+     "avatarAxes": [
+      [
+       -0.43,
+       0.89,
+       0.16
+      ],
+      [
+       -0.09,
+       -0.21,
+       0.97
+      ],
+      [
+       0.9,
+       0.41,
+       0.17
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 14818,
+   "nlfWristSepRel": 0.6,
+   "avatarGloveSepRel": 0.6,
+   "nlfWristBelowHead": [
+    0.366,
+    0.383
+   ],
+   "avatarHandBelowHead": [
+    0.216,
+    0.304
+   ],
+   "nlfWristFwd": [
+    0.401,
+    0.653
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.99,
+      -0.11,
+      -0.06
+     ],
+     "avatarAxes": [
+      [
+       -0.94,
+       -0.27,
+       -0.22
+      ],
+      [
+       -0.34,
+       0.6,
+       0.72
+      ],
+      [
+       -0.06,
+       0.75,
+       -0.66
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.47,
+      0.23,
+      0.85
+     ],
+     "avatarAxes": [
+      [
+       -0.27,
+       0.43,
+       0.86
+      ],
+      [
+       0.7,
+       0.71,
+       -0.13
+      ],
+      [
+       -0.66,
+       0.57,
+       -0.49
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 15324,
+   "nlfWristSepRel": 0.66,
+   "avatarGloveSepRel": 1.17,
+   "nlfWristBelowHead": [
+    0.347,
+    0.329
+   ],
+   "avatarHandBelowHead": [
+    0.183,
+    0.181
+   ],
+   "nlfWristFwd": [
+    0.552,
+    0.573
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.88,
+      -0.14,
+      -0.45
+     ],
+     "avatarAxes": [
+      [
+       -0.79,
+       -0.33,
+       -0.52
+      ],
+      [
+       -0.55,
+       0.77,
+       0.33
+      ],
+      [
+       0.29,
+       0.55,
+       -0.79
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.95,
+      0.18,
+      0.25
+     ],
+     "avatarAxes": [
+      [
+       -0.84,
+       0.44,
+       0.33
+      ],
+      [
+       0.54,
+       0.75,
+       0.37
+      ],
+      [
+       -0.08,
+       0.49,
+       -0.87
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 15829,
+   "nlfWristSepRel": 1.96,
+   "avatarGloveSepRel": 1.94,
+   "nlfWristBelowHead": [
+    0.543,
+    0.386
+   ],
+   "avatarHandBelowHead": [
+    0.268,
+    0.236
+   ],
+   "nlfWristFwd": [
+    0.21,
+    0.609
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.65,
+      -0.74,
+      0.15
+     ],
+     "avatarAxes": [
+      [
+       -0.71,
+       -0.7,
+       -0.05
+      ],
+      [
+       0.47,
+       -0.53,
+       0.71
+      ],
+      [
+       -0.52,
+       0.48,
+       0.7
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.82,
+      0.24,
+      0.52
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.4,
+       0.52
+      ],
+      [
+       0.6,
+       0.75,
+       0.29
+      ],
+      [
+       -0.27,
+       0.52,
+       -0.81
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 16580,
+   "nlfWristSepRel": 0.63,
+   "avatarGloveSepRel": 1.19,
+   "nlfWristBelowHead": [
+    0.364,
+    0.354
+   ],
+   "avatarHandBelowHead": [
+    0.171,
+    0.182
+   ],
+   "nlfWristFwd": [
+    0.487,
+    0.506
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.9,
+      -0.05,
+      -0.43
+     ],
+     "avatarAxes": [
+      [
+       -0.8,
+       -0.29,
+       -0.52
+      ],
+      [
+       -0.53,
+       0.75,
+       0.4
+      ],
+      [
+       0.27,
+       0.59,
+       -0.76
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.89,
+      0.07,
+      0.45
+     ],
+     "avatarAxes": [
+      [
+       -0.86,
+       0.3,
+       0.41
+      ],
+      [
+       0.46,
+       0.8,
+       0.39
+      ],
+      [
+       -0.21,
+       0.52,
+       -0.83
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 17098,
+   "nlfWristSepRel": 0.59,
+   "avatarGloveSepRel": 1.14,
+   "nlfWristBelowHead": [
+    0.363,
+    0.359
+   ],
+   "avatarHandBelowHead": [
+    0.213,
+    0.2
+   ],
+   "nlfWristFwd": [
+    0.584,
+    0.555
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.78,
+      -0.03,
+      -0.62
+     ],
+     "avatarAxes": [
+      [
+       -0.68,
+       -0.24,
+       -0.69
+      ],
+      [
+       -0.59,
+       0.74,
+       0.33
+      ],
+      [
+       0.43,
+       0.63,
+       -0.65
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.98,
+      0.17,
+      0.11
+     ],
+     "avatarAxes": [
+      [
+       -0.9,
+       0.4,
+       0.2
+      ],
+      [
+       0.44,
+       0.72,
+       0.54
+      ],
+      [
+       0.07,
+       0.57,
+       -0.82
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 17604,
+   "nlfWristSepRel": 1.29,
+   "avatarGloveSepRel": 1.09,
+   "nlfWristBelowHead": [
+    0.357,
+    0.467
+   ],
+   "avatarHandBelowHead": [
+    0.115,
+    0.224
+   ],
+   "nlfWristFwd": [
+    1.257,
+    0.798
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.46,
+      -0.89,
+      -0.09
+     ],
+     "avatarAxes": [
+      [
+       -0.55,
+       -0.71,
+       -0.44
+      ],
+      [
+       -0.82,
+       0.35,
+       0.46
+      ],
+      [
+       -0.18,
+       0.61,
+       -0.77
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.94,
+      -0.16,
+      0.31
+     ],
+     "avatarAxes": [
+      [
+       -0.87,
+       0.29,
+       0.41
+      ],
+      [
+       0.49,
+       0.62,
+       0.61
+      ],
+      [
+       -0.08,
+       0.73,
+       -0.68
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 18108,
+   "nlfWristSepRel": 0.97,
+   "avatarGloveSepRel": 1.01,
+   "nlfWristBelowHead": [
+    0.317,
+    0.429
+   ],
+   "avatarHandBelowHead": [
+    0.071,
+    0.229
+   ],
+   "nlfWristFwd": [
+    1.239,
+    0.885
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.67,
+      -0.72,
+      -0.16
+     ],
+     "avatarAxes": [
+      [
+       -0.54,
+       -0.78,
+       -0.3
+      ],
+      [
+       -0.49,
+       0,
+       0.87
+      ],
+      [
+       -0.68,
+       0.62,
+       -0.39
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.96,
+      -0.08,
+      0.28
+     ],
+     "avatarAxes": [
+      [
+       -0.87,
+       0.18,
+       0.46
+      ],
+      [
+       0.49,
+       0.42,
+       0.76
+      ],
+      [
+       -0.06,
+       0.89,
+       -0.46
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 18611,
+   "nlfWristSepRel": 1.15,
+   "avatarGloveSepRel": 1.25,
+   "nlfWristBelowHead": [
+    0.383,
+    0.431
+   ],
+   "avatarHandBelowHead": [
+    0.109,
+    0.26
+   ],
+   "nlfWristFwd": [
+    1.16,
+    0.742
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.75,
+      -0.62,
+      -0.24
+     ],
+     "avatarAxes": [
+      [
+       -0.57,
+       -0.74,
+       -0.36
+      ],
+      [
+       -0.37,
+       -0.17,
+       0.91
+      ],
+      [
+       -0.74,
+       0.65,
+       -0.18
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.92,
+      -0.09,
+      0.37
+     ],
+     "avatarAxes": [
+      [
+       -0.78,
+       -0.05,
+       0.62
+      ],
+      [
+       0.57,
+       0.36,
+       0.74
+      ],
+      [
+       -0.27,
+       0.93,
+       -0.25
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 19118,
+   "nlfWristSepRel": 1.21,
+   "avatarGloveSepRel": 1.18,
+   "nlfWristBelowHead": [
+    0.289,
+    0.492
+   ],
+   "avatarHandBelowHead": [
+    0.047,
+    0.328
+   ],
+   "nlfWristFwd": [
+    1.142,
+    0.657
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.73,
+      -0.65,
+      -0.2
+     ],
+     "avatarAxes": [
+      [
+       -0.57,
+       -0.73,
+       -0.38
+      ],
+      [
+       -0.65,
+       0.11,
+       0.75
+      ],
+      [
+       -0.5,
+       0.68,
+       -0.54
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.93,
+      -0.16,
+      0.32
+     ],
+     "avatarAxes": [
+      [
+       -0.86,
+       -0.04,
+       0.51
+      ],
+      [
+       0.45,
+       0.41,
+       0.79
+      ],
+      [
+       -0.24,
+       0.91,
+       -0.34
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 19869,
+   "nlfWristSepRel": 0.82,
+   "avatarGloveSepRel": 1.07,
+   "nlfWristBelowHead": [
+    0.457,
+    0.385
+   ],
+   "avatarHandBelowHead": [
+    0.257,
+    0.184
+   ],
+   "nlfWristFwd": [
+    0.61,
+    0.631
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.8,
+      -0.28,
+      -0.54
+     ],
+     "avatarAxes": [
+      [
+       -0.6,
+       -0.43,
+       -0.67
+      ],
+      [
+       -0.8,
+       0.37,
+       0.48
+      ],
+      [
+       0.05,
+       0.82,
+       -0.57
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.89,
+      0.34,
+      0.3
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.51,
+       0.41
+      ],
+      [
+       0.65,
+       0.5,
+       0.58
+      ],
+      [
+       0.09,
+       0.7,
+       -0.71
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 20375,
+   "nlfWristSepRel": 0.98,
+   "avatarGloveSepRel": 1.04,
+   "nlfWristBelowHead": [
+    0.604,
+    0.489
+   ],
+   "avatarHandBelowHead": [
+    0.3,
+    0.262
+   ],
+   "nlfWristFwd": [
+    0.619,
+    0.342
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.77,
+      -0.22,
+      -0.6
+     ],
+     "avatarAxes": [
+      [
+       -0.51,
+       -0.39,
+       -0.77
+      ],
+      [
+       -0.86,
+       0.18,
+       0.47
+      ],
+      [
+       -0.04,
+       0.9,
+       -0.43
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.95,
+      0.29,
+      0.14
+     ],
+     "avatarAxes": [
+      [
+       -0.82,
+       0.39,
+       0.42
+      ],
+      [
+       0.51,
+       0.15,
+       0.85
+      ],
+      [
+       0.26,
+       0.91,
+       -0.32
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 20886,
+   "nlfWristSepRel": 0.8,
+   "avatarGloveSepRel": 1.03,
+   "nlfWristBelowHead": [
+    0.544,
+    0.418
+   ],
+   "avatarHandBelowHead": [
+    0.306,
+    0.216
+   ],
+   "nlfWristFwd": [
+    0.476,
+    0.539
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.9,
+      -0.15,
+      -0.41
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       -0.27,
+       -0.59
+      ],
+      [
+       -0.65,
+       0.31,
+       0.69
+      ],
+      [
+       -0.01,
+       0.91,
+       -0.42
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.86,
+      0.21,
+      0.47
+     ],
+     "avatarAxes": [
+      [
+       -0.71,
+       0.39,
+       0.58
+      ],
+      [
+       0.69,
+       0.51,
+       0.51
+      ],
+      [
+       -0.1,
+       0.76,
+       -0.64
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 21399,
+   "nlfWristSepRel": 0.57,
+   "avatarGloveSepRel": 1.1,
+   "nlfWristBelowHead": [
+    0.365,
+    0.371
+   ],
+   "avatarHandBelowHead": [
+    0.186,
+    0.201
+   ],
+   "nlfWristFwd": [
+    0.547,
+    0.514
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.78,
+      -0.03,
+      -0.62
+     ],
+     "avatarAxes": [
+      [
+       -0.68,
+       -0.25,
+       -0.69
+      ],
+      [
+       -0.58,
+       0.76,
+       0.3
+      ],
+      [
+       0.44,
+       0.6,
+       -0.66
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -1,
+      -0.06,
+      0.08
+     ],
+     "avatarAxes": [
+      [
+       -0.97,
+       0.19,
+       0.16
+      ],
+      [
+       0.24,
+       0.84,
+       0.48
+      ],
+      [
+       -0.05,
+       0.5,
+       -0.86
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 21904,
+   "nlfWristSepRel": 0.56,
+   "avatarGloveSepRel": 1.1,
+   "nlfWristBelowHead": [
+    0.384,
+    0.354
+   ],
+   "avatarHandBelowHead": [
+    0.248,
+    0.221
+   ],
+   "nlfWristFwd": [
+    0.637,
+    0.69
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.98,
+      0.07,
+      -0.18
+     ],
+     "avatarAxes": [
+      [
+       -0.93,
+       -0.15,
+       -0.33
+      ],
+      [
+       -0.33,
+       0.71,
+       0.62
+      ],
+      [
+       0.14,
+       0.69,
+       -0.71
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.85,
+      -0.05,
+      0.53
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.18,
+       0.62
+      ],
+      [
+       0.5,
+       0.77,
+       0.39
+      ],
+      [
+       -0.41,
+       0.61,
+       -0.68
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 22407,
+   "nlfWristSepRel": 0.65,
+   "avatarGloveSepRel": 1.17,
+   "nlfWristBelowHead": [
+    0.383,
+    0.359
+   ],
+   "avatarHandBelowHead": [
+    0.183,
+    0.188
+   ],
+   "nlfWristFwd": [
+    0.516,
+    0.521
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.86,
+      -0.09,
+      -0.51
+     ],
+     "avatarAxes": [
+      [
+       -0.78,
+       -0.3,
+       -0.55
+      ],
+      [
+       -0.55,
+       0.74,
+       0.38
+      ],
+      [
+       0.29,
+       0.6,
+       -0.75
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      0.12,
+      0.2
+     ],
+     "avatarAxes": [
+      [
+       -0.89,
+       0.35,
+       0.28
+      ],
+      [
+       0.44,
+       0.79,
+       0.43
+      ],
+      [
+       -0.07,
+       0.51,
+       -0.86
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 23162,
+   "nlfWristSepRel": 0.78,
+   "avatarGloveSepRel": 0.98,
+   "nlfWristBelowHead": [
+    0.341,
+    0.399
+   ],
+   "avatarHandBelowHead": [
+    0.208,
+    0.256
+   ],
+   "nlfWristFwd": [
+    0.761,
+    0.675
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.69,
+      -0.57,
+      -0.43
+     ],
+     "avatarAxes": [
+      [
+       -0.51,
+       -0.57,
+       -0.64
+      ],
+      [
+       -0.84,
+       0.17,
+       0.52
+      ],
+      [
+       -0.19,
+       0.8,
+       -0.57
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.92,
+      0.06,
+      0.39
+     ],
+     "avatarAxes": [
+      [
+       -0.87,
+       0.18,
+       0.45
+      ],
+      [
+       0.46,
+       0.63,
+       0.63
+      ],
+      [
+       -0.17,
+       0.75,
+       -0.63
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 23671,
+   "nlfWristSepRel": 0.72,
+   "avatarGloveSepRel": 1.05,
+   "nlfWristBelowHead": [
+    0.333,
+    0.399
+   ],
+   "avatarHandBelowHead": [
+    0.198,
+    0.249
+   ],
+   "nlfWristFwd": [
+    0.784,
+    0.716
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.58,
+      -0.59,
+      -0.56
+     ],
+     "avatarAxes": [
+      [
+       -0.35,
+       -0.68,
+       -0.64
+      ],
+      [
+       -0.93,
+       0.16,
+       0.34
+      ],
+      [
+       -0.13,
+       0.71,
+       -0.69
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.95,
+      -0.02,
+      0.31
+     ],
+     "avatarAxes": [
+      [
+       -0.87,
+       0.21,
+       0.44
+      ],
+      [
+       0.46,
+       0.69,
+       0.56
+      ],
+      [
+       -0.18,
+       0.69,
+       -0.7
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 24178,
+   "nlfWristSepRel": 2.14,
+   "avatarGloveSepRel": 1.84,
+   "nlfWristBelowHead": [
+    0.692,
+    0.197
+   ],
+   "avatarHandBelowHead": [
+    0.416,
+    0.027
+   ],
+   "nlfWristFwd": [
+    0.115,
+    1.278
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.97,
+      0.11,
+      -0.19
+     ],
+     "avatarAxes": [
+      [
+       -0.9,
+       0.06,
+       -0.44
+      ],
+      [
+       -0.44,
+       -0.08,
+       0.89
+      ],
+      [
+       0.02,
+       1,
+       0.09
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.63,
+      0.75,
+      0.19
+     ],
+     "avatarAxes": [
+      [
+       -0.5,
+       0.77,
+       0.39
+      ],
+      [
+       0.55,
+       -0.06,
+       0.83
+      ],
+      [
+       0.67,
+       0.63,
+       -0.4
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 24698,
+   "nlfWristSepRel": 0.63,
+   "avatarGloveSepRel": 1.2,
+   "nlfWristBelowHead": [
+    0.372,
+    0.362
+   ],
+   "avatarHandBelowHead": [
+    0.174,
+    0.178
+   ],
+   "nlfWristFwd": [
+    0.525,
+    0.502
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.85,
+      -0.14,
+      -0.51
+     ],
+     "avatarAxes": [
+      [
+       -0.72,
+       -0.37,
+       -0.58
+      ],
+      [
+       -0.6,
+       0.75,
+       0.26
+      ],
+      [
+       0.34,
+       0.54,
+       -0.77
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      0.09,
+      0.24
+     ],
+     "avatarAxes": [
+      [
+       -0.89,
+       0.31,
+       0.33
+      ],
+      [
+       0.43,
+       0.8,
+       0.41
+      ],
+      [
+       -0.14,
+       0.51,
+       -0.85
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 25203,
+   "nlfWristSepRel": 1.04,
+   "avatarGloveSepRel": 0.98,
+   "nlfWristBelowHead": [
+    0.579,
+    0.549
+   ],
+   "avatarHandBelowHead": [
+    0.293,
+    0.307
+   ],
+   "nlfWristFwd": [
+    0.525,
+    0.415
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.84,
+      -0.25,
+      -0.49
+     ],
+     "avatarAxes": [
+      [
+       -0.7,
+       -0.37,
+       -0.61
+      ],
+      [
+       -0.71,
+       0.35,
+       0.61
+      ],
+      [
+       -0.01,
+       0.86,
+       -0.51
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.94,
+      0.33,
+      0.08
+     ],
+     "avatarAxes": [
+      [
+       -0.87,
+       0.42,
+       0.26
+      ],
+      [
+       0.36,
+       0.17,
+       0.92
+      ],
+      [
+       0.35,
+       0.89,
+       -0.3
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 25715,
+   "nlfWristSepRel": 1.52,
+   "avatarGloveSepRel": 1.19,
+   "nlfWristBelowHead": [
+    0.578,
+    0.372
+   ],
+   "avatarHandBelowHead": [
+    0.348,
+    0.231
+   ],
+   "nlfWristFwd": [
+    -0.186,
+    0.704
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.92,
+      -0.16,
+      0.37
+     ],
+     "avatarAxes": [
+      [
+       -0.99,
+       -0.1,
+       0.07
+      ],
+      [
+       0.1,
+       -0.36,
+       0.93
+      ],
+      [
+       -0.07,
+       0.93,
+       0.36
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.22,
+      0.25,
+      0.94
+     ],
+     "avatarAxes": [
+      [
+       -0.18,
+       0.53,
+       0.83
+      ],
+      [
+       0.57,
+       0.74,
+       -0.36
+      ],
+      [
+       -0.8,
+       0.41,
+       -0.44
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 26490,
+   "nlfWristSepRel": 1.83,
+   "avatarGloveSepRel": 1.71,
+   "nlfWristBelowHead": [
+    0.698,
+    0.349
+   ],
+   "avatarHandBelowHead": [
+    0.377,
+    0.211
+   ],
+   "nlfWristFwd": [
+    0.439,
+    0.587
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.65,
+      -0.67,
+      -0.35
+     ],
+     "avatarAxes": [
+      [
+       -0.62,
+       -0.56,
+       -0.55
+      ],
+      [
+       -0.06,
+       -0.67,
+       0.74
+      ],
+      [
+       -0.78,
+       0.49,
+       0.38
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.88,
+      0.32,
+      0.36
+     ],
+     "avatarAxes": [
+      [
+       -0.74,
+       0.52,
+       0.42
+      ],
+      [
+       0.66,
+       0.67,
+       0.34
+      ],
+      [
+       -0.1,
+       0.53,
+       -0.84
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 26996,
+   "nlfWristSepRel": 0.81,
+   "avatarGloveSepRel": 0.74,
+   "nlfWristBelowHead": [
+    0.481,
+    0.38
+   ],
+   "avatarHandBelowHead": [
+    0.245,
+    0.21
+   ],
+   "nlfWristFwd": [
+    0.661,
+    0.475
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.64,
+      -0.36,
+      -0.68
+     ],
+     "avatarAxes": [
+      [
+       -0.42,
+       -0.52,
+       -0.74
+      ],
+      [
+       -0.89,
+       0.39,
+       0.23
+      ],
+      [
+       0.17,
+       0.75,
+       -0.63
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      0.22,
+      0.03
+     ],
+     "avatarAxes": [
+      [
+       -0.91,
+       0.38,
+       0.18
+      ],
+      [
+       0.36,
+       0.48,
+       0.8
+      ],
+      [
+       0.21,
+       0.79,
+       -0.57
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 27504,
+   "nlfWristSepRel": 1.1,
+   "avatarGloveSepRel": 1.02,
+   "nlfWristBelowHead": [
+    0.659,
+    0.311
+   ],
+   "avatarHandBelowHead": [
+    0.368,
+    0.17
+   ],
+   "nlfWristFwd": [
+    0.178,
+    0.734
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.97,
+      0.17,
+      0.19
+     ],
+     "avatarAxes": [
+      [
+       -0.97,
+       0.22,
+       -0.04
+      ],
+      [
+       -0.11,
+       -0.32,
+       0.94
+      ],
+      [
+       0.19,
+       0.92,
+       0.33
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.72,
+      0.29,
+      0.63
+     ],
+     "avatarAxes": [
+      [
+       -0.59,
+       0.52,
+       0.62
+      ],
+      [
+       0.66,
+       0.75,
+       0
+      ],
+      [
+       -0.46,
+       0.42,
+       -0.78
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 28014,
+   "nlfWristSepRel": 0.63,
+   "avatarGloveSepRel": 1.17,
+   "nlfWristBelowHead": [
+    0.355,
+    0.331
+   ],
+   "avatarHandBelowHead": [
+    0.199,
+    0.186
+   ],
+   "nlfWristFwd": [
+    0.51,
+    0.503
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.86,
+      -0.17,
+      -0.48
+     ],
+     "avatarAxes": [
+      [
+       -0.7,
+       -0.43,
+       -0.57
+      ],
+      [
+       -0.66,
+       0.7,
+       0.28
+      ],
+      [
+       0.27,
+       0.57,
+       -0.77
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      0.11,
+      0.21
+     ],
+     "avatarAxes": [
+      [
+       -0.86,
+       0.38,
+       0.35
+      ],
+      [
+       0.49,
+       0.79,
+       0.36
+      ],
+      [
+       -0.14,
+       0.48,
+       -0.86
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 28525,
+   "nlfWristSepRel": 0.65,
+   "avatarGloveSepRel": 1.1,
+   "nlfWristBelowHead": [
+    0.418,
+    0.342
+   ],
+   "avatarHandBelowHead": [
+    0.208,
+    0.211
+   ],
+   "nlfWristFwd": [
+    0.471,
+    0.517
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.89,
+      -0.33,
+      -0.3
+     ],
+     "avatarAxes": [
+      [
+       -0.77,
+       -0.51,
+       -0.39
+      ],
+      [
+       -0.64,
+       0.53,
+       0.56
+      ],
+      [
+       -0.08,
+       0.68,
+       -0.73
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.79,
+      0.17,
+      0.59
+     ],
+     "avatarAxes": [
+      [
+       -0.68,
+       0.38,
+       0.63
+      ],
+      [
+       0.62,
+       0.75,
+       0.23
+      ],
+      [
+       -0.38,
+       0.55,
+       -0.74
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 29032,
+   "nlfWristSepRel": 1.02,
+   "avatarGloveSepRel": 2.06,
+   "nlfWristBelowHead": [
+    0.124,
+    0.39
+   ],
+   "avatarHandBelowHead": [
+    0.12,
+    0.192
+   ],
+   "nlfWristFwd": [
+    0.79,
+    0.564
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.33,
+      -0.9,
+      -0.27
+     ],
+     "avatarAxes": [
+      [
+       -0.42,
+       -0.9,
+       0.09
+      ],
+      [
+       0.78,
+       -0.31,
+       0.55
+      ],
+      [
+       -0.47,
+       0.3,
+       0.83
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.97,
+      0.22,
+      0.13
+     ],
+     "avatarAxes": [
+      [
+       -0.82,
+       0.42,
+       0.39
+      ],
+      [
+       0.56,
+       0.73,
+       0.38
+      ],
+      [
+       -0.13,
+       0.53,
+       -0.84
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 29803,
+   "nlfWristSepRel": 1.19,
+   "avatarGloveSepRel": 1.11,
+   "nlfWristBelowHead": [
+    0.598,
+    0.401
+   ],
+   "avatarHandBelowHead": [
+    0.306,
+    0.189
+   ],
+   "nlfWristFwd": [
+    0.127,
+    0.804
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.95,
+      0.16,
+      0.26
+     ],
+     "avatarAxes": [
+      [
+       -0.98,
+       0.18,
+       0.02
+      ],
+      [
+       -0.02,
+       -0.22,
+       0.98
+      ],
+      [
+       0.18,
+       0.96,
+       0.22
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.53,
+      0.34,
+      0.78
+     ],
+     "avatarAxes": [
+      [
+       -0.37,
+       0.53,
+       0.76
+      ],
+      [
+       0.81,
+       0.58,
+       -0.0
+      ],
+      [
+       -0.45,
+       0.62,
+       -0.65
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 30309,
+   "nlfWristSepRel": 0.62,
+   "avatarGloveSepRel": 1.15,
+   "nlfWristBelowHead": [
+    0.375,
+    0.365
+   ],
+   "avatarHandBelowHead": [
+    0.203,
+    0.193
+   ],
+   "nlfWristFwd": [
+    0.526,
+    0.499
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.75,
+      -0.11,
+      -0.65
+     ],
+     "avatarAxes": [
+      [
+       -0.61,
+       -0.33,
+       -0.72
+      ],
+      [
+       -0.64,
+       0.75,
+       0.2
+      ],
+      [
+       0.47,
+       0.58,
+       -0.67
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.98,
+      0.06,
+      0.17
+     ],
+     "avatarAxes": [
+      [
+       -0.91,
+       0.32,
+       0.27
+      ],
+      [
+       0.41,
+       0.82,
+       0.41
+      ],
+      [
+       -0.09,
+       0.48,
+       -0.87
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 30814,
+   "nlfWristSepRel": 0.62,
+   "avatarGloveSepRel": 1.2,
+   "nlfWristBelowHead": [
+    0.365,
+    0.333
+   ],
+   "avatarHandBelowHead": [
+    0.167,
+    0.153
+   ],
+   "nlfWristFwd": [
+    0.519,
+    0.518
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.8,
+      -0.17,
+      -0.57
+     ],
+     "avatarAxes": [
+      [
+       -0.69,
+       -0.4,
+       -0.6
+      ],
+      [
+       -0.64,
+       0.73,
+       0.25
+      ],
+      [
+       0.34,
+       0.56,
+       -0.76
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.9,
+      0.16,
+      0.4
+     ],
+     "avatarAxes": [
+      [
+       -0.84,
+       0.41,
+       0.35
+      ],
+      [
+       0.51,
+       0.81,
+       0.28
+      ],
+      [
+       -0.17,
+       0.41,
+       -0.9
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 31322,
+   "nlfWristSepRel": 0.65,
+   "avatarGloveSepRel": 1.21,
+   "nlfWristBelowHead": [
+    0.388,
+    0.335
+   ],
+   "avatarHandBelowHead": [
+    0.171,
+    0.145
+   ],
+   "nlfWristFwd": [
+    0.504,
+    0.476
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.81,
+      -0.09,
+      -0.58
+     ],
+     "avatarAxes": [
+      [
+       -0.71,
+       -0.32,
+       -0.63
+      ],
+      [
+       -0.59,
+       0.77,
+       0.27
+      ],
+      [
+       0.4,
+       0.56,
+       -0.73
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.96,
+      0.18,
+      0.2
+     ],
+     "avatarAxes": [
+      [
+       -0.88,
+       0.4,
+       0.24
+      ],
+      [
+       0.47,
+       0.82,
+       0.34
+      ],
+      [
+       -0.06,
+       0.41,
+       -0.91
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 31826,
+   "nlfWristSepRel": 0.61,
+   "avatarGloveSepRel": 1.23,
+   "nlfWristBelowHead": [
+    0.342,
+    0.305
+   ],
+   "avatarHandBelowHead": [
+    0.135,
+    0.145
+   ],
+   "nlfWristFwd": [
+    0.537,
+    0.525
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.81,
+      -0.21,
+      -0.55
+     ],
+     "avatarAxes": [
+      [
+       -0.68,
+       -0.45,
+       -0.58
+      ],
+      [
+       -0.64,
+       0.75,
+       0.18
+      ],
+      [
+       0.35,
+       0.49,
+       -0.8
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.93,
+      0.21,
+      0.31
+     ],
+     "avatarAxes": [
+      [
+       -0.84,
+       0.45,
+       0.31
+      ],
+      [
+       0.53,
+       0.81,
+       0.25
+      ],
+      [
+       -0.14,
+       0.37,
+       -0.92
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 32330,
+   "nlfWristSepRel": 0.57,
+   "avatarGloveSepRel": 0.98,
+   "nlfWristBelowHead": [
+    0.366,
+    0.36
+   ],
+   "avatarHandBelowHead": [
+    0.286,
+    0.316
+   ],
+   "nlfWristFwd": [
+    0.827,
+    0.739
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.8,
+      -0.17,
+      -0.58
+     ],
+     "avatarAxes": [
+      [
+       -0.73,
+       -0.4,
+       -0.55
+      ],
+      [
+       -0.68,
+       0.45,
+       0.58
+      ],
+      [
+       0.02,
+       0.8,
+       -0.6
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -1,
+      -0.03,
+      0.02
+     ],
+     "avatarAxes": [
+      [
+       -0.96,
+       0.16,
+       0.21
+      ],
+      [
+       0.26,
+       0.48,
+       0.84
+      ],
+      [
+       0.04,
+       0.86,
+       -0.5
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 33211,
+   "nlfWristSepRel": 0.59,
+   "avatarGloveSepRel": 0.98,
+   "nlfWristBelowHead": [
+    0.372,
+    0.326
+   ],
+   "avatarHandBelowHead": [
+    0.359,
+    0.375
+   ],
+   "nlfWristFwd": [
+    0.761,
+    0.739
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.79,
+      -0.23,
+      -0.57
+     ],
+     "avatarAxes": [
+      [
+       -0.61,
+       -0.29,
+       -0.74
+      ],
+      [
+       -0.78,
+       0.08,
+       0.62
+      ],
+      [
+       -0.12,
+       0.95,
+       -0.28
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.98,
+      -0.06,
+      0.17
+     ],
+     "avatarAxes": [
+      [
+       -0.92,
+       0.02,
+       0.4
+      ],
+      [
+       0.4,
+       0.17,
+       0.9
+      ],
+      [
+       -0.05,
+       0.99,
+       -0.16
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 33729,
+   "nlfWristSepRel": 0.49,
+   "avatarGloveSepRel": 1.08,
+   "nlfWristBelowHead": [
+    0.331,
+    0.306
+   ],
+   "avatarHandBelowHead": [
+    0.199,
+    0.164
+   ],
+   "nlfWristFwd": [
+    0.629,
+    0.71
+   ],
+   "guarded": "GUARDA ALTA",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.98,
+      0.11,
+      0.15
+     ],
+     "avatarAxes": [
+      [
+       -0.99,
+       -0.13,
+       0.01
+      ],
+      [
+       -0.11,
+       0.85,
+       0.51
+      ],
+      [
+       -0.07,
+       0.51,
+       -0.86
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.79,
+      -0.01,
+      0.61
+     ],
+     "avatarAxes": [
+      [
+       -0.77,
+       0.23,
+       0.6
+      ],
+      [
+       0.46,
+       0.85,
+       0.26
+      ],
+      [
+       -0.45,
+       0.48,
+       -0.75
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 34238,
+   "nlfWristSepRel": 0.55,
+   "avatarGloveSepRel": 0.94,
+   "nlfWristBelowHead": [
+    0.388,
+    0.397
+   ],
+   "avatarHandBelowHead": [
+    0.261,
+    0.336
+   ],
+   "nlfWristFwd": [
+    0.823,
+    0.658
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.9,
+      -0.08,
+      -0.43
+     ],
+     "avatarAxes": [
+      [
+       -0.8,
+       -0.26,
+       -0.55
+      ],
+      [
+       -0.57,
+       0.65,
+       0.51
+      ],
+      [
+       0.22,
+       0.72,
+       -0.66
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -1,
+      0.01,
+      -0.1
+     ],
+     "avatarAxes": [
+      [
+       -0.98,
+       0.19,
+       0.09
+      ],
+      [
+       0.18,
+       0.55,
+       0.81
+      ],
+      [
+       0.11,
+       0.81,
+       -0.58
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 34743,
+   "nlfWristSepRel": 0.68,
+   "avatarGloveSepRel": 1.05,
+   "nlfWristBelowHead": [
+    0.417,
+    0.476
+   ],
+   "avatarHandBelowHead": [
+    0.209,
+    0.233
+   ],
+   "nlfWristFwd": [
+    0.658,
+    0.506
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.74,
+      -0.22,
+      -0.63
+     ],
+     "avatarAxes": [
+      [
+       -0.54,
+       -0.39,
+       -0.75
+      ],
+      [
+       -0.75,
+       0.62,
+       0.21
+      ],
+      [
+       0.38,
+       0.68,
+       -0.63
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -1,
+      -0.02,
+      -0.03
+     ],
+     "avatarAxes": [
+      [
+       -0.96,
+       0.23,
+       0.17
+      ],
+      [
+       0.27,
+       0.54,
+       0.8
+      ],
+      [
+       0.09,
+       0.81,
+       -0.58
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 35247,
+   "nlfWristSepRel": 2.06,
+   "avatarGloveSepRel": 2.09,
+   "nlfWristBelowHead": [
+    0.582,
+    0.399
+   ],
+   "avatarHandBelowHead": [
+    0.275,
+    0.264
+   ],
+   "nlfWristFwd": [
+    -0.365,
+    0.573
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.24,
+      -0.86,
+      0.45
+     ],
+     "avatarAxes": [
+      [
+       -0.46,
+       -0.8,
+       0.39
+      ],
+      [
+       0.87,
+       -0.49,
+       0.04
+      ],
+      [
+       0.16,
+       0.36,
+       0.92
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.75,
+      0.1,
+      0.66
+     ],
+     "avatarAxes": [
+      [
+       -0.66,
+       0.31,
+       0.68
+      ],
+      [
+       0.57,
+       0.8,
+       0.19
+      ],
+      [
+       -0.48,
+       0.51,
+       -0.71
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 35753,
+   "nlfWristSepRel": 1.79,
+   "avatarGloveSepRel": 1.56,
+   "nlfWristBelowHead": [
+    0.489,
+    0.719
+   ],
+   "avatarHandBelowHead": [
+    0.219,
+    0.411
+   ],
+   "nlfWristFwd": [
+    0.918,
+    0.008
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.53,
+      -0.69,
+      -0.49
+     ],
+     "avatarAxes": [
+      [
+       -0.22,
+       -0.82,
+       -0.52
+      ],
+      [
+       -0.97,
+       0.22,
+       0.08
+      ],
+      [
+       0.05,
+       0.52,
+       -0.85
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.95,
+      0.21,
+      -0.23
+     ],
+     "avatarAxes": [
+      [
+       -0.95,
+       0.31,
+       0.01
+      ],
+      [
+       -0.12,
+       -0.39,
+       0.91
+      ],
+      [
+       0.29,
+       0.87,
+       0.41
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 36519,
+   "nlfWristSepRel": 0.56,
+   "avatarGloveSepRel": 1.15,
+   "nlfWristBelowHead": [
+    0.405,
+    0.31
+   ],
+   "avatarHandBelowHead": [
+    0.284,
+    0.163
+   ],
+   "nlfWristFwd": [
+    0.69,
+    0.758
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.99,
+      0.02,
+      -0.12
+     ],
+     "avatarAxes": [
+      [
+       -0.94,
+       -0.23,
+       -0.25
+      ],
+      [
+       -0.34,
+       0.73,
+       0.59
+      ],
+      [
+       0.05,
+       0.64,
+       -0.76
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.79,
+      0.22,
+      0.57
+     ],
+     "avatarAxes": [
+      [
+       -0.67,
+       0.4,
+       0.62
+      ],
+      [
+       0.67,
+       0.69,
+       0.28
+      ],
+      [
+       -0.32,
+       0.6,
+       -0.73
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 37025,
+   "nlfWristSepRel": 0.57,
+   "avatarGloveSepRel": 1.12,
+   "nlfWristBelowHead": [
+    0.383,
+    0.335
+   ],
+   "avatarHandBelowHead": [
+    0.231,
+    0.177
+   ],
+   "nlfWristFwd": [
+    0.588,
+    0.614
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.93,
+      0.03,
+      -0.36
+     ],
+     "avatarAxes": [
+      [
+       -0.88,
+       -0.2,
+       -0.44
+      ],
+      [
+       -0.41,
+       0.8,
+       0.44
+      ],
+      [
+       0.26,
+       0.56,
+       -0.79
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.86,
+      0.19,
+      0.47
+     ],
+     "avatarAxes": [
+      [
+       -0.74,
+       0.4,
+       0.54
+      ],
+      [
+       0.62,
+       0.73,
+       0.3
+      ],
+      [
+       -0.28,
+       0.55,
+       -0.79
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 37530,
+   "nlfWristSepRel": 0.63,
+   "avatarGloveSepRel": 1.06,
+   "nlfWristBelowHead": [
+    0.352,
+    0.34
+   ],
+   "avatarHandBelowHead": [
+    0.219,
+    0.26
+   ],
+   "nlfWristFwd": [
+    0.876,
+    0.829
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.99,
+      -0.09,
+      -0.13
+     ],
+     "avatarAxes": [
+      [
+       -0.88,
+       -0.36,
+       -0.31
+      ],
+      [
+       -0.47,
+       0.75,
+       0.47
+      ],
+      [
+       0.07,
+       0.56,
+       -0.83
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.89,
+      0.29,
+      0.35
+     ],
+     "avatarAxes": [
+      [
+       -0.81,
+       0.42,
+       0.4
+      ],
+      [
+       0.58,
+       0.67,
+       0.47
+      ],
+      [
+       -0.07,
+       0.62,
+       -0.79
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 38046,
+   "nlfWristSepRel": 2.18,
+   "avatarGloveSepRel": 1.61,
+   "nlfWristBelowHead": [
+    0.551,
+    0.058
+   ],
+   "avatarHandBelowHead": [
+    0.241,
+    -0.016
+   ],
+   "nlfWristFwd": [
+    0.004,
+    1.156
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.97,
+      -0.19,
+      0.15
+     ],
+     "avatarAxes": [
+      [
+       -0.92,
+       -0.4,
+       -0.01
+      ],
+      [
+       -0.02,
+       0.01,
+       1
+      ],
+      [
+       -0.4,
+       0.92,
+       -0.02
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.9,
+      0.39,
+      0.2
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.61,
+       0.23
+      ],
+      [
+       0.64,
+       0.76,
+       0.11
+      ],
+      [
+       -0.11,
+       0.23,
+       -0.97
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 38556,
+   "nlfWristSepRel": 0.6,
+   "avatarGloveSepRel": 1.13,
+   "nlfWristBelowHead": [
+    0.403,
+    0.316
+   ],
+   "avatarHandBelowHead": [
+    0.244,
+    0.135
+   ],
+   "nlfWristFwd": [
+    0.581,
+    0.594
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.96,
+      0.07,
+      -0.25
+     ],
+     "avatarAxes": [
+      [
+       -0.9,
+       -0.22,
+       -0.37
+      ],
+      [
+       -0.36,
+       0.86,
+       0.37
+      ],
+      [
+       0.24,
+       0.47,
+       -0.85
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.83,
+      0.41,
+      0.39
+     ],
+     "avatarAxes": [
+      [
+       -0.64,
+       0.62,
+       0.46
+      ],
+      [
+       0.76,
+       0.61,
+       0.23
+      ],
+      [
+       -0.14,
+       0.49,
+       -0.86
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 39063,
+   "nlfWristSepRel": 0.54,
+   "avatarGloveSepRel": 1.16,
+   "nlfWristBelowHead": [
+    0.36,
+    0.344
+   ],
+   "avatarHandBelowHead": [
+    0.223,
+    0.163
+   ],
+   "nlfWristFwd": [
+    0.567,
+    0.593
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.91,
+      -0.11,
+      -0.4
+     ],
+     "avatarAxes": [
+      [
+       -0.85,
+       -0.25,
+       -0.47
+      ],
+      [
+       -0.45,
+       0.8,
+       0.39
+      ],
+      [
+       0.28,
+       0.54,
+       -0.79
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.91,
+      0.25,
+      0.34
+     ],
+     "avatarAxes": [
+      [
+       -0.78,
+       0.47,
+       0.4
+      ],
+      [
+       0.6,
+       0.74,
+       0.3
+      ],
+      [
+       -0.15,
+       0.48,
+       -0.86
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 39820,
+   "nlfWristSepRel": 1.77,
+   "avatarGloveSepRel": 1.24,
+   "nlfWristBelowHead": [
+    0.412,
+    0.886
+   ],
+   "avatarHandBelowHead": [
+    0.269,
+    -0.103
+   ],
+   "nlfWristFwd": [
+    0.732,
+    0.026
+   ],
+   "guarded": "GUARDA ABERTA",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.89,
+      -0.33,
+      -0.31
+     ],
+     "avatarAxes": [
+      [
+       -0.72,
+       -0.49,
+       -0.49
+      ],
+      [
+       -0.66,
+       0.27,
+       0.7
+      ],
+      [
+       -0.21,
+       0.83,
+       -0.52
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.91,
+      0.42,
+      -0.05
+     ],
+     "avatarAxes": [
+      [
+       0.13,
+       -0.7,
+       0.7
+      ],
+      [
+       -0.58,
+       0.52,
+       0.63
+      ],
+      [
+       -0.81,
+       -0.48,
+       -0.34
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 40332,
+   "nlfWristSepRel": 0.9,
+   "avatarGloveSepRel": 1.24,
+   "nlfWristBelowHead": [
+    0.392,
+    0.132
+   ],
+   "avatarHandBelowHead": [
+    0.212,
+    -0.023
+   ],
+   "nlfWristFwd": [
+    0.541,
+    0.757
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.98,
+      -0.18,
+      -0.11
+     ],
+     "avatarAxes": [
+      [
+       -0.88,
+       -0.43,
+       -0.2
+      ],
+      [
+       -0.47,
+       0.76,
+       0.45
+      ],
+      [
+       -0.04,
+       0.49,
+       -0.87
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.8,
+      0.48,
+      0.37
+     ],
+     "avatarAxes": [
+      [
+       -0.66,
+       0.67,
+       0.34
+      ],
+      [
+       0.71,
+       0.71,
+       -0.01
+      ],
+      [
+       -0.24,
+       0.23,
+       -0.94
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 40837,
+   "nlfWristSepRel": 0.58,
+   "avatarGloveSepRel": 1.17,
+   "nlfWristBelowHead": [
+    0.397,
+    0.334
+   ],
+   "avatarHandBelowHead": [
+    0.211,
+    0.131
+   ],
+   "nlfWristFwd": [
+    0.535,
+    0.588
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.9,
+      -0.1,
+      -0.42
+     ],
+     "avatarAxes": [
+      [
+       -0.81,
+       -0.34,
+       -0.48
+      ],
+      [
+       -0.51,
+       0.81,
+       0.29
+      ],
+      [
+       0.29,
+       0.48,
+       -0.83
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.88,
+      0.3,
+      0.35
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.53,
+       0.37
+      ],
+      [
+       0.62,
+       0.77,
+       0.15
+      ],
+      [
+       -0.21,
+       0.34,
+       -0.92
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 41355,
+   "nlfWristSepRel": 1.33,
+   "avatarGloveSepRel": 1.27,
+   "nlfWristBelowHead": [
+    0.506,
+    1.025
+   ],
+   "avatarHandBelowHead": [
+    0.256,
+    0.594
+   ],
+   "nlfWristFwd": [
+    0.508,
+    0.25
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.77,
+      -0.15,
+      -0.62
+     ],
+     "avatarAxes": [
+      [
+       -0.65,
+       -0.38,
+       -0.66
+      ],
+      [
+       -0.73,
+       0.57,
+       0.38
+      ],
+      [
+       0.23,
+       0.73,
+       -0.65
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.92,
+      0.3,
+      0.25
+     ],
+     "avatarAxes": [
+      [
+       -0.88,
+       0.16,
+       0.46
+      ],
+      [
+       0.31,
+       -0.54,
+       0.78
+      ],
+      [
+       0.37,
+       0.83,
+       0.42
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 41869,
+   "nlfWristSepRel": 1.37,
+   "avatarGloveSepRel": 1.28,
+   "nlfWristBelowHead": [
+    1.16,
+    1.299
+   ],
+   "avatarHandBelowHead": [
+    0.637,
+    0.762
+   ],
+   "nlfWristFwd": [
+    0.203,
+    0.031
+   ],
+   "guarded": "SEM F\u00d4LEGO",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.52,
+      -0.34,
+      -0.79
+     ],
+     "avatarAxes": [
+      [
+       -0.41,
+       -0.14,
+       -0.9
+      ],
+      [
+       -0.4,
+       -0.86,
+       0.31
+      ],
+      [
+       -0.82,
+       0.48,
+       0.29
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.78,
+      0.06,
+      0.62
+     ],
+     "avatarAxes": [
+      [
+       -0.67,
+       -0.25,
+       0.7
+      ],
+      [
+       0.39,
+       -0.92,
+       0.04
+      ],
+      [
+       0.63,
+       0.29,
+       0.72
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 42381,
+   "nlfWristSepRel": 1.52,
+   "avatarGloveSepRel": 1.39,
+   "nlfWristBelowHead": [
+    1.187,
+    1.193
+   ],
+   "avatarHandBelowHead": [
+    0.645,
+    0.679
+   ],
+   "nlfWristFwd": [
+    0.08,
+    0.594
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.69,
+      -0.26,
+      -0.68
+     ],
+     "avatarAxes": [
+      [
+       -0.58,
+       -0.1,
+       -0.81
+      ],
+      [
+       -0.39,
+       -0.84,
+       0.38
+      ],
+      [
+       -0.72,
+       0.53,
+       0.45
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.45,
+      0.23,
+      0.86
+     ],
+     "avatarAxes": [
+      [
+       -0.32,
+       0.02,
+       0.95
+      ],
+      [
+       0.27,
+       -0.96,
+       0.11
+      ],
+      [
+       0.91,
+       0.29,
+       0.3
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 43138,
+   "nlfWristSepRel": 1.58,
+   "avatarGloveSepRel": 1.46,
+   "nlfWristBelowHead": [
+    0.889,
+    1.02
+   ],
+   "avatarHandBelowHead": [
+    0.587,
+    0.717
+   ],
+   "nlfWristFwd": [
+    0.186,
+    0.46
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.8,
+      -0.29,
+      -0.53
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.04,
+       -0.64
+      ],
+      [
+       0.1,
+       -0.98,
+       -0.17
+      ],
+      [
+       -0.64,
+       -0.2,
+       0.75
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.03,
+      0.52,
+      0.85
+     ],
+     "avatarAxes": [
+      [
+       0.46,
+       0.43,
+       0.77
+      ],
+      [
+       0.51,
+       -0.85,
+       0.17
+      ],
+      [
+       0.73,
+       0.32,
+       -0.61
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 43642,
+   "nlfWristSepRel": 1.32,
+   "avatarGloveSepRel": 1.22,
+   "nlfWristBelowHead": [
+    0.972,
+    0.926
+   ],
+   "avatarHandBelowHead": [
+    0.642,
+    0.63
+   ],
+   "nlfWristFwd": [
+    0.41,
+    0.677
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.79,
+      -0.56,
+      -0.26
+     ],
+     "avatarAxes": [
+      [
+       -0.78,
+       -0.4,
+       -0.48
+      ],
+      [
+       -0.01,
+       -0.75,
+       0.66
+      ],
+      [
+       -0.62,
+       0.52,
+       0.59
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      0.12,
+      0.92,
+      0.37
+     ],
+     "avatarAxes": [
+      [
+       0.25,
+       0.81,
+       0.52
+      ],
+      [
+       0.24,
+       -0.57,
+       0.78
+      ],
+      [
+       0.94,
+       -0.08,
+       -0.34
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 44160,
+   "nlfWristSepRel": 1.7,
+   "avatarGloveSepRel": 1.44,
+   "nlfWristBelowHead": [
+    0.839,
+    0.941
+   ],
+   "avatarHandBelowHead": [
+    0.619,
+    0.621
+   ],
+   "nlfWristFwd": [
+    1.112,
+    1.044
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.71,
+      -0.7,
+      -0.08
+     ],
+     "avatarAxes": [
+      [
+       -0.74,
+       -0.55,
+       -0.37
+      ],
+      [
+       -0.21,
+       -0.34,
+       0.92
+      ],
+      [
+       -0.64,
+       0.76,
+       0.14
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.64,
+      0.77,
+      0.09
+     ],
+     "avatarAxes": [
+      [
+       -0.69,
+       0.63,
+       0.35
+      ],
+      [
+       -0.17,
+       -0.61,
+       0.77
+      ],
+      [
+       0.7,
+       0.47,
+       0.53
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 44665,
+   "nlfWristSepRel": 1.66,
+   "avatarGloveSepRel": 1.47,
+   "nlfWristBelowHead": [
+    0.923,
+    1.004
+   ],
+   "avatarHandBelowHead": [
+    0.538,
+    0.613
+   ],
+   "nlfWristFwd": [
+    0.649,
+    0.548
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.75,
+      -0.51,
+      -0.42
+     ],
+     "avatarAxes": [
+      [
+       -0.64,
+       -0.41,
+       -0.65
+      ],
+      [
+       -0.25,
+       -0.69,
+       0.68
+      ],
+      [
+       -0.73,
+       0.6,
+       0.33
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.84,
+      0.31,
+      0.45
+     ],
+     "avatarAxes": [
+      [
+       -0.74,
+       0.19,
+       0.64
+      ],
+      [
+       0.44,
+       -0.59,
+       0.68
+      ],
+      [
+       0.51,
+       0.79,
+       0.35
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "t": 45171,
+   "nlfWristSepRel": 1.09,
+   "avatarGloveSepRel": 1.05,
+   "nlfWristBelowHead": [
+    0.927,
+    0.92
+   ],
+   "avatarHandBelowHead": [
+    0.512,
+    0.542
+   ],
+   "nlfWristFwd": [
+    0.493,
+    0.504
+   ],
+   "guarded": "EM COMBATE",
+   "palm": {
+    "left": {
+     "nlfNormal": [
+      -0.89,
+      -0.25,
+      -0.38
+     ],
+     "avatarAxes": [
+      [
+       -0.77,
+       -0.21,
+       -0.6
+      ],
+      [
+       -0.53,
+       -0.29,
+       0.79
+      ],
+      [
+       -0.34,
+       0.93,
+       0.12
+      ]
+     ]
+    },
+    "right": {
+     "nlfNormal": [
+      -0.9,
+      0.12,
+      0.43
+     ],
+     "avatarAxes": [
+      [
+       -0.76,
+       0.12,
+       0.63
+      ],
+      [
+       0.6,
+       -0.22,
+       0.77
+      ],
+      [
+       0.23,
+       0.97,
+       0.09
+      ]
+     ]
+    }
+   }
+  }
+ ],
+ "errors": []
+}

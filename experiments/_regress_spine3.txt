@@ -1,0 +1,46 @@
+=== PALMA (absoluto, sem calibração) ===
+=== ABSOLUTE palm error [spine3] (no calibration) ===
+[left]  264 frames
+  ABSOLUTE palm error : p50    8.3  p95   16.0  max   32.0 deg
+     fit    mean -0.25  min -0.87
+     avatar mean -0.26  min -0.88
+     mean |diff| 0.03
+[right]  264 frames
+  ABSOLUTE palm error : p50    8.3  p95   18.6  max   33.4 deg
+     fit    mean -0.47  min -0.98
+     avatar mean -0.47  min -0.99
+     mean |diff| 0.04
+=== CORPO ===
+=== PER-BONE FIDELITY vs the fit ===
+bone           swing_raw  SWING_VAR    p95   TWIST    p95
+              (defn+err) (real err)         (roll)
+rightLeg             2.4        2.4    6.1    13.3   28.1
+leftLeg              1.9        1.9    4.6    12.8   27.6
+neck                 6.0        3.8    8.1     8.7   18.8
+hips                30.7        6.7   13.6     2.5    8.2
+rightFoot            5.7        4.0    8.6     4.5   11.5
+rightShoulder       33.1        2.7    7.1     4.7   14.0
+leftShoulder        33.3        3.4    8.1     3.9   11.7
+leftArm              3.9        3.9   15.9     3.4   14.0
+leftFoot             4.6        3.7    8.3     3.3   10.9
+leftUpLeg            2.7        2.7    6.6     4.1   11.9
+rightArm             4.0        4.1   15.6     2.6   12.6
+rightHand           19.3        4.0   15.3     2.5   10.7
+rightUpLeg           3.2        3.2    7.9     3.3   13.1
+leftHand            18.3        4.1   10.9     2.1    9.3
+spine                1.7        1.4    3.8     4.3   12.1
+rightForeArm         3.4        3.4   18.8     2.3   14.9
+leftForeArm          3.0        3.0   18.2     1.9   14.6
+spine1               3.3        1.9    4.8     1.5    4.9
+spine2               2.3        1.4    3.2     1.5    5.1
+
+[report] C:\Users\Henrique\studies\3d augmented games using mocap\pose_corrector_lab\experiments\bake_top\body_fidelity.json
+=== SANIDADE DA POSE ===
+sanity: 5 frames sampled of 1056 (units: meters, y-up)
+  t=   0 hip.y=  0.40 kneeL=  0.19 ankL=  0.02 footL=  0.00 shL=  0.56 head=  0.68
+  t= 264 hip.y=  0.52 kneeL=  0.27 ankL=  0.05 footL=  0.00 shL=  0.75 head=  0.90
+  t= 528 hip.y=  0.50 kneeL=  0.25 ankL=  0.03 footL=  0.00 shL=  0.70 head=  0.86
+  t= 792 hip.y=  0.52 kneeL=  0.27 ankL=  0.04 footL= -0.00 shL=  0.74 head=  0.90
+  t=1055 hip.y=  0.48 kneeL=  0.25 ankL=  0.06 footL=  0.03 shL=  0.56 head=  0.64
+FAIL:
+  t=0: head not above neck: neck 0.550 head 0.675

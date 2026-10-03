@@ -1,0 +1,774 @@
+{
+  "frames": 1452,
+  "elapsed_ms": 76394.1,
+  "delivered_fps": 18.99,
+  "transport_types": [
+    "pose"
+  ],
+  "server_ms": {
+    "p50": 16.59,
+    "p95": 24.24,
+    "max": 44.93
+  },
+  "round_trip_ms": {
+    "p50": 22.8,
+    "p95": 32.2,
+    "max": 80.3
+  },
+  "holds": [
+    {
+      "image": "WIN_20260801_13_57_25_Pro.jpg",
+      "samples": 70,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_30_Pro.jpg",
+      "samples": 71,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_35_Pro.jpg",
+      "samples": 71,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_40_Pro.jpg",
+      "samples": 84,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_44_Pro.jpg",
+      "samples": 72,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_50_Pro.jpg",
+      "samples": 78,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.095,
+          "max": 0.156
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.466,
+          "max": 2.485
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.09,
+          "max": 0.391
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.235,
+          "max": 1.795
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.069,
+          "max": 0.37
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.207,
+          "max": 1.727
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.17,
+          "max": 0.233
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.102,
+          "max": 0.534
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.549,
+          "max": 1.073
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.1,
+          "max": 0.687
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_54_Pro.jpg",
+      "samples": 66,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_00_Pro.jpg",
+      "samples": 72,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_05_Pro.jpg",
+      "samples": 79,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_10_Pro.jpg",
+      "samples": 73,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 2.476,
+          "max": 117.333
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 1.644,
+          "max": 116.57
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 1.25,
+          "max": 113.064
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 2.354,
+          "max": 150.411
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 2.528,
+          "max": 83.421
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 2.62,
+          "max": 122.804
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 3.441,
+          "max": 19.457
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 1.568,
+          "max": 27.515
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 1.664,
+          "max": 8.004
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 1.059,
+          "max": 8.879
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_15_Pro.jpg",
+      "samples": 69,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.001
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_20_Pro.jpg",
+      "samples": 69,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_26_Pro.jpg",
+      "samples": 47,
+      "jumps": {
+        "leftArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightForeArm": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "leftHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "rightHand": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "direction_error_degrees": {
+        "left_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "left_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_upper": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "right_fore": {
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    }
+  ]
+}

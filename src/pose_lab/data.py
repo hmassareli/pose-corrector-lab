@@ -37,7 +37,10 @@ def mirror_features(x: np.ndarray) -> np.ndarray:
     single = x.ndim == 1
     if single:
         x = x[None]
-    assert x.shape[-1] == _F_WITH_2D, f"expected F={_F_WITH_2D}, got {x.shape[-1]}"
+    extra = x.shape[-1] - _F_WITH_2D
+    assert extra >= 0 and extra % _ACC == 0, (
+        f"expected F={_F_WITH_2D}+k*{_ACC}, got {x.shape[-1]}"
+    )
     out = x.copy()
 
     def neg_x_block(sl: slice, n_joints: int) -> None:
@@ -88,6 +91,16 @@ def mirror_features(x: np.ndarray) -> np.ndarray:
     p2[..., 0] = 1.0 - p2[..., 0]
     out[..., o : o + _2D] = p2.reshape(out.shape[0], _2D)
 
+    # Separate multilag blocks appended after the stable F=113 layout.
+    for o0 in range(_F_WITH_2D, out.shape[-1], _ACC):
+        neg_x_block(slice(o0, o0 + _ACC), N_TARGETS)
+        swap_joint_pairs(
+            slice(o0, o0 + _ACC),
+            [(0, 1), (2, 3), (4, 5)],
+            N_TARGETS,
+            3,
+        )
+
     return out[0] if single else out
 
 
@@ -101,9 +114,33 @@ def mirror_motion_label(label: int) -> int:
 
 
 # Slice offsets into F=113 feature vector (include_2d=True).
-_OFF_VEL = _CONTEXT + _IPSI + _BONES + _CONF  # 65
+_OFF_IPSI = _CONTEXT  # 33
+_OFF_BONES = _OFF_IPSI + _IPSI  # 45
+_OFF_CONF = _OFF_BONES + _BONES  # 53
+_OFF_VEL = _OFF_CONF + _CONF  # 65
 _OFF_ACC = _OFF_VEL + _VEL  # 83
 _OFF_2D = _OFF_ACC + _ACC  # 101
+
+
+def feature_ablation_kwargs(fcfg: dict | None = None) -> dict:
+    """Parse ``cfg['features']`` into kwargs for ``apply_feature_ablation``.
+
+    ``zero_tier_a`` is a convenience that drops pure-derived blocks:
+    ipsilateral shoulder-relative coords, bone/angle/reach scalars, and
+    the deterministic ``1-conf`` channels (accel is separate / already baseline).
+    """
+    fcfg = fcfg or {}
+    tier_a = bool(fcfg.get("zero_tier_a", False))
+    return {
+        "zero_accel": bool(fcfg.get("zero_accel", False)),
+        "zero_2d": bool(fcfg.get("zero_2d", False)),
+        "zero_ipsi": bool(fcfg.get("zero_ipsi", False)) or tier_a,
+        "zero_bones": bool(fcfg.get("zero_bones", False)) or tier_a,
+        "zero_inv_conf": bool(fcfg.get("zero_inv_conf", False)) or tier_a,
+        "multilag": bool(fcfg.get("multilag", False)),
+        "multilag_steps": tuple(int(s) for s in (fcfg.get("multilag_steps") or [1, 3, 6])),
+        "multilag_mode": str(fcfg.get("multilag_mode", "mean")),
+    }
 
 
 def apply_feature_ablation(
@@ -111,16 +148,96 @@ def apply_feature_ablation(
     *,
     zero_accel: bool = False,
     zero_2d: bool = False,
+    zero_ipsi: bool = False,
+    zero_bones: bool = False,
+    zero_inv_conf: bool = False,
+    multilag: bool = False,
+    multilag_steps: tuple[int, ...] = (1, 3, 6),
+    multilag_mode: str = "mean",
 ) -> np.ndarray:
-    """Zero selected feature blocks in-place-safe copy (keeps F=113 for same GRU)."""
-    if not zero_accel and not zero_2d:
+    """Zero / rewrite selected feature blocks (keeps F=113 for same GRU).
+
+    multilag: replace the acceleration block with packed target displacements
+    over ``multilag_steps`` (body-frame xyz from context joints). More stable
+    than raw acceleration; uses only past frames inside the window.
+    """
+    any_ablate = (
+        zero_accel
+        or zero_2d
+        or zero_ipsi
+        or zero_bones
+        or zero_inv_conf
+        or multilag
+    )
+    if not any_ablate:
         return x
     out = np.array(x, dtype=np.float32, copy=True)
-    if zero_accel:
+    if multilag:
+        out = _rewrite_accel_as_multilag(
+            out,
+            steps=multilag_steps,
+            mode=multilag_mode,
+        )
+    elif zero_accel:
         out[..., _OFF_ACC:_OFF_2D] = 0.0
+    if zero_ipsi:
+        out[..., _OFF_IPSI:_OFF_BONES] = 0.0
+    if zero_bones:
+        out[..., _OFF_BONES:_OFF_CONF] = 0.0
+    if zero_inv_conf:
+        conf = out[..., _OFF_CONF:_OFF_VEL].reshape(*out.shape[:-1], N_TARGETS, 2)
+        conf[..., 1] = 0.0
+        out[..., _OFF_CONF:_OFF_VEL] = conf.reshape(*out.shape[:-1], _CONF)
     if zero_2d:
         out[..., _OFF_2D:_OFF_2D + _2D] = 0.0
     return out
+
+
+# Context target xyz slice inside F (pelvis.. → targets LS..RW at [9:27])
+_CTX_TARGET_START = 9
+_CTX_TARGET_END = 9 + N_TARGETS * 3
+
+
+def _rewrite_accel_as_multilag(
+    x: np.ndarray,
+    *,
+    steps: tuple[int, ...] = (1, 3, 6),
+    mode: str = "mean",
+) -> np.ndarray:
+    """Overwrite ACC block (18) with packed multi-lag target displacements.
+
+    Context targets LS..RW live at feature bytes [9:27]. For each lag k in
+    ``steps``, compute pose[t]-pose[t-k]. Pack into 18 dims by averaging the
+    lag vectors (same F; preserves GRU width).
+    """
+    squeeze = x.ndim == 2
+    out = np.array(x, dtype=np.float32, copy=True)
+    if squeeze:
+        out = out[None]
+    n, t, _f = out.shape
+    tgt = out[..., _CTX_TARGET_START:_CTX_TARGET_END].reshape(n, t, N_TARGETS, 3)
+    lags = []
+    for k in steps:
+        k = int(k)
+        if k < 1:
+            continue
+        disp = np.zeros_like(tgt)
+        if k < t:
+            disp[:, k:] = tgt[:, k:] - tgt[:, :-k]
+        lags.append(disp)
+    if mode not in {"mean", "separate"}:
+        raise ValueError(f"multilag_mode must be 'mean' or 'separate', got {mode!r}")
+    if not lags:
+        out[..., _OFF_ACC:_OFF_2D] = 0.0
+    elif mode == "mean":
+        stacked = np.stack(lags, axis=0).mean(axis=0)  # (n,t,6,3)
+        out[..., _OFF_ACC:_OFF_2D] = stacked.reshape(n, t, _ACC)
+    else:
+        packed = [lag.reshape(n, t, _ACC) for lag in lags]
+        out[..., _OFF_ACC:_OFF_2D] = packed[0]
+        if len(packed) > 1:
+            out = np.concatenate([out, *packed[1:]], axis=-1)
+    return out[0] if squeeze else out
 
 
 class WindowNPZDataset(Dataset):
@@ -134,6 +251,13 @@ class WindowNPZDataset(Dataset):
         conf_below: float = 0.5,
         zero_accel: bool = False,
         zero_2d: bool = False,
+        zero_ipsi: bool = False,
+        zero_bones: bool = False,
+        zero_inv_conf: bool = False,
+        multilag: bool = False,
+        multilag_steps: tuple[int, ...] = (1, 3, 6),
+        multilag_mode: str = "mean",
+        require_y_seq: bool = False,
     ):
         data = np.load(npz_path, allow_pickle=True)
         self.x = data["x"].astype(np.float32)
@@ -141,9 +265,39 @@ class WindowNPZDataset(Dataset):
         self.conf = data["conf_targets"].astype(np.float32)
         self.motion = data["motion"].astype(np.int64)
         self.difficulty = data["difficulty"].astype(np.float32)
+        self.y_seq = None
+        if "y_seq" in data.files:
+            self.y_seq = data["y_seq"].astype(np.float32)
+        elif require_y_seq:
+            raise RuntimeError(
+                f"{npz_path} missing y_seq — run scripts/augment_npz_yseq.py"
+            )
         self.mirror_p = float(mirror_p)
         self.zero_accel = bool(zero_accel)
         self.zero_2d = bool(zero_2d)
+        self.zero_ipsi = bool(zero_ipsi)
+        self.zero_bones = bool(zero_bones)
+        self.zero_inv_conf = bool(zero_inv_conf)
+        self.multilag = bool(multilag)
+        self.multilag_steps = tuple(int(s) for s in multilag_steps)
+        self.multilag_mode = str(multilag_mode)
+
+        # Precompute multilag once (getitem rewrite was too slow for full epochs).
+        if self.multilag:
+            print(
+                f"[dataset] precomputing multilag steps={self.multilag_steps} "
+                f"on {len(self.x)} windows…",
+                flush=True,
+            )
+            self.x = _rewrite_accel_as_multilag(
+                self.x,
+                steps=self.multilag_steps,
+                mode=self.multilag_mode,
+            )
+            self.multilag = False  # already baked into ACC block
+            self._multilag_baked = True
+        else:
+            self._multilag_baked = False
 
         self.indices = np.arange(len(self.x))
         if hard_only and len(self.indices):
@@ -163,15 +317,31 @@ class WindowNPZDataset(Dataset):
         y = self.y[idx]
         conf = self.conf[idx]
         motion = int(self.motion[idx])
+        y_seq = None if self.y_seq is None else self.y_seq[idx]
         if self.mirror_p > 0 and np.random.rand() < self.mirror_p:
             x = mirror_features(x)
             y = mirror_residual(y)
             motion = mirror_motion_label(motion)
-        x = apply_feature_ablation(x, zero_accel=self.zero_accel, zero_2d=self.zero_2d)
-        return {
+            if y_seq is not None:
+                y_seq = np.stack([mirror_residual(y_seq[t]) for t in range(y_seq.shape[0])], axis=0)
+        x = apply_feature_ablation(
+            x,
+            zero_accel=self.zero_accel,
+            zero_2d=self.zero_2d,
+            zero_ipsi=self.zero_ipsi,
+            zero_bones=self.zero_bones,
+            zero_inv_conf=self.zero_inv_conf,
+            multilag=self.multilag,
+            multilag_steps=self.multilag_steps,
+            multilag_mode=self.multilag_mode,
+        )
+        out = {
             "x": torch.from_numpy(np.ascontiguousarray(x)),
             "y": torch.from_numpy(np.ascontiguousarray(y)),
             "conf": torch.from_numpy(np.ascontiguousarray(conf)),
             "motion": torch.tensor(motion, dtype=torch.long),
             "difficulty": torch.tensor(float(self.difficulty[idx]), dtype=torch.float32),
         }
+        if y_seq is not None:
+            out["y_seq"] = torch.from_numpy(np.ascontiguousarray(y_seq))
+        return out

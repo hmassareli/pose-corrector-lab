@@ -1,0 +1,37 @@
+{
+  "pitchErrorDegrees": 0.007296768964121417,
+  "before": {
+    "status": "tracked",
+    "pitchOffsetDegrees": 20.556045219583478,
+    "accepted": 2,
+    "rejected": 0,
+    "faceRelative": [
+      0.2588189329373795,
+      -0.0008992688839824443,
+      0.00024095837124686034,
+      0.9659254076830641
+    ]
+  },
+  "after": null,
+  "loaded": true,
+  "contactReset": true,
+  "guardContacts": [
+    {
+      "side": "left",
+      "beforeGap": 0.02697626790522356,
+      "afterGap": 0.02697626790522356,
+      "correction": 0,
+      "swept": false,
+      "contact": false
+    },
+    {
+      "side": "right",
+      "beforeGap": -0.0012025088494606873,
+      "afterGap": 0.006737023111674789,
+      "correction": 0.007939527498713373,
+      "swept": false,
+      "contact": true
+    }
+  ],
+  "errors": []
+}

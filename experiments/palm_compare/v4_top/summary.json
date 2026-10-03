@@ -1,0 +1,18 @@
+{
+ "side": "right",
+ "tag": "v4_top",
+ "rows": [
+  {
+   "t": 470,
+   "mesh_palm_y": -0.051,
+   "avatar_palm_y": -0.052,
+   "delta": 0.0
+  },
+  {
+   "t": 480,
+   "mesh_palm_y": -0.777,
+   "avatar_palm_y": -0.764,
+   "delta": 0.014
+  }
+ ]
+}

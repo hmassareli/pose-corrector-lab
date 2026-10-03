@@ -1,0 +1,377 @@
+{
+  "avatar": "fighter-web",
+  "nlf_matches": 5,
+  "avatar_matches": 4,
+  "evaluated_hand_cases": 9,
+  "nlf_query": [
+    "smplx55"
+  ],
+  "labels_sha256": "199de05d5c9edcfb3499078cad17d1c247e5d0c3565b5f0c2506d8414922d374",
+  "method": "Eixo dominante da normal de wrist/index1/pinky1. NLF sem espelho; avatar por posições reais de ossos, com troca L/R do selfie. Descartados 2s iniciais de cada foto; vetores com sin(angulo)<0.05 degenerados.",
+  "limitations": "Rótulos visuais aproximados, câmera não calibrada, punhos fechados parcialmente ocultos. Frames repetidos não são amostras independentes. Não representa acurácia geral ou erro angular 3D.",
+  "results": [
+    {
+      "image": "01_maos_abertas_ambas_palmas_cima.jpg",
+      "source_hand": "right",
+      "avatar_hand": "left",
+      "expected": "cima",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 113
+        },
+        "samples": 113,
+        "median_normal": [
+          0.919,
+          -0.3268,
+          0.2204
+        ],
+        "median_sin_knuckle_angle": 0.5082
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 113
+        },
+        "samples": 113,
+        "median_normal": [
+          -0.9408,
+          -0.2171,
+          0.2602
+        ],
+        "median_sin_knuckle_angle": 0.6791
+      },
+      "raw_matches": false,
+      "avatar_matches": false,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "01_maos_abertas_ambas_palmas_cima.jpg",
+      "source_hand": "left",
+      "avatar_hand": "right",
+      "expected": "cima",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 113
+        },
+        "samples": 113,
+        "median_normal": [
+          -0.9946,
+          -0.0712,
+          0.0755
+        ],
+        "median_sin_knuckle_angle": 0.4306
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 113
+        },
+        "samples": 113,
+        "median_normal": [
+          0.9971,
+          0.0328,
+          -0.0684
+        ],
+        "median_sin_knuckle_angle": 0.6929
+      },
+      "raw_matches": false,
+      "avatar_matches": false,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "02_maos_abertas_ambas_palmas_lado_interno.jpg",
+      "source_hand": "right",
+      "avatar_hand": "left",
+      "expected": "lado_interno",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          0.9547,
+          -0.2973,
+          0.0118
+        ],
+        "median_sin_knuckle_angle": 0.4697
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          -0.9778,
+          -0.2014,
+          0.057
+        ],
+        "median_sin_knuckle_angle": 0.6791
+      },
+      "raw_matches": true,
+      "avatar_matches": true,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "02_maos_abertas_ambas_palmas_lado_interno.jpg",
+      "source_hand": "left",
+      "avatar_hand": "right",
+      "expected": "lado_interno",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          -0.9657,
+          -0.2384,
+          -0.103
+        ],
+        "median_sin_knuckle_angle": 0.4354
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          0.9668,
+          -0.1306,
+          -0.2196
+        ],
+        "median_sin_knuckle_angle": 0.6929
+      },
+      "raw_matches": true,
+      "avatar_matches": true,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "03_punho_direito_fechado_palma_cima_polegar_estendido.jpg",
+      "source_hand": "right",
+      "avatar_hand": "left",
+      "expected": "cima",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          0.7141,
+          -0.6994,
+          0.029
+        ],
+        "median_sin_knuckle_angle": 0.3842
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          -0.807,
+          -0.5749,
+          0.1353
+        ],
+        "median_sin_knuckle_angle": 0.6791
+      },
+      "raw_matches": false,
+      "avatar_matches": false,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "04_maos_abertas_ambas_palmas_baixo.jpg",
+      "source_hand": "right",
+      "avatar_hand": "left",
+      "expected": "baixo",
+      "raw_nlf": {
+        "majority": "baixo",
+        "class_counts": {
+          "baixo": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          0.5984,
+          -0.7512,
+          -0.2786
+        ],
+        "median_sin_knuckle_angle": 0.5121
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 86,
+          "baixo": 28
+        },
+        "samples": 114,
+        "median_normal": [
+          -0.7407,
+          -0.6511,
+          -0.1657
+        ],
+        "median_sin_knuckle_angle": 0.6791
+      },
+      "raw_matches": true,
+      "avatar_matches": false,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "04_maos_abertas_ambas_palmas_baixo.jpg",
+      "source_hand": "left",
+      "avatar_hand": "right",
+      "expected": "baixo",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 86,
+          "baixo": 28
+        },
+        "samples": 114,
+        "median_normal": [
+          -0.7238,
+          -0.6489,
+          -0.2348
+        ],
+        "median_sin_knuckle_angle": 0.4268
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 87,
+          "baixo": 27
+        },
+        "samples": 114,
+        "median_normal": [
+          0.8104,
+          -0.5067,
+          -0.294
+        ],
+        "median_sin_knuckle_angle": 0.6929
+      },
+      "raw_matches": false,
+      "avatar_matches": false,
+      "boxes": [
+        0.0,
+        0.0,
+        960.0,
+        540.0
+      ]
+    },
+    {
+      "image": "05_punho_direito_fechado_palma_lado_interno.jpg",
+      "source_hand": "right",
+      "avatar_hand": "left",
+      "expected": "lado_interno",
+      "raw_nlf": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          0.7929,
+          -0.6008,
+          -0.1015
+        ],
+        "median_sin_knuckle_angle": 0.4092
+      },
+      "rendered_geometry": {
+        "majority": "lado_interno",
+        "class_counts": {
+          "lado_interno": 114
+        },
+        "samples": 114,
+        "median_normal": [
+          -0.875,
+          -0.4837,
+          -0.0215
+        ],
+        "median_sin_knuckle_angle": 0.6791
+      },
+      "raw_matches": true,
+      "avatar_matches": true,
+      "boxes": [
+        432.3,
+        25.5,
+        244.9,
+        514.5
+      ]
+    },
+    {
+      "image": "06_punho_direito_fechado_palma_baixo.jpg",
+      "source_hand": "right",
+      "avatar_hand": "left",
+      "expected": "baixo",
+      "raw_nlf": {
+        "majority": "baixo",
+        "class_counts": {
+          "baixo": 77
+        },
+        "samples": 77,
+        "median_normal": [
+          0.5185,
+          -0.8547,
+          0.0256
+        ],
+        "median_sin_knuckle_angle": 0.3468
+      },
+      "rendered_geometry": {
+        "majority": "baixo",
+        "class_counts": {
+          "baixo": 77
+        },
+        "samples": 77,
+        "median_normal": [
+          -0.6722,
+          -0.7304,
+          0.1214
+        ],
+        "median_sin_knuckle_angle": 0.6791
+      },
+      "raw_matches": true,
+      "avatar_matches": true,
+      "boxes": [
+        469.7,
+        49.9,
+        225.7,
+        490.1
+      ]
+    }
+  ]
+}

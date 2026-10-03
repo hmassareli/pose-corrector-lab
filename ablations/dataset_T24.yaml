@@ -1,0 +1,10 @@
+# Generated into data/datasets/T24 by run_phase2.py; never overwrites baseline data.
+window_T: 24
+window_stride_train: 2
+window_stride_eval: 1
+
+paths:
+  paired: data/paired
+
+features:
+  include_2d: true

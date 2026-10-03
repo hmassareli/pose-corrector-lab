@@ -1,0 +1,35 @@
+[
+ {
+  "tag": "upright",
+  "bindNeck": 16,
+  "bindHead": 9.7,
+  "neckKink": 9.7,
+  "bindLSh": 24.5,
+  "bindRSh": 31.3,
+  "shYDelta": 0.15,
+  "shXDelta": -0.08,
+  "armYDelta": -0.46
+ },
+ {
+  "tag": "sit",
+  "bindNeck": 18.1,
+  "bindHead": 10.6,
+  "neckKink": 10.6,
+  "bindLSh": 27.8,
+  "bindRSh": 34.6,
+  "shYDelta": 0.79,
+  "shXDelta": -5.06,
+  "armYDelta": 1.72
+ },
+ {
+  "tag": "mid",
+  "bindNeck": 30.7,
+  "bindHead": 7.1,
+  "neckKink": 7.1,
+  "bindLSh": 23.2,
+  "bindRSh": 58.3,
+  "shYDelta": -0.36,
+  "shXDelta": 9.36,
+  "armYDelta": -3.11
+ }
+]

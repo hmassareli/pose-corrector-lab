@@ -1,0 +1,2 @@
+toon on {'fps': 60, 'calls': 101, 'tris': 1879339}
+toon off {'fps': 60.3, 'calls': 102, 'tris': 1879373}

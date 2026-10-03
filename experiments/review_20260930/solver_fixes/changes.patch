@@ -1,0 +1,503 @@
+--- solver_before.js
+
++++ viewer/mikapo_mixamo_solver.js
+
+@@ -34,6 +34,31 @@
+
+ const ACROSS_FADE_LO = 0.12;
+ const ACROSS_FADE_HI = 0.32;
+ const UNIT_ACROSS_FADE = { lo: 0.05, hi: 0.2 };
++
++// Rejeite medições inválidas antes de normalizar ou alimentar os filtros.
++function finiteVector(v) {
++  return !!v && Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
++}
++
++function validDirection(v) {
++  return finiteVector(v) && Number.isFinite(v.lengthSq()) && v.lengthSq() >= MIN_DIR;
++}
++
++function finitePoint(p) {
++  return !!p && [p[0], p[1], p[2]].every(Number.isFinite);
++}
++
++function validQuaternion(q) {
++  return !!q && [q.x, q.y, q.z, q.w].every(Number.isFinite)
++    && Number.isFinite(q.lengthSq()) && q.lengthSq() > 1e-12;
++}
++
++// O twist deve girar SOMENTE em torno do eixo longitudinal, inclusive a 180°.
++function axialRotation(from, to, axis, weight = 1) {
++  const sin = new THREE.Vector3().crossVectors(from, to).dot(axis);
++  const cos = THREE.MathUtils.clamp(from.dot(to), -1, 1);
++  return new THREE.Quaternion().setFromAxisAngle(axis, Math.atan2(sin, cos) * weight);
++}
+ 
+ /** MediaPipe Pose-33 indices used for head / palm aux (viewer-space after YZ flip). */
+ export const MP_AUX = {
+@@ -527,6 +552,36 @@
+
+ // ---------------------------------------------------------------------------
+ 
+ const filterBank = new WeakMap();
++const activePoseFrames = new WeakMap();
++
++function writeBoneLocal(rig, name, rest, q) {
++  if (!validQuaternion(q)) return false;
++  rest.bone.quaternion.copy(q);
++  rest.bone.updateWorldMatrix(false, true);
++  activePoseFrames.get(rig)?.written.add(name);
++  return true;
++}
++
++function restoreUnobservedBones(model, rig, frame) {
++  const held = [...rig.bones].filter(([name]) => !frame.written.has(name) && !frame.restOnly.has(name));
++  if (!held.length) return;
++  // Guarde os alvos mundo dos ossos resolvidos antes de restaurar um pai.
++  // Caso contrário, reter o antebraço também giraria uma mão válida.
++  const worlds = new Map([...rig.bones].filter(([name]) => frame.written.has(name))
++    .map(([name, rest]) => [name, rest.bone.getWorldQuaternion(new THREE.Quaternion())]));
++  const names = new Map([...rig.bones].map(([name, rest]) => [rest.bone, name]));
++  model.traverse((bone) => {
++    const name = names.get(bone);
++    if (name == null) return;
++    if (frame.written.has(name)) {
++      const parent = bone.parent.getWorldQuaternion(new THREE.Quaternion());
++      bone.quaternion.copy(parent.invert().multiply(worlds.get(name)));
++    } else if (!frame.restOnly.has(name)) {
++      bone.quaternion.copy(frame.previous.get(name));
++    }
++    bone.updateWorldMatrix(false, true);
++  });
++}
+ 
+ function filtersFor(rig) {
+   let bank = filterBank.get(rig);
+@@ -544,7 +599,7 @@
+
+ }
+ 
+ function filterBoneLocal(rig, name, q, timestampMs) {
+-  if (timestampMs == null) return q;
++  if (!validQuaternion(q) || timestampMs == null || !Number.isFinite(timestampMs)) return q;
+   const bank = filtersFor(rig);
+   let f = bank.byName.get(name);
+   if (!f) {
+@@ -566,21 +621,22 @@
+
+ // ---------------------------------------------------------------------------
+ 
+ function applyWorldRotationToBone(model, rest, targetWorld, strength = 1, timestampMs, rig, name, blendBaseWorld = null) {
++  if (!validQuaternion(targetWorld) || !Number.isFinite(strength)) return false;
+   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
+   const restWorld = rootWorld.clone().multiply(rest.restQuaternionInRoot);
+   const base = blendBaseWorld || restWorld;
+   const blendedWorld = base.clone().slerp(targetWorld, strength);
+   const parentWorld = rest.bone.parent.getWorldQuaternion(new THREE.Quaternion());
+   let local = parentWorld.clone().invert().multiply(blendedWorld);
++  if (!validQuaternion(local)) return false;
+   local = filterBoneLocal(rig, name, local, timestampMs);
+-  rest.bone.quaternion.copy(local);
+-  rest.bone.updateWorldMatrix(false, true);
++  return writeBoneLocal(rig, name, rest, local);
+ }
+ 
+ /** Shortest-arc aim: rest child dir → live dir (both in root space). */
+ function rotateBoneToward(model, rig, name, directionInRoot, strength = 1, timestampMs = null) {
+   const rest = rig?.bones.get(name);
+-  if (!rest || directionInRoot.lengthSq() < MIN_DIR) return false;
++  if (!rest || !validDirection(directionInRoot)) return false;
+   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
+   const restDirectionWorld = rest.restDirectionInRoot.clone().applyQuaternion(rootWorld).normalize();
+   const targetDirectionWorld = directionInRoot.clone().normalize().applyQuaternion(rootWorld).normalize();
+@@ -591,14 +647,13 @@
+
+   const blendBase = rest.restUprightInRoot
+     ? rootWorld.clone().multiply(rest.restUprightInRoot)
+     : restWorld;
+-  applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
+-  return true;
++  return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
+ }
+ 
+ /**
+  * Aim + twist using an across vector (hips / spine / palm).
+- * Twist is the acute rotation (<90°) in the plane ⊥ bone dir, faded when
+- * across is nearly parallel to the bone (overhead / occluded fingers).
++ * Twist orientado no plano ⊥ eixo do osso, sem inverter a palma após 90°.
++ * A contribuição é reduzida quando o across fica quase paralelo ao osso.
+  */
+ function rotateBoneWithAcross(
+   model,
+@@ -608,14 +663,13 @@
+
+   acrossInRoot,
+   strength = 1,
+   timestampMs = null,
+-  acuteTwist = false,
+-  noAcuteFlip = false,
+   fade = null,
+ ) {
+   const fadeLo = fade ? fade.lo : ACROSS_FADE_LO;
+   const fadeHi = fade ? fade.hi : ACROSS_FADE_HI;
+   const rest = rig?.bones.get(name);
+-  if (!rest?.restAcrossInRoot || directionInRoot.lengthSq() < MIN_DIR || acrossInRoot.lengthSq() < MIN_DIR) {
++  if (!rest || !validDirection(directionInRoot)) return false;
++  if (!rest.restAcrossInRoot) {
+     return rotateBoneToward(model, rig, name, directionInRoot, strength, timestampMs);
+   }
+   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
+@@ -624,53 +678,42 @@
+
+   const align = new THREE.Quaternion().setFromUnitVectors(restDirectionWorld, targetDirectionWorld);
+   const restWorld = rootWorld.clone().multiply(rest.restQuaternionInRoot);
+   let targetWorld = align.clone().multiply(restWorld);
+-  const blendBase = rest.restUprightInRoot
++  let blendBase = rest.restUprightInRoot
+     ? rootWorld.clone().multiply(rest.restUprightInRoot)
+     : restWorld;
+-
+-  const alignedAcross = rest.restAcrossInRoot
+-    .clone()
+-    .applyQuaternion(rootWorld)
+-    .applyQuaternion(align)
+-    .addScaledVector(
+-      targetDirectionWorld,
+-      -rest.restAcrossInRoot
+-        .clone()
+-        .applyQuaternion(rootWorld)
+-        .applyQuaternion(align)
+-        .dot(targetDirectionWorld),
+-    );
+-  const desiredAcross = acrossInRoot
+-    .clone()
+-    .applyQuaternion(rootWorld)
+-    .addScaledVector(
+-      targetDirectionWorld,
+-      -acrossInRoot.clone().applyQuaternion(rootWorld).dot(targetDirectionWorld),
+-    );
++  const isPalm = /^(left|right)(Hand|ForeArm)$/.test(name);
++  if (isPalm) {
++    const previous = activePoseFrames.get(rig)?.previousWorld.get(name)
++      || rest.bone.getWorldQuaternion(new THREE.Quaternion());
++    if (validQuaternion(previous)) {
++      const previousDir = rest.restLocalDirection.clone().applyQuaternion(previous).normalize();
++      targetWorld = new THREE.Quaternion().setFromUnitVectors(previousDir, targetDirectionWorld)
++        .multiply(previous);
++      // Preserve a continuidade também em ±180°: a força live interpola a partir
++      // da última pose, não do repouso (que escolheria o outro arco a cada volta).
++      blendBase = previous;
++    }
++  }
++  if (!validDirection(acrossInRoot)) {
++    return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
++  }
++  const alignedAcross = rest.restAcrossInRoot.clone()
++    .applyQuaternion(rest.restQuaternionInRoot.clone().invert())
++    .applyQuaternion(targetWorld);
++  alignedAcross.addScaledVector(targetDirectionWorld, -alignedAcross.dot(targetDirectionWorld));
++  const desiredAcross = acrossInRoot.clone().applyQuaternion(rootWorld);
++  desiredAcross.addScaledVector(targetDirectionWorld, -desiredAcross.dot(targetDirectionWorld));
+   const obs = desiredAcross.length();
+   if (alignedAcross.lengthSq() > MIN_DIR && obs >= fadeLo) {
+     alignedAcross.normalize();
+     desiredAcross.normalize();
+-    // Hands/forearms only: a sign flip of pinky−index would otherwise apply ~180°.
+-    // When the across comes from the fit's rotations (noAcuteFlip) the sign is
+-    // MEANINGFUL (the fit palm is continuous) — flipping it would mirror the palm.
+-    if (acuteTwist && !noAcuteFlip && alignedAcross.dot(desiredAcross) < 0) desiredAcross.negate();
+-    const twisted = new THREE.Quaternion()
+-      .setFromUnitVectors(alignedAcross, desiredAcross)
+-      .multiply(targetWorld.clone());
+     let t = (obs - fadeLo) / (fadeHi - fadeLo);
+     t = Math.min(1, Math.max(0, t));
+     t = t * t * (3 - 2 * t);
+-    if (targetWorld.dot(twisted) < 0) {
+-      twisted.x *= -1;
+-      twisted.y *= -1;
+-      twisted.z *= -1;
+-      twisted.w *= -1;
+-    }
+-    targetWorld.slerp(twisted, t);
+-  }
+-  applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
+-  return true;
++    targetWorld = axialRotation(alignedAcross, desiredAcross, targetDirectionWorld, t)
++      .multiply(targetWorld);
++  }
++  return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name, blendBase);
+ }
+ 
+ /**
+@@ -687,7 +730,7 @@
+
+   timestampMs = null,
+ ) {
+   const rest = rig?.bones.get(name);
+-  if (!rest || directionInRoot.lengthSq() < MIN_DIR) return false;
++  if (!rest || !validDirection(directionInRoot)) return false;
+ 
+   const rootWorld = model.getWorldQuaternion(new THREE.Quaternion());
+   const restDirW = rest.restDirectionInRoot.clone().applyQuaternion(rootWorld).normalize();
+@@ -697,7 +740,7 @@
+
+   let targetWorld = shortest.clone().multiply(restWorld.clone());
+ 
+   const restWit = rest.restWitnessInRoot;
+-  if (restWit && witnessDirInRoot && witnessDirInRoot.lengthSq() > MIN_DIR) {
++  if (validDirection(restWit) && validDirection(witnessDirInRoot)) {
+     const liveWitW = witnessDirInRoot.clone().normalize().applyQuaternion(rootWorld).normalize();
+     const restWitW = restWit.clone().applyQuaternion(rootWorld).normalize();
+ 
+@@ -710,31 +753,19 @@
+
+       if (restPerp.lengthSq() > 1e-3) {
+         restPerp.normalize();
+         // Orthonormal bases: X=dir? MiKaPo uses (ref, restWit⊥, ref×wit) as columns via quatFromBasis.
+-        // Here: map restDir→liveDir and restPerp→livePerp via two-step FromUnitVectors composition.
++        // Primeiro alinhe a direção; depois aplique somente rotação axial.
+         const mapDir = new THREE.Quaternion().setFromUnitVectors(restDirW, liveDirW);
+         const mappedRestPerp = restPerp.clone().applyQuaternion(mapDir);
+-        const mapRoll = new THREE.Quaternion().setFromUnitVectors(
+-          mappedRestPerp.normalize(),
+-          livePerp,
+-        );
+-        const witnessed = mapRoll.multiply(mapDir).multiply(restWorld.clone());
+-
+         let t = (perpLen - WITNESS_FADE_LO) / (WITNESS_FADE_HI - WITNESS_FADE_LO);
+         t = Math.min(1, Math.max(0, t));
+         t = t * t * (3 - 2 * t);
+-        if (targetWorld.dot(witnessed) < 0) {
+-          witnessed.x *= -1;
+-          witnessed.y *= -1;
+-          witnessed.z *= -1;
+-          witnessed.w *= -1;
+-        }
+-        targetWorld.slerp(witnessed, t);
++        const mapRoll = axialRotation(mappedRestPerp.normalize(), livePerp, liveDirW, t);
++        targetWorld = mapRoll.multiply(mapDir).multiply(restWorld.clone());
+       }
+     }
+   }
+ 
+-  applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name);
+-  return true;
++  return applyWorldRotationToBone(model, rest, targetWorld, strength, timestampMs, rig, name);
+ }
+ 
+ /**
+@@ -752,7 +783,7 @@
+
+   { mode = "yawFromDir", strength = 0.9, pitchStrength = 0, timestampMs = null } = {},
+ ) {
+   const rest = rig?.bones.get(name);
+-  if (!rest || !directionInRoot || directionInRoot.lengthSq() < MIN_DIR) return false;
++  if (!rest || !validDirection(directionInRoot)) return false;
+   if (mode === "rest") return false;
+ 
+   if (mode === "direction") {
+@@ -801,7 +832,7 @@
+
+ 
+ function posePoint(pose, nameToIndex, name, shoulderCenter, shoulderWidth) {
+   const idx = nameToIndex[name];
+-  if (idx == null || !pose[idx]) return null;
++  if (idx == null || !finitePoint(pose[idx])) return null;
+   const point = pose[idx];
+   return new THREE.Vector3(
+     (point[0] - shoulderCenter.x) / shoulderWidth,
+@@ -812,7 +843,7 @@
+
+ 
+ function updateRootTranslation(model, rig, pose, nameToIndex, shoulderCenter, shoulderWidth, motion) {
+   const pelvisIdx = nameToIndex.pelvis;
+-  if (pelvisIdx == null) return;
++  if (pelvisIdx == null || !finitePoint(pose[pelvisIdx])) return;
+   const pelvis = new THREE.Vector3(...pose[pelvisIdx]);
+   if (!motion.referencePelvis) {
+     motion.referencePelvis = pelvis.clone();
+@@ -841,7 +872,7 @@
+
+ 
+   const li = nameToIndex[leftName];
+   const ri = nameToIndex[rightName];
+-  if (li == null || ri == null) return;
++  if (li == null || ri == null || !finitePoint(pose[li]) || !finitePoint(pose[ri])) return;
+   const leftSource = new THREE.Vector3(...pose[li]);
+   const rightSource = new THREE.Vector3(...pose[ri]);
+   if (!motion[refKey]) {
+@@ -1058,8 +1089,8 @@
+
+     // concentrated the whole bend at the neck base ("crooked neck"). Splitting
+     // the chain continuation in two keeps the same total lean with half the
+     // per-joint kink. Head still gets basis.up directly, so gaze is unchanged.
+-    const s3 = aux.spine3 ? aux.spine3.clone().sub(aux.spine2).normalize()
+-                          : (aux.spine2 ? aux.spine2.clone().sub(aux.spine1).normalize() : null);
++    const s3 = aux.spine3 && aux.spine2 ? aux.spine3.clone().sub(aux.spine2).normalize()
++                          : (aux.spine2 && aux.spine1 ? aux.spine2.clone().sub(aux.spine1).normalize() : null);
+     const neckAim = s3
+       ? s3.clone().lerp(basis.up, 0.5).normalize()
+       : basis.up;
+@@ -1087,8 +1118,7 @@
+
+       let q = headBone.bone.quaternion.clone()
+         .multiply(new THREE.Quaternion().setFromAxisAngle(headBone.restLocalDirection, localYaw));
+       q = filterBoneLocal(rig, "head", q, timestampMs);
+-      headBone.bone.quaternion.copy(q);
+-      headBone.bone.updateWorldMatrix(false, true);
++      writeBoneLocal(rig, "head", headBone, q);
+     }
+   }
+ }
+@@ -1146,6 +1176,7 @@
+
+   const wrist = aux[`${side}_wrist`];
+   const index = aux[`${side}_index`];
+   const pinky = aux[`${side}_pinky`];
++  if (!finiteVector(wrist) || (index && !finiteVector(index)) || (pinky && !finiteVector(pinky))) return null;
+   if (wrist && index && pinky) {
+     const forward = index.clone().add(pinky).multiplyScalar(0.5).sub(wrist);
+     if (forward.lengthSq() < MIN_DIR) return null;
+@@ -1158,7 +1189,7 @@
+
+     return { forward: forward.normalize(), across: across.normalize() };
+   }
+   const hand = aux[`${side}_hand`];
+-  if (!wrist || !hand) return null;
++  if (!finiteVector(hand)) return null;
+   const forward = hand.clone().sub(wrist);
+   if (forward.lengthSq() < MIN_DIR) return null;
+   return { forward: forward.normalize(), across: null };
+@@ -1172,13 +1203,13 @@
+
+   if (!axes) return;
+   // ForeArm already carries pronation. Hand still needs the same across in world
+   // space; otherwise shortest-arc aim leaves the fist at rest roll (~90° off).
+-  // Fit-palm path is exact (the fit knows the palm); live keeps the 0.85 smooth.
++  // Fit usa força 1; live mantém 0,85 entre poses consecutivas válidas.
+   const strength = fitPalm ? 1.0 : 0.85;
+-  if (handRetargetOpts.aimOnly || !axes.across) {
++  if (handRetargetOpts.aimOnly) {
+     rotateBoneToward(model, rig, handName, axes.forward, strength, timestampMs);
+     return;
+   }
+-  rotateBoneWithAcross(model, rig, handName, axes.forward, axes.across, strength, timestampMs, true, fitPalm, UNIT_ACROSS_FADE);
++  rotateBoneWithAcross(model, rig, handName, axes.forward, axes.across, strength, timestampMs, UNIT_ACROSS_FADE);
+ }
+ 
+ /**
+@@ -1260,7 +1291,7 @@
+
+   if (!model || !rig || !twist) return;
+   const P = (name) => {
+     const idx = nameToIndex[name];
+-    if (idx == null || !pose[idx]) return null;
++    if (idx == null || !finitePoint(pose[idx])) return null;
+     return new THREE.Vector3(pose[idx][0], pose[idx][1], pose[idx][2]);
+   };
+   const axisFor = (name) => {
+@@ -1281,7 +1312,7 @@
+
+     const rest = rig?.bones.get(name);
+     if (!rest) continue;
+     const axis = axisFor(name);
+-    if (!axis || axis.lengthSq() < MIN_DIR) continue;
++    if (!validDirection(axis) || !Number.isFinite(Number(deg))) continue;
+     axis.normalize();
+     const cur = rest.bone.getWorldQuaternion(new THREE.Quaternion());
+     const roll = new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(Number(deg) || 0));
+@@ -1322,22 +1353,37 @@
+
+   twist = null,
+   fitPalm = false,
+ }) {
+-  if (!model || !rig || !pose) return;
+-
+-  for (const rest of rig.bones.values()) {
+-    rest.bone.quaternion.copy(rest.restLocalQuaternion);
+-    rest.bone.position.copy(rest.restLocalPosition);
+-  }
+-  model.updateWorldMatrix(true, true);
+-
++  if (!model || !rig || !pose || !nameToIndex || !motion) return;
++
++  // Um frame sem referência corporal válida não deve alterar pose ou filtros.
+   const ls = nameToIndex.left_shoulder;
+   const rs = nameToIndex.right_shoulder;
+-  if (ls == null || rs == null) return;
++  if (![ls, rs, nameToIndex.left_hip, nameToIndex.right_hip]
++      .every((i) => i != null && finitePoint(pose[i]))) return;
+   const leftShoulder = new THREE.Vector3(...pose[ls]);
+   const rightShoulder = new THREE.Vector3(...pose[rs]);
+   const shoulderCenter = leftShoulder.clone().add(rightShoulder).multiplyScalar(0.5);
+   const shoulderWidth = leftShoulder.distanceTo(rightShoulder);
+-  if (shoulderWidth < 0.02) return;
++  if (!Number.isFinite(shoulderWidth) || shoulderWidth < 0.02) return;
++
++  const frame = { previous: new Map(), previousWorld: new Map(), written: new Set(), restOnly: new Set() };
++  if (!allowFeet || footMode === "rest") frame.restOnly = new Set(["leftFoot", "rightFoot"]);
++  if (!handRetargetOpts.palmEnabled) {
++    frame.restOnly.add("leftHand"); frame.restOnly.add("rightHand");
++  }
++  activePoseFrames.set(rig, frame);
++
++  model.updateWorldMatrix(true, true);
++  for (const [name, rest] of rig.bones) {
++    frame.previousWorld.set(name, rest.bone.getWorldQuaternion(new THREE.Quaternion()));
++  }
++  for (const [name, rest] of rig.bones) {
++    frame.previous.set(name, validQuaternion(rest.bone.quaternion)
++      ? rest.bone.quaternion.clone() : rest.restLocalQuaternion.clone());
++    rest.bone.quaternion.copy(rest.restLocalQuaternion);
++    rest.bone.position.copy(rest.restLocalPosition);
++  }
++  model.updateWorldMatrix(true, true);
+ 
+   const P = (name) => posePoint(pose, nameToIndex, name, shoulderCenter, shoulderWidth);
+   const B = (name) => (
+@@ -1465,16 +1511,17 @@
+
+             .clone()
+             .multiply(new THREE.Quaternion().setFromAxisAngle(headBone.restLocalDirection, localYaw));
+           q = filterBoneLocal(rig, "head", q, timestampMs);
+-          headBone.bone.quaternion.copy(q);
+-          headBone.bone.updateWorldMatrix(false, true);
++          writeBoneLocal(rig, "head", headBone, q);
+         }
+       }
+     }
+   }
+ 
+   const shoulderAux = useSurfaceBody && surfaceAux ? surfaceAux : aux;
+-  const leftCollarDir = shoulderAux?.left_shoulder?.clone().sub(shoulderAux.left_collar);
+-  const rightCollarDir = shoulderAux?.right_shoulder?.clone().sub(shoulderAux.right_collar);
++  const leftCollarDir = shoulderAux?.left_shoulder && shoulderAux?.left_collar
++    ? shoulderAux.left_shoulder.clone().sub(shoulderAux.left_collar) : null;
++  const rightCollarDir = shoulderAux?.right_shoulder && shoulderAux?.right_collar
++    ? shoulderAux.right_shoulder.clone().sub(shoulderAux.right_collar) : null;
+   const usedSmplShoulder = {
+     left: isSmplAux && applyShoulderFromSmpl(model, rig, aux, "left", timestampMs),
+     right: isSmplAux && applyShoulderFromSmpl(model, rig, aux, "right", timestampMs),
+@@ -1515,8 +1562,8 @@
+
+     // Key presence (even 0) opts into the fit roll path.
+     const fitBone = side === "left" ? "leftForeArm" : "rightForeArm";
+     const hasFitTwist = twist != null && Object.prototype.hasOwnProperty.call(twist, fitBone);
+-    if (palm?.across && handRetargetOpts.palmEnabled && !handRetargetOpts.aimOnly && !hasFitTwist) {
+-      rotateBoneWithAcross(model, rig, fore, foreDir, palm.across, 1, timestampMs, true, fitPalm, UNIT_ACROSS_FADE);
++    if (handRetargetOpts.palmEnabled && !handRetargetOpts.aimOnly && !hasFitTwist) {
++      rotateBoneWithAcross(model, rig, fore, foreDir, palm?.across, 1, timestampMs, UNIT_ACROSS_FADE);
+     } else {
+       rotateBoneToward(model, rig, fore, foreDir, 1, timestampMs);
+     }
+@@ -1582,5 +1629,7 @@
+
+   // axis, after the position solve (aim never changes; only roll is refined).
+   if (twist) applyFitTwists(model, rig, twist, pose, nameToIndex, aux, timestampMs);
+ 
+-  if (plantGround) plantAvatarOnGround(model, rig, groundY);
+-}
++  restoreUnobservedBones(model, rig, frame);
++  activePoseFrames.delete(rig);
++  if (plantGround && Number.isFinite(groundY)) plantAvatarOnGround(model, rig, groundY);
++}

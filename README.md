@@ -2,6 +2,14 @@
 
 Laboratório de IA para a **rede corretora de pose de boxe** (MediaPipe → residual → pose corrigida), com **GVHMR** como teacher offline.
 
+## HEAVY HANDS
+
+Jogo de boxe com webcam, rastreamento NLF-S e os três avatares originais. Abra `http://127.0.0.1:8780/static/boxing.html` depois de iniciar `python scripts/serve_lab.py --host 127.0.0.1 --port 8780`. Ligue a webcam no menu e aguarde a calibração; o treino é liberado com o rastreamento estável. Menus em português/inglês; HUD de luta em inglês. A sala padrão é `HEAVY1`.
+
+Força estimada em newtons a partir dos movimentos em metros e da massa configurada; dano, PEAK persistente e estatísticas usam colisões renderizadas. A opção de som reduzido desativa zumbido e abafamento do nocaute. Créditos dos sons em `assets/boxing_audio/CREDITS.md`. Plano e evidências em `docs/BOXING_FIX_PLAN_2026-10-02.md` e `docs/BOXING_GAUNTLET_REVIEW_2026-10-02.md`.
+
+A disponibilidade jurídica do nome HEAVY HANDS ainda não foi verificada.
+
 ## Inferência Live com webcam
 
 O repositório inclui os checkpoints necessários para testar o corretor diretamente no navegador. O vídeo da webcam fica local: o navegador extrai a pose com MediaPipe e envia somente os landmarks para o servidor Python local.

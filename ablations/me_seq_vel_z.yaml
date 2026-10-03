@@ -1,0 +1,13 @@
+# Me: seq + velocity + heavier body-frame Z (MediaPipe depth failure mode).
+team: me
+notes: "predict_sequence + L_vel + z_weight=1.5"
+
+model:
+  predict_sequence: true
+
+loss:
+  w_vel: 0.10
+  z_weight: 1.5
+
+logging:
+  run_name: abl_me_seq_vel_z

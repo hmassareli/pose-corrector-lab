@@ -1,0 +1,16 @@
+{
+  "clip_id": "burn_500_shots__shot_000__person_009",
+  "backend": "NLF_S_multi_0.2.2",
+  "joint_key": "joints3d_nonparam",
+  "axis_preset": "identity",
+  "stride": 2,
+  "fps": 23.976,
+  "n_frames": 99,
+  "detect_frames": 50,
+  "elapsed_s": 7.41,
+  "hd_cleanup": [
+    "data/nlf/",
+    "data/models/nlf/",
+    "experiments/nlf_vs_mp_teacher/"
+  ]
+}

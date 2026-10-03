@@ -1,0 +1,521 @@
+{
+  "model": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\data\\models\\nlf\\nlf_s_multi_0.2.2.torchscript",
+  "device": "cuda",
+  "images": [
+    "WIN_20260801_13_57_25_Pro.jpg",
+    "WIN_20260801_13_57_30_Pro.jpg"
+  ],
+  "purpose": "probe only; find SMPL rotation params in NLF-S outputs",
+  "module_attrs": [
+    "T_destination",
+    "_apply",
+    "_backward_hooks",
+    "_backward_pre_hooks",
+    "_buffers",
+    "_c",
+    "_call_impl",
+    "_compiled_call_impl",
+    "_constants_set",
+    "_construct",
+    "_disable_script_meta",
+    "_finalize_scriptmodule",
+    "_forward_hooks",
+    "_forward_hooks_always_called",
+    "_forward_hooks_with_kwargs",
+    "_forward_pre_hooks",
+    "_forward_pre_hooks_with_kwargs",
+    "_get_backward_hooks",
+    "_get_backward_pre_hooks",
+    "_get_name",
+    "_initializing",
+    "_is_full_backward_hook",
+    "_load_from_state_dict",
+    "_load_state_dict_post_hooks",
+    "_load_state_dict_pre_hooks",
+    "_maybe_warn_non_full_backward_hook",
+    "_methods",
+    "_modules",
+    "_named_members",
+    "_non_persistent_buffers_set",
+    "_parameters",
+    "_reconstruct",
+    "_register_load_state_dict_pre_hook",
+    "_register_state_dict_hook",
+    "_replicate_for_data_parallel",
+    "_save_for_lite_interpreter",
+    "_save_to_buffer_for_lite_interpreter",
+    "_save_to_state_dict",
+    "_slow_forward",
+    "_state_dict_hooks",
+    "_state_dict_pre_hooks",
+    "_version",
+    "_wrapped_call_impl",
+    "add_module",
+    "apply",
+    "bfloat16",
+    "buffers",
+    "call_super_init",
+    "children",
+    "code",
+    "code_with_constants",
+    "compile",
+    "cpu",
+    "cuda",
+    "define",
+    "double",
+    "dump_patches",
+    "eval",
+    "extra_repr",
+    "float",
+    "forward",
+    "forward_magic_method",
+    "get_buffer",
+    "get_debug_state",
+    "get_extra_state",
+    "get_parameter",
+    "get_submodule",
+    "graph",
+    "graph_for",
+    "half",
+    "inlined_graph",
+    "ipu",
+    "load_state_dict",
+    "modules",
+    "mtia",
+    "named_buffers",
+    "named_children",
+    "named_modules",
+    "named_parameters",
+    "original_name",
+    "parameters",
+    "register_backward_hook",
+    "register_buffer",
+    "register_forward_hook",
+    "register_forward_pre_hook",
+    "register_full_backward_hook",
+    "register_full_backward_pre_hook",
+    "register_load_state_dict_post_hook",
+    "register_load_state_dict_pre_hook",
+    "register_module",
+    "register_parameter",
+    "register_state_dict_post_hook",
+    "register_state_dict_pre_hook",
+    "requires_grad_",
+    "save",
+    "save_to_buffer",
+    "set_extra_state",
+    "set_submodule",
+    "share_memory",
+    "state_dict",
+    "to",
+    "to_empty",
+    "train",
+    "type",
+    "xpu",
+    "zero_grad"
+  ],
+  "cano_all": {
+    "smpl": {
+      "kind": "tensor",
+      "shape": [
+        1048,
+        3
+      ],
+      "dtype": "torch.float32",
+      "device": "cuda:0"
+    },
+    "smplx": {
+      "kind": "tensor",
+      "shape": [
+        1079,
+        3
+      ],
+      "dtype": "torch.float32",
+      "device": "cuda:0"
+    }
+  },
+  "detect_smpl_batched": {
+    "keys": [
+      "boxes",
+      "pose",
+      "betas",
+      "trans",
+      "vertices3d",
+      "joints3d",
+      "vertices2d",
+      "joints2d",
+      "vertices3d_nonparam",
+      "joints3d_nonparam",
+      "vertices2d_nonparam",
+      "joints2d_nonparam",
+      "vertex_uncertainties",
+      "joint_uncertainties"
+    ],
+    "detail": {
+      "boxes": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              5
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "pose": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              72
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "betas": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              10
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "trans": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              3
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "vertices3d": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              6890,
+              3
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "joints3d": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24,
+              3
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "vertices2d": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              6890,
+              2
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "joints2d": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24,
+              2
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "vertices3d_nonparam": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              1024,
+              3
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "joints3d_nonparam": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24,
+              3
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "vertices2d_nonparam": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              1024,
+              2
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "joints2d_nonparam": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24,
+              2
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "vertex_uncertainties": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              1024
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "joint_uncertainties": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      }
+    }
+  },
+  "detect_smpl_batched_rotation_hints": [
+    "detect_smpl_batched",
+    "detect_smpl_batched.betas",
+    "detect_smpl_batched.betas[0]",
+    "detect_smpl_batched.boxes",
+    "detect_smpl_batched.boxes[0]",
+    "detect_smpl_batched.joint_uncertainties",
+    "detect_smpl_batched.joint_uncertainties[0]",
+    "detect_smpl_batched.joints2d",
+    "detect_smpl_batched.joints2d[0]",
+    "detect_smpl_batched.joints2d_nonparam",
+    "detect_smpl_batched.joints2d_nonparam[0]",
+    "detect_smpl_batched.joints3d",
+    "detect_smpl_batched.joints3d[0]",
+    "detect_smpl_batched.joints3d_nonparam",
+    "detect_smpl_batched.joints3d_nonparam[0]",
+    "detect_smpl_batched.pose",
+    "detect_smpl_batched.pose[0]",
+    "detect_smpl_batched.trans",
+    "detect_smpl_batched.trans[0]",
+    "detect_smpl_batched.vertex_uncertainties",
+    "detect_smpl_batched.vertex_uncertainties[0]",
+    "detect_smpl_batched.vertices2d",
+    "detect_smpl_batched.vertices2d[0]",
+    "detect_smpl_batched.vertices2d_nonparam",
+    "detect_smpl_batched.vertices2d_nonparam[0]",
+    "detect_smpl_batched.vertices3d",
+    "detect_smpl_batched.vertices3d[0]",
+    "detect_smpl_batched.vertices3d_nonparam",
+    "detect_smpl_batched.vertices3d_nonparam[0]"
+  ],
+  "estimate_poses_batched": {
+    "keys": [
+      "poses3d",
+      "poses2d",
+      "uncertainties"
+    ],
+    "detail": {
+      "poses3d": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24,
+              3
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "poses2d": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24,
+              2
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      },
+      "uncertainties": {
+        "kind": "list",
+        "len": 1,
+        "items": [
+          {
+            "kind": "tensor",
+            "shape": [
+              1,
+              24
+            ],
+            "dtype": "torch.float32",
+            "device": "cuda:0"
+          }
+        ]
+      }
+    }
+  },
+  "estimate_poses_batched_rotation_hints": [
+    "estimate_poses_batched",
+    "estimate_poses_batched.poses2d",
+    "estimate_poses_batched.poses2d[0]",
+    "estimate_poses_batched.poses3d",
+    "estimate_poses_batched.poses3d[0]",
+    "estimate_poses_batched.uncertainties",
+    "estimate_poses_batched.uncertainties[0]"
+  ],
+  "timing": {
+    "fast_joints24_error": "RuntimeError: The following operation failed in the TorchScript interpreter.\nTraceback of TorchScript (most recent call last):\nRuntimeError: Inference tensors cannot be saved for backward. Please do not use Tensors created in inference mode in computation tracked by autograd. To work around this, you can make a clone to get a normal tensor and use it in autograd, or use `torch.no_grad()` instead of `torch.inference_mode()`.\n",
+    "full_detect_smpl": {
+      "mean_ms": 169.708,
+      "p95_ms": 173.566
+    }
+  },
+  "verdict": {
+    "rotation_param_paths_found": true,
+    "paths": [
+      "detect_smpl_batched",
+      "detect_smpl_batched.betas",
+      "detect_smpl_batched.betas[0]",
+      "detect_smpl_batched.boxes",
+      "detect_smpl_batched.boxes[0]",
+      "detect_smpl_batched.joint_uncertainties",
+      "detect_smpl_batched.joint_uncertainties[0]",
+      "detect_smpl_batched.joints2d",
+      "detect_smpl_batched.joints2d[0]",
+      "detect_smpl_batched.joints2d_nonparam",
+      "detect_smpl_batched.joints2d_nonparam[0]",
+      "detect_smpl_batched.joints3d",
+      "detect_smpl_batched.joints3d[0]",
+      "detect_smpl_batched.joints3d_nonparam",
+      "detect_smpl_batched.joints3d_nonparam[0]",
+      "detect_smpl_batched.pose",
+      "detect_smpl_batched.pose[0]",
+      "detect_smpl_batched.trans",
+      "detect_smpl_batched.trans[0]",
+      "detect_smpl_batched.vertex_uncertainties",
+      "detect_smpl_batched.vertex_uncertainties[0]",
+      "detect_smpl_batched.vertices2d",
+      "detect_smpl_batched.vertices2d[0]",
+      "detect_smpl_batched.vertices2d_nonparam",
+      "detect_smpl_batched.vertices2d_nonparam[0]",
+      "detect_smpl_batched.vertices3d",
+      "detect_smpl_batched.vertices3d[0]",
+      "detect_smpl_batched.vertices3d_nonparam",
+      "detect_smpl_batched.vertices3d_nonparam[0]",
+      "estimate_poses_batched",
+      "estimate_poses_batched.poses2d",
+      "estimate_poses_batched.poses2d[0]",
+      "estimate_poses_batched.poses3d",
+      "estimate_poses_batched.poses3d[0]",
+      "estimate_poses_batched.uncertainties",
+      "estimate_poses_batched.uncertainties[0]"
+    ],
+    "fast_path_only_joints": false,
+    "note": "Paths are matched by name only; a hit still needs manual shape check before use (e.g. axis-angle (B,J,3) vs rot6d (B,J,6) vs quaternion)."
+  }
+}

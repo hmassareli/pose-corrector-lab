@@ -1,0 +1,227 @@
+[
+  {
+    "clip": "ko_k_o",
+    "wet": 0.15,
+    "music": false,
+    "file": "ko_k_o_15.wav",
+    "duration": 2.79,
+    "peakDb": -4.2449298500535795,
+    "rmsDb": -20.481491220466697
+  },
+  {
+    "clip": "ko_k_o",
+    "wet": 0.2,
+    "music": false,
+    "file": "ko_k_o_20.wav",
+    "duration": 2.79,
+    "peakDb": -4.249688764592716,
+    "rmsDb": -20.487182984520416
+  },
+  {
+    "clip": "ko_k_o",
+    "wet": 0.25,
+    "music": false,
+    "file": "ko_k_o_25.wav",
+    "duration": 2.79,
+    "peakDb": -4.254491689230228,
+    "rmsDb": -20.489894980326653
+  },
+  {
+    "clip": "ko_k_o",
+    "wet": 0.35,
+    "music": false,
+    "file": "ko_k_o_35.wav",
+    "duration": 2.79,
+    "peakDb": -4.264226472445922,
+    "rmsDb": -20.490354584607235
+  },
+  {
+    "clip": "ko_k_o",
+    "wet": 0.2,
+    "music": true,
+    "file": "ko_k_o_20_music.wav",
+    "duration": 2.79,
+    "peakDb": -4.140200875605695,
+    "rmsDb": -20.022051436529917
+  },
+  {
+    "clip": "hit_heavy",
+    "wet": 0.15,
+    "music": false,
+    "file": "hit_heavy_15.wav",
+    "duration": 2.37,
+    "peakDb": -5.722363457898407,
+    "rmsDb": -28.05885358181012
+  },
+  {
+    "clip": "hit_heavy",
+    "wet": 0.2,
+    "music": false,
+    "file": "hit_heavy_20.wav",
+    "duration": 2.37,
+    "peakDb": -5.730872786911254,
+    "rmsDb": -28.050352804480383
+  },
+  {
+    "clip": "hit_heavy",
+    "wet": 0.25,
+    "music": false,
+    "file": "hit_heavy_25.wav",
+    "duration": 2.37,
+    "peakDb": -5.739416524269023,
+    "rmsDb": -28.040145844185314
+  },
+  {
+    "clip": "hit_heavy",
+    "wet": 0.35,
+    "music": false,
+    "file": "hit_heavy_35.wav",
+    "duration": 2.37,
+    "peakDb": -5.756613624888901,
+    "rmsDb": -28.011699007763493
+  },
+  {
+    "clip": "hit_heavy",
+    "wet": 0.2,
+    "music": true,
+    "file": "hit_heavy_20_music.wav",
+    "duration": 2.37,
+    "peakDb": -5.4720819759513,
+    "rmsDb": -25.624579337943754
+  },
+  {
+    "clip": "pressure_you_re_hurt",
+    "wet": 0.15,
+    "music": false,
+    "file": "pressure_you_re_hurt_15.wav",
+    "duration": 2.59,
+    "peakDb": -5.105151486668725,
+    "rmsDb": -24.138932160610203
+  },
+  {
+    "clip": "pressure_you_re_hurt",
+    "wet": 0.2,
+    "music": false,
+    "file": "pressure_you_re_hurt_20.wav",
+    "duration": 2.59,
+    "peakDb": -5.107377060191551,
+    "rmsDb": -24.135777303971217
+  },
+  {
+    "clip": "pressure_you_re_hurt",
+    "wet": 0.25,
+    "music": false,
+    "file": "pressure_you_re_hurt_25.wav",
+    "duration": 2.59,
+    "peakDb": -5.109611595185131,
+    "rmsDb": -24.13041090059709
+  },
+  {
+    "clip": "pressure_you_re_hurt",
+    "wet": 0.35,
+    "music": false,
+    "file": "pressure_you_re_hurt_35.wav",
+    "duration": 2.59,
+    "peakDb": -5.114073062274205,
+    "rmsDb": -24.113092374628756
+  },
+  {
+    "clip": "pressure_you_re_hurt",
+    "wet": 0.2,
+    "music": true,
+    "file": "pressure_you_re_hurt_20_music.wav",
+    "duration": 2.59,
+    "peakDb": -4.999551543268604,
+    "rmsDb": -23.018574435339474
+  },
+  {
+    "clip": "combo_combo",
+    "wet": 0.15,
+    "music": false,
+    "file": "combo_combo_15.wav",
+    "duration": 2.4500226757369616,
+    "peakDb": -4.826359691949499,
+    "rmsDb": -22.411058714725478
+  },
+  {
+    "clip": "combo_combo",
+    "wet": 0.2,
+    "music": false,
+    "file": "combo_combo_20.wav",
+    "duration": 2.4500226757369616,
+    "peakDb": -4.814468424380046,
+    "rmsDb": -22.407094899775352
+  },
+  {
+    "clip": "combo_combo",
+    "wet": 0.25,
+    "music": false,
+    "file": "combo_combo_25.wav",
+    "duration": 2.4500226757369616,
+    "peakDb": -4.802665411334783,
+    "rmsDb": -22.40170079995464
+  },
+  {
+    "clip": "combo_combo",
+    "wet": 0.35,
+    "music": false,
+    "file": "combo_combo_35.wav",
+    "duration": 2.4500226757369616,
+    "peakDb": -4.77936768098289,
+    "rmsDb": -22.3854214721573
+  },
+  {
+    "clip": "combo_combo",
+    "wet": 0.2,
+    "music": true,
+    "file": "combo_combo_20_music.wav",
+    "duration": 2.4500226757369616,
+    "peakDb": -4.368832928373708,
+    "rmsDb": -21.68897341101655
+  },
+  {
+    "clip": "counter_counter",
+    "wet": 0.15,
+    "music": false,
+    "file": "counter_counter_15.wav",
+    "duration": 2.26,
+    "peakDb": -5.118441626077642,
+    "rmsDb": -23.97989689565531
+  },
+  {
+    "clip": "counter_counter",
+    "wet": 0.2,
+    "music": false,
+    "file": "counter_counter_20.wav",
+    "duration": 2.26,
+    "peakDb": -5.128599889686246,
+    "rmsDb": -23.975372890708435
+  },
+  {
+    "clip": "counter_counter",
+    "wet": 0.25,
+    "music": false,
+    "file": "counter_counter_25.wav",
+    "duration": 2.26,
+    "peakDb": -5.138834595554126,
+    "rmsDb": -23.9670681382608
+  },
+  {
+    "clip": "counter_counter",
+    "wet": 0.35,
+    "music": false,
+    "file": "counter_counter_35.wav",
+    "duration": 2.26,
+    "peakDb": -5.1595231099645105,
+    "rmsDb": -23.946806105638455
+  },
+  {
+    "clip": "counter_counter",
+    "wet": 0.2,
+    "music": true,
+    "file": "counter_counter_20_music.wav",
+    "duration": 2.26,
+    "peakDb": -4.9704256280988695,
+    "rmsDb": -22.88768408619591
+  }
+]

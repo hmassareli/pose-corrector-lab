@@ -1,0 +1,608 @@
+{
+  "boxer-prism31": {
+    "faceResidualBefore": {
+      "p50": 5.976502450095056,
+      "p95": 13.663297511997325,
+      "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+    },
+    "faceResidualAfter": {
+      "p50": 0.8963228550007429,
+      "p95": 2.1228898676615153,
+      "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+    },
+    "neckBefore": {
+      "p50": 12.08,
+      "p95": 16.0
+    },
+    "neckAfter": {
+      "p50": 8.32,
+      "p95": 11.33
+    },
+    "otherDirections": {
+      "hips": {
+        "before": {
+          "p50": 13.6,
+          "p95": 21.54
+        },
+        "after": {
+          "p50": 13.6,
+          "p95": 21.54
+        }
+      },
+      "spine": {
+        "before": {
+          "p50": 14.6,
+          "p95": 25.34
+        },
+        "after": {
+          "p50": 14.6,
+          "p95": 25.34
+        }
+      },
+      "spine1": {
+        "before": {
+          "p50": 32.46,
+          "p95": 41.13
+        },
+        "after": {
+          "p50": 32.46,
+          "p95": 41.13
+        }
+      },
+      "spine2": {
+        "before": {
+          "p50": 1.8,
+          "p95": 3.82
+        },
+        "after": {
+          "p50": 1.8,
+          "p95": 3.82
+        }
+      },
+      "leftShoulder": {
+        "before": {
+          "p50": 19.62,
+          "p95": 21.51
+        },
+        "after": {
+          "p50": 19.62,
+          "p95": 21.51
+        }
+      },
+      "rightShoulder": {
+        "before": {
+          "p50": 18.87,
+          "p95": 21.39
+        },
+        "after": {
+          "p50": 18.87,
+          "p95": 21.39
+        }
+      },
+      "leftArm": {
+        "before": {
+          "p50": 2.29,
+          "p95": 7.66
+        },
+        "after": {
+          "p50": 2.29,
+          "p95": 7.66
+        }
+      },
+      "rightArm": {
+        "before": {
+          "p50": 2.62,
+          "p95": 8.06
+        },
+        "after": {
+          "p50": 2.62,
+          "p95": 8.06
+        }
+      },
+      "leftForeArm": {
+        "before": {
+          "p50": 1.93,
+          "p95": 10.39
+        },
+        "after": {
+          "p50": 1.93,
+          "p95": 10.39
+        }
+      },
+      "rightForeArm": {
+        "before": {
+          "p50": 1.96,
+          "p95": 10.81
+        },
+        "after": {
+          "p50": 1.96,
+          "p95": 10.81
+        }
+      },
+      "leftHand": {
+        "before": {
+          "p50": 2.22,
+          "p95": 7.74
+        },
+        "after": {
+          "p50": 2.22,
+          "p95": 7.74
+        }
+      },
+      "rightHand": {
+        "before": {
+          "p50": 2.48,
+          "p95": 9.34
+        },
+        "after": {
+          "p50": 2.46,
+          "p95": 9.34
+        }
+      },
+      "leftUpLeg": {
+        "before": {
+          "p50": 2.49,
+          "p95": 6.24
+        },
+        "after": {
+          "p50": 2.49,
+          "p95": 6.24
+        }
+      },
+      "rightUpLeg": {
+        "before": {
+          "p50": 3.07,
+          "p95": 6.84
+        },
+        "after": {
+          "p50": 3.07,
+          "p95": 6.84
+        }
+      },
+      "leftLeg": {
+        "before": {
+          "p50": 1.81,
+          "p95": 4.5
+        },
+        "after": {
+          "p50": 1.81,
+          "p95": 4.5
+        }
+      },
+      "rightLeg": {
+        "before": {
+          "p50": 2.23,
+          "p95": 5.62
+        },
+        "after": {
+          "p50": 2.23,
+          "p95": 5.62
+        }
+      },
+      "leftFoot": {
+        "before": {
+          "p50": 5.13,
+          "p95": 8.94
+        },
+        "after": {
+          "p50": 5.13,
+          "p95": 8.94
+        }
+      },
+      "rightFoot": {
+        "before": {
+          "p50": 6.09,
+          "p95": 10.9
+        },
+        "after": {
+          "p50": 6.09,
+          "p95": 10.9
+        }
+      }
+    }
+  },
+  "boxeador": {
+    "faceResidualBefore": {
+      "p50": 5.949952024075943,
+      "p95": 13.616349253659353,
+      "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+    },
+    "faceResidualAfter": {
+      "p50": 0.897269692310848,
+      "p95": 2.1136773860361875,
+      "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+    },
+    "neckBefore": {
+      "p50": 12.13,
+      "p95": 15.99
+    },
+    "neckAfter": {
+      "p50": 8.31,
+      "p95": 11.32
+    },
+    "otherDirections": {
+      "hips": {
+        "before": {
+          "p50": 13.67,
+          "p95": 22.1
+        },
+        "after": {
+          "p50": 13.67,
+          "p95": 22.1
+        }
+      },
+      "spine": {
+        "before": {
+          "p50": 14.58,
+          "p95": 25.35
+        },
+        "after": {
+          "p50": 14.58,
+          "p95": 25.35
+        }
+      },
+      "spine1": {
+        "before": {
+          "p50": 32.44,
+          "p95": 41.13
+        },
+        "after": {
+          "p50": 32.44,
+          "p95": 41.13
+        }
+      },
+      "spine2": {
+        "before": {
+          "p50": 1.8,
+          "p95": 3.85
+        },
+        "after": {
+          "p50": 1.8,
+          "p95": 3.85
+        }
+      },
+      "leftShoulder": {
+        "before": {
+          "p50": 33.4,
+          "p95": 35.26
+        },
+        "after": {
+          "p50": 33.4,
+          "p95": 35.26
+        }
+      },
+      "rightShoulder": {
+        "before": {
+          "p50": 32.9,
+          "p95": 35.29
+        },
+        "after": {
+          "p50": 32.9,
+          "p95": 35.29
+        }
+      },
+      "leftArm": {
+        "before": {
+          "p50": 2.23,
+          "p95": 7.92
+        },
+        "after": {
+          "p50": 2.23,
+          "p95": 7.92
+        }
+      },
+      "rightArm": {
+        "before": {
+          "p50": 2.54,
+          "p95": 7.53
+        },
+        "after": {
+          "p50": 2.54,
+          "p95": 7.53
+        }
+      },
+      "leftForeArm": {
+        "before": {
+          "p50": 1.9,
+          "p95": 10.3
+        },
+        "after": {
+          "p50": 1.9,
+          "p95": 10.3
+        }
+      },
+      "rightForeArm": {
+        "before": {
+          "p50": 2.01,
+          "p95": 10.84
+        },
+        "after": {
+          "p50": 2.01,
+          "p95": 10.84
+        }
+      },
+      "leftHand": {
+        "before": {
+          "p50": 2.3,
+          "p95": 7.9
+        },
+        "after": {
+          "p50": 2.3,
+          "p95": 7.9
+        }
+      },
+      "rightHand": {
+        "before": {
+          "p50": 2.53,
+          "p95": 9.2
+        },
+        "after": {
+          "p50": 2.52,
+          "p95": 9.2
+        }
+      },
+      "leftUpLeg": {
+        "before": {
+          "p50": 2.47,
+          "p95": 6.12
+        },
+        "after": {
+          "p50": 2.47,
+          "p95": 6.12
+        }
+      },
+      "rightUpLeg": {
+        "before": {
+          "p50": 3.2,
+          "p95": 6.78
+        },
+        "after": {
+          "p50": 3.2,
+          "p95": 6.78
+        }
+      },
+      "leftLeg": {
+        "before": {
+          "p50": 1.82,
+          "p95": 4.55
+        },
+        "after": {
+          "p50": 1.82,
+          "p95": 4.55
+        }
+      },
+      "rightLeg": {
+        "before": {
+          "p50": 2.25,
+          "p95": 5.56
+        },
+        "after": {
+          "p50": 2.25,
+          "p95": 5.56
+        }
+      },
+      "leftFoot": {
+        "before": {
+          "p50": 5.53,
+          "p95": 9.39
+        },
+        "after": {
+          "p50": 5.53,
+          "p95": 9.39
+        }
+      },
+      "rightFoot": {
+        "before": {
+          "p50": 6.49,
+          "p95": 11.56
+        },
+        "after": {
+          "p50": 6.49,
+          "p95": 11.56
+        }
+      }
+    }
+  },
+  "fighter-web": {
+    "faceResidualBefore": {
+      "p50": 5.918648381961414,
+      "p95": 13.579589200849437,
+      "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+    },
+    "faceResidualAfter": {
+      "p50": 0.8975015764173138,
+      "p95": 2.1167810794585358,
+      "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+    },
+    "neckBefore": {
+      "p50": 11.74,
+      "p95": 15.74
+    },
+    "neckAfter": {
+      "p50": 8.52,
+      "p95": 11.38
+    },
+    "otherDirections": {
+      "hips": {
+        "before": {
+          "p50": 13.62,
+          "p95": 21.84
+        },
+        "after": {
+          "p50": 13.62,
+          "p95": 21.84
+        }
+      },
+      "spine": {
+        "before": {
+          "p50": 14.58,
+          "p95": 25.28
+        },
+        "after": {
+          "p50": 14.58,
+          "p95": 25.28
+        }
+      },
+      "spine1": {
+        "before": {
+          "p50": 32.48,
+          "p95": 41.15
+        },
+        "after": {
+          "p50": 32.48,
+          "p95": 41.15
+        }
+      },
+      "spine2": {
+        "before": {
+          "p50": 1.78,
+          "p95": 3.84
+        },
+        "after": {
+          "p50": 1.78,
+          "p95": 3.84
+        }
+      },
+      "leftShoulder": {
+        "before": {
+          "p50": 18.14,
+          "p95": 20.33
+        },
+        "after": {
+          "p50": 18.14,
+          "p95": 20.33
+        }
+      },
+      "rightShoulder": {
+        "before": {
+          "p50": 28.29,
+          "p95": 29.97
+        },
+        "after": {
+          "p50": 28.29,
+          "p95": 29.97
+        }
+      },
+      "leftArm": {
+        "before": {
+          "p50": 2.22,
+          "p95": 7.34
+        },
+        "after": {
+          "p50": 2.22,
+          "p95": 7.34
+        }
+      },
+      "rightArm": {
+        "before": {
+          "p50": 2.57,
+          "p95": 7.79
+        },
+        "after": {
+          "p50": 2.58,
+          "p95": 7.79
+        }
+      },
+      "leftForeArm": {
+        "before": {
+          "p50": 1.92,
+          "p95": 10.15
+        },
+        "after": {
+          "p50": 1.92,
+          "p95": 10.15
+        }
+      },
+      "rightForeArm": {
+        "before": {
+          "p50": 1.98,
+          "p95": 10.73
+        },
+        "after": {
+          "p50": 1.98,
+          "p95": 10.73
+        }
+      },
+      "leftHand": {
+        "before": {
+          "p50": 2.19,
+          "p95": 8.1
+        },
+        "after": {
+          "p50": 2.19,
+          "p95": 8.1
+        }
+      },
+      "rightHand": {
+        "before": {
+          "p50": 2.49,
+          "p95": 8.65
+        },
+        "after": {
+          "p50": 2.48,
+          "p95": 8.65
+        }
+      },
+      "leftUpLeg": {
+        "before": {
+          "p50": 2.49,
+          "p95": 6.18
+        },
+        "after": {
+          "p50": 2.49,
+          "p95": 6.18
+        }
+      },
+      "rightUpLeg": {
+        "before": {
+          "p50": 3.13,
+          "p95": 6.8
+        },
+        "after": {
+          "p50": 3.13,
+          "p95": 6.8
+        }
+      },
+      "leftLeg": {
+        "before": {
+          "p50": 1.83,
+          "p95": 4.71
+        },
+        "after": {
+          "p50": 1.83,
+          "p95": 4.71
+        }
+      },
+      "rightLeg": {
+        "before": {
+          "p50": 2.24,
+          "p95": 5.58
+        },
+        "after": {
+          "p50": 2.24,
+          "p95": 5.58
+        }
+      },
+      "leftFoot": {
+        "before": {
+          "p50": 5.06,
+          "p95": 9.07
+        },
+        "after": {
+          "p50": 5.06,
+          "p95": 9.07
+        }
+      },
+      "rightFoot": {
+        "before": {
+          "p50": 6.37,
+          "p95": 11.37
+        },
+        "after": {
+          "p50": 6.37,
+          "p95": 11.37
+        }
+      }
+    }
+  }
+}

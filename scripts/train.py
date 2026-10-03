@@ -18,11 +18,11 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 LAB_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(LAB_ROOT / "src"))
 
-from pose_lab.data import WindowNPZDataset  # noqa: E402
+from pose_lab.data import WindowNPZDataset, feature_ablation_kwargs  # noqa: E402
 from pose_lab.logging_utils import JsonlLogger, make_run_dir, write_json  # noqa: E402
 from pose_lab.losses import total_loss  # noqa: E402
 from pose_lab.metrics import hard_mask  # noqa: E402
-from pose_lab.models import build_model  # noqa: E402
+from pose_lab.models import build_model, take_delta_last  # noqa: E402
 
 
 def _load_yaml(path: Path) -> dict:
@@ -52,7 +52,7 @@ def eval_delta(model: torch.nn.Module, loader: DataLoader, device: torch.device)
     for batch in loader:
         x = batch["x"].to(device)
         out = model(x)
-        preds.append(out["delta"].cpu().numpy())
+        preds.append(take_delta_last(out["delta"]).cpu().numpy())
         trues.append(batch["y"].numpy())
         confs.append(batch["conf"].numpy())
     pred = np.concatenate(preds, axis=0)
@@ -125,6 +125,7 @@ def train_one_epoch(
         lcfg = dict(cfg.get("loss") or {})
         lcfg["w_reach"] = float(lcfg.get("w_reach", 0.0)) * float(geometry_scale)
         lcfg["w_angle"] = float(lcfg.get("w_angle", 0.0)) * float(geometry_scale)
+        lcfg["w_z_extend"] = float(lcfg.get("w_z_extend", 0.0)) * float(geometry_scale)
         cfg_epoch["loss"] = lcfg
     for batch in loader:
         x = batch["x"].to(device, non_blocking=True)
@@ -132,6 +133,9 @@ def train_one_epoch(
         conf = batch["conf"].to(device, non_blocking=True)
         motion = batch["motion"].to(device, non_blocking=True)
         opt.zero_grad(set_to_none=True)
+        y_seq = batch.get("y_seq")
+        if y_seq is not None:
+            y_seq = y_seq.to(device, non_blocking=True)
         with torch.amp.autocast("cuda", enabled=use_amp):
             out = model(x)
             loss, parts = total_loss(
@@ -142,6 +146,7 @@ def train_one_epoch(
                 motion,
                 cfg_epoch,
                 features=x,
+                true_delta_seq=y_seq,
             )
         if use_amp:
             scaler.scale(loss).backward()
@@ -204,6 +209,10 @@ def main() -> None:
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
     F = int(meta.get("F") or np.load(train_path)["x"].shape[-1])
     T = int(meta.get("T") or np.load(train_path)["x"].shape[1])
+    fcfg = cfg.get("features") or {}
+    if bool(fcfg.get("multilag", False)) and str(fcfg.get("multilag_mode", "mean")) == "separate":
+        n_steps = len(tuple(int(s) for s in (fcfg.get("multilag_steps") or [1, 3, 6])))
+        F += max(0, n_steps - 1) * 18
 
     run_name = (
         args.name
@@ -241,17 +250,35 @@ def main() -> None:
     log = JsonlLogger(run_dir / "metrics.jsonl")
 
     hard_warmup = int(ocfg.get("hard_warmup_epochs", 5))
-    fcfg = cfg.get("features") or {}
-    zero_accel = bool(fcfg.get("zero_accel", False))
-    zero_2d = bool(fcfg.get("zero_2d", False))
-    if zero_accel or zero_2d:
-        print(f"[train] feature ablation zero_accel={zero_accel} zero_2d={zero_2d}")
-    train_ds = WindowNPZDataset(
-        train_path, mirror_p=0.5, hard_only=False, zero_accel=zero_accel, zero_2d=zero_2d
+    feat_kw = feature_ablation_kwargs(fcfg)
+    need_y_seq = bool((cfg.get("model") or {}).get("predict_sequence", False)) or (
+        float((cfg.get("loss") or {}).get("w_vel", 0.0)) > 0
+        or float((cfg.get("loss") or {}).get("w_dir", 0.0)) > 0
     )
-    val_ds = WindowNPZDataset(
-        val_path, mirror_p=0.0, zero_accel=zero_accel, zero_2d=zero_2d
-    )
+    if any(
+        feat_kw[k]
+        for k in (
+            "zero_accel",
+            "zero_2d",
+            "zero_ipsi",
+            "zero_bones",
+            "zero_inv_conf",
+            "multilag",
+        )
+    ):
+        print(
+            "[train] features "
+            f"zero_accel={feat_kw['zero_accel']} zero_2d={feat_kw['zero_2d']} "
+            f"zero_ipsi={feat_kw['zero_ipsi']} zero_bones={feat_kw['zero_bones']} "
+            f"zero_inv_conf={feat_kw['zero_inv_conf']} "
+            f"multilag={feat_kw['multilag']} steps={feat_kw['multilag_steps']} "
+            f"mode={feat_kw['multilag_mode']}"
+        )
+    if need_y_seq:
+        print("[train] requiring y_seq (full-window / vel / dir losses)")
+    ds_kwargs = dict(**feat_kw, require_y_seq=need_y_seq)
+    train_ds = WindowNPZDataset(train_path, mirror_p=0.5, hard_only=False, **ds_kwargs)
+    val_ds = WindowNPZDataset(val_path, mirror_p=0.0, **ds_kwargs)
 
     def make_train_loader(epoch: int) -> DataLoader:
         if epoch < hard_warmup:
@@ -308,6 +335,9 @@ def main() -> None:
         loader = make_train_loader(0)
         batch = next(iter(loader))
         out = model(batch["x"].to(device))
+        y_seq = batch.get("y_seq")
+        if y_seq is not None:
+            y_seq = y_seq.to(device)
         loss, parts = total_loss(
             out["delta"],
             batch["y"].to(device),
@@ -316,6 +346,7 @@ def main() -> None:
             batch["motion"].to(device),
             cfg,
             features=batch["x"].to(device),
+            true_delta_seq=y_seq,
         )
         print("[debug-one-batch]", parts, "delta", tuple(out["delta"].shape))
         write_json(run_dir / "debug_one_batch.json", parts)
@@ -382,6 +413,8 @@ def main() -> None:
             f"epoch {epoch:03d} loss={tr['loss']:.4f} "
             f"reach={tr.get('l_reach', 0):.4f} "
             f"angle={tr.get('l_angle', 0):.4f} "
+            f"zext={tr.get('l_z_extend', 0):.4f} "
+            f"vel={tr.get('l_vel', 0):.4f} bone={tr.get('l_bone', 0):.4f} "
             f"ext={tr.get('extend_frac', 0):.2f} geo={geo_scale:.2f} "
             f"val_hard={va['mpjpe_hard_mm']:.2f} (mp={va['mpjpe_mp_hard_mm']:.2f}) "
             f"impr={va.get('hard_improvement_pct', float('nan')):.1f}% "

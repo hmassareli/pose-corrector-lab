@@ -1,0 +1,10 @@
+# One-factor architecture ablation: narrower recurrent state.
+team: phase2_arch
+notes: "GRU hidden=192; layers=2; T=15; otherwise baseline"
+
+model:
+  hidden: 192
+  layers: 2
+
+logging:
+  run_name: abl2_arch_hidden192

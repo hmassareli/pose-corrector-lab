@@ -1,0 +1,21 @@
+# Wave-2 hybrid: multilag + seq + vel + dir + bone + Z (kitchen sink, still GRU256).
+team: hybrid
+notes: "multilag + seq + vel + dir + bone + z"
+
+model:
+  predict_sequence: true
+
+features:
+  zero_accel: false
+  multilag: true
+  multilag_steps: [1, 3, 6]
+
+loss:
+  w_vel: 0.10
+  w_dir: 0.05
+  z_weight: 1.5
+  w_bone_len: 0.10
+  dir_reach_thr: 0.70
+
+logging:
+  run_name: abl_hybrid_full_stack

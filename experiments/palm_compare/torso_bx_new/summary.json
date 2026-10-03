@@ -1,0 +1,12 @@
+{
+ "side": "right",
+ "tag": "torso_bx_new",
+ "rows": [
+  {
+   "t": 440,
+   "mesh_palm_y": -0.325,
+   "avatar_palm_y": -0.182,
+   "delta": 0.143
+  }
+ ]
+}

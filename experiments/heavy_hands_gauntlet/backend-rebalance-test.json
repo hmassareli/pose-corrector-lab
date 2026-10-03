@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "checks": [
+    "explicit trt backend remains forced",
+    "real production re-bench TRT+DML while twelve inference callers wait/execute",
+    "native gate serializes re-bench and inference",
+    "all outputs finite and valid before/during/after",
+    "rebalance flag clears",
+    "no process crash"
+  ],
+  "candidateBackends": [
+    "trt",
+    "dml"
+  ],
+  "inferences": 14,
+  "finalBackend": "dml",
+  "maxPoseDifferenceM": 0.025692172348499298,
+  "seconds": 4.758093599986751,
+  "limitation": "Isolated runtime on controlled static frame; CPU-only rebalance candidates not benchmarked."
+}

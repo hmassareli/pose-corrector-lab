@@ -1,0 +1,90 @@
+{
+  "solver_sha256": "1631419293ff38210727f1d2beb1844b05a66d32aa7a3b58087cfc5c677d1f84",
+  "three": "0.160.0",
+  "acute_flip": {
+    "live_default": {
+      "input_delta_deg": 2,
+      "output_delta_deg": 178
+    },
+    "fitPalm_true": {
+      "input_delta_deg": 2,
+      "output_delta_deg": 1.9999999999998004
+    },
+    "live_filtered": {
+      "input_delta_deg": 2,
+      "output_delta_deg": 136.21707581946458
+    }
+  },
+  "real_asset_flip": {
+    "leftForeArm": 178.00000109922834,
+    "rightForeArm": 177.99999992918586,
+    "leftHand": 178.0000050994613,
+    "rightHand": 177.99999991964827
+  },
+  "antiparallel_across": {
+    "synthetic_aim_error_deg": 70.52877936550931,
+    "leftForeArm_aim_error_deg": 28.95865289718519,
+    "rightForeArm_aim_error_deg": 30.36059102591113,
+    "leftHand_aim_error_deg": 76.57112994821775,
+    "rightHand_aim_error_deg": 72.08337247352021
+  },
+  "palm_span_invariance": [
+    {
+      "span_m": 0.06,
+      "across": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "span_m": 0.0011,
+      "across": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "pose33_head": {
+    "upright_head_axis_error_deg": 76.49999999999997
+  },
+  "degenerate_forearm": {
+    "local_jump_deg": 144.01854592819876,
+    "returned_to_rest_deg": 0
+  },
+  "nonfinite": {
+    "forearm_quaternion_is_finite": false
+  },
+  "translation": [
+    {
+      "root_scale": 1,
+      "extra_shoulder_translation_for_pure_yaw_m": 0.1,
+      "local_offset": [
+        -0.07071067811865475,
+        0,
+        -0.07071067811865477
+      ]
+    },
+    {
+      "root_scale": 0.01,
+      "extra_shoulder_translation_for_pure_yaw_m": 0.0009999999999999983,
+      "local_offset": [
+        -0.07071067811865461,
+        0,
+        -0.07071067811865477
+      ]
+    }
+  ],
+  "ground_plant": {
+    "requested_root_lift_m": 0.5,
+    "result_root_lift_m": 5.551115123125783e-17
+  },
+  "double_filter_write": {
+    "derivative_before": -3.679878174397959,
+    "derivative_after": 0
+  },
+  "fit_twist_child": {
+    "hand_world_change_after_hand_solve_deg": 29.99999999999994
+  }
+}

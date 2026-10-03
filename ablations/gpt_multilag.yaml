@@ -1,0 +1,11 @@
+# GPT: replace noisy accel with multi-lag displacements (same F=113).
+team: gpt
+notes: "multilag 1/3/6 instead of accel; last-frame head (like baseline)"
+
+features:
+  zero_accel: false
+  multilag: true
+  multilag_steps: [1, 3, 6]
+
+logging:
+  run_name: abl_gpt_multilag

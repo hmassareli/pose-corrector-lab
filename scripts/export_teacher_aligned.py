@@ -98,6 +98,24 @@ def main() -> None:
             flush=True,
         )
 
+    # Best-effort Teacher feet (SMPL ankle→foot) for Mixamo MiKaPo retarget.
+    try:
+        import importlib.util
+
+        feet_path = Path(__file__).resolve().parent / "export_teacher_feet.py"
+        spec = importlib.util.spec_from_file_location("export_teacher_feet", feet_path)
+        feet_mod = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(feet_mod)
+        te_root = LAB_ROOT / "data" / "teacher"
+        for cid in clip_ids:
+            try:
+                feet_mod.export_one(cid, te_root, args.mediapipe, args.paired, args.out)
+            except Exception as e:
+                print(f"[export_ta] feet skip {cid}: {e}", flush=True)
+    except Exception as e:
+        print(f"[export_ta] feet export unavailable: {e}", flush=True)
+
     print(f"[export_ta] done elapsed={time.time() - t0:.1f}s")
 
 

@@ -1,0 +1,22 @@
+[
+  {
+    "TimeCreated": "2026-10-02T17:26:56.098793-03:00",
+    "Id": 1001,
+    "Message": "Falha no bucket 2269147619738309007, tipo 4\r\nNome do Evento: APPCRASH\r\nResposta: Não disponível\r\nID do CAB: 0\r\n\r\nAssinatura do problema:\r\nP1: python.exe\r\nP2: 3.12.10150.1013\r\nP3: 67f515a7\r\nP4: StackHash_7c7a\r\nP5: 10.0.19041.6456\r\nP6: 7ec9c15d\r\nP7: c0000374\r\nP8: PCH_DC_FROM_ntdll+0x000000000009E0F4\r\nP9: \r\nP10: \r\n\r\nArquivos anexados:\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\Temp\\WERD407.tmp.WERInternalMetadata.xml\r\n\r\nEsses arquivos talvez estejam disponíveis em:\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\ReportArchive\\AppCrash_python.exe_a3aa96ee4dd73aafe8efe311b20cbcf28d234c3_636aa578_2f0d8e95-26f4-452b-be4f-94e569ad5135\r\n\r\nSímbolo da análise: \r\nVerificando novamente se há uma solução: 0\r\nID do Relatório: e53aaf2f-b91e-48d3-9dfb-a825814a9287\r\nStatus do Relatório: 268435456\r\nBucket com hash: be60f9c4151d87d57f7da1bcd96cd18f\r\nGuid do CAB: 0"
+  },
+  {
+    "TimeCreated": "2026-10-02T17:26:55.2946507-03:00",
+    "Id": 1001,
+    "Message": "Falha no bucket 1966263047720044077, tipo 5\r\nNome do Evento: FaultTolerantHeap\r\nResposta: Não disponível\r\nID do CAB: 0\r\n\r\nAssinatura do problema:\r\nP1: python.exe\r\nP2: 3.12.10150.1013\r\nP3: 67F515A7\r\nP4: ffffbaad\r\nP5: \r\nP6: \r\nP7: \r\nP8: \r\nP9: \r\nP10: \r\n\r\nArquivos anexados:\r\n\\\\?\\C:\\Windows\\SERVIC~1\\LOCALS~1\\AppData\\Local\\Temp\\FTHCEE6.tmp\\fthempty.txt\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\Temp\\WERCF07.tmp.WERInternalMetadata.xml\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\Temp\\WERCF46.tmp.xml\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\Temp\\WERCF44.tmp.csv\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\Temp\\WERCF74.tmp.txt\r\n\r\nEsses arquivos talvez estejam disponíveis em:\r\n\r\n\r\nSímbolo da análise: \r\nVerificando novamente se há uma solução: 0\r\nID do Relatório: 1d152d2e-d439-4e7c-bc32-2ea98e4d7ee6\r\nStatus do Relatório: 268435456\r\nBucket com hash: 6b4487db50086b139b4991d2fe54862d\r\nGuid do CAB: 0"
+  },
+  {
+    "TimeCreated": "2026-10-02T17:26:54.9196531-03:00",
+    "Id": 1001,
+    "Message": "Falha no bucket , tipo 0\r\nNome do Evento: APPCRASH\r\nResposta: Não disponível\r\nID do CAB: 0\r\n\r\nAssinatura do problema:\r\nP1: python.exe\r\nP2: 3.12.10150.1013\r\nP3: 67f515a7\r\nP4: StackHash_7c7a\r\nP5: 10.0.19041.6456\r\nP6: 7ec9c15d\r\nP7: c0000374\r\nP8: PCH_DC_FROM_ntdll+0x000000000009E0F4\r\nP9: \r\nP10: \r\n\r\nArquivos anexados:\r\n\r\nEsses arquivos talvez estejam disponíveis em:\r\n\\\\?\\C:\\ProgramData\\Microsoft\\Windows\\WER\\ReportQueue\\AppCrash_python.exe_a3aa96ee4dd73aafe8efe311b20cbcf28d234c3_636aa578_2f0d8e95-26f4-452b-be4f-94e569ad5135\r\n\r\nSímbolo da análise: \r\nVerificando novamente se há uma solução: 0\r\nID do Relatório: e53aaf2f-b91e-48d3-9dfb-a825814a9287\r\nStatus do Relatório: 4\r\nBucket com hash: \r\nGuid do CAB: 0"
+  },
+  {
+    "TimeCreated": "2026-10-02T17:26:53.6532837-03:00",
+    "Id": 1000,
+    "Message": "Nome do aplicativo com falha: python.exe, versão: 3.12.10150.1013, carimbo de data/hora: 0x67f515a7\r\nNome do módulo com falha: ntdll.dll, versão: 10.0.19041.6456, carimbo de data/hora: 0x7ec9c15d\r\nCódigo de exceção: 0xc0000374\r\nDeslocamento da falha: 0x00000000000ff489\r\nID do processo com falha: 0x8324\r\nHora de início do aplicativo com falha: 0x01dd52a254044f49\r\nCaminho do aplicativo com falha: C:\\Users\\Henrique\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\r\nCaminho do módulo com falha: C:\\Windows\\SYSTEM32\\ntdll.dll\r\nID do Relatório: e53aaf2f-b91e-48d3-9dfb-a825814a9287\r\nNome completo do pacote com falha: \r\nID do aplicativo relativo ao pacote com falha: "
+  }
+]

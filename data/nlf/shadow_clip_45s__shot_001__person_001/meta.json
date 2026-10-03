@@ -1,0 +1,16 @@
+{
+  "clip_id": "shadow_clip_45s__shot_001__person_001",
+  "backend": "NLF_S_multi_0.2.2",
+  "joint_key": "joints3d_nonparam",
+  "axis_preset": "identity",
+  "stride": 2,
+  "fps": 23.976,
+  "n_frames": 124,
+  "detect_frames": 62,
+  "elapsed_s": 13.46,
+  "hd_cleanup": [
+    "data/nlf/",
+    "data/models/nlf/",
+    "experiments/nlf_vs_mp_teacher/"
+  ]
+}

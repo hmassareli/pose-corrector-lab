@@ -1,0 +1,20 @@
+# lastpos_vel003 recipe + Tier A feature drop (pure-derived blocks).
+# Drops: ipsilateral relative, bone/angle/reach scalars, 1-conf channels.
+# Keeps: context xyz, conf, velocity, 2D; accel already zeroed in base.
+team: tiera
+notes: "lastpos_vel003 + zero_tier_a (drop ipsi/bones/1-conf)"
+
+model:
+  predict_sequence: true
+
+features:
+  zero_accel: true
+  zero_tier_a: true
+
+loss:
+  sequence_position_mode: last
+  w_vel: 0.003
+  w_dir: 0.0
+
+logging:
+  run_name: abl2_lastpos_vel003_tiera

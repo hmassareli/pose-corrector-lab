@@ -1,0 +1,104 @@
+{
+  "before": {
+    "roll90": {
+      "raw": 178,
+      "filtered": 135.8927285584056
+    },
+    "realRig90": {
+      "leftForeArm": 178.00000109770545,
+      "rightForeArm": 177.99999993116853,
+      "leftHand": 178.00000509505236,
+      "rightHand": 177.99999992066418
+    },
+    "antiparallelAim": {
+      "leftForeArm": 28.958664379428402,
+      "rightForeArm": 30.36059747976436,
+      "leftHand": 76.5711485313912,
+      "rightHand": 72.08338126829577
+    },
+    "witnessAim": 70.52877936550931,
+    "invalid": {
+      "zero": {
+        "jump": 144.01854661029415,
+        "finite": true,
+        "recovers": true
+      },
+      "NaN": {
+        "jump": null,
+        "finite": false,
+        "recovers": false
+      },
+      "Infinity": {
+        "jump": null,
+        "finite": false,
+        "recovers": false
+      },
+      "missing": {
+        "jump": 144.01854661029415,
+        "finite": true,
+        "recovers": true
+      }
+    },
+    "continuousTurns": {
+      "1": {
+        "maxStep": 178.00000000000009,
+        "maxAim": 0
+      },
+      "0.85": {
+        "maxStep": 151.30000000000007,
+        "maxAim": 0
+      }
+    }
+  },
+  "after": {
+    "roll90": {
+      "raw": 1.9999999999998004,
+      "filtered": 0.49735277574876136
+    },
+    "realRig90": {
+      "leftForeArm": 1.999999282351157,
+      "rightForeArm": 2.000000081444304,
+      "leftHand": 1.9999974923988442,
+      "rightHand": 1.9999999475790933
+    },
+    "antiparallelAim": {
+      "leftForeArm": 0.000007636383641665695,
+      "rightForeArm": 0.0000035201989238640496,
+      "leftHand": 0.000016643112294063987,
+      "rightHand": 0.000005915117333884395
+    },
+    "witnessAim": 0,
+    "invalid": {
+      "zero": {
+        "jump": 0,
+        "finite": true,
+        "recovers": true
+      },
+      "NaN": {
+        "jump": 0,
+        "finite": true,
+        "recovers": true
+      },
+      "Infinity": {
+        "jump": 0,
+        "finite": true,
+        "recovers": true
+      },
+      "missing": {
+        "jump": 0,
+        "finite": true,
+        "recovers": true
+      }
+    },
+    "continuousTurns": {
+      "1": {
+        "maxStep": 2.0000000000005294,
+        "maxAim": 0
+      },
+      "0.85": {
+        "maxStep": 2.0000000000012585,
+        "maxAim": 0
+      }
+    }
+  }
+}

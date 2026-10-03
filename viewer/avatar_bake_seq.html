@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Avatar sequence render</title>
+  <style>
+    html, body { margin: 0; background: #222a31; overflow: hidden; }
+    #stage { position: relative; width: 720px; height: 960px; }
+    canvas { display: block; width: 720px; height: 960px; }
+    #label { position: absolute; top: 16px; left: 18px; color: #ffffff; font: bold 30px Arial, sans-serif; text-shadow: 0 0 6px rgba(0,0,0,0.9); pointer-events: none; }
+    #picker { position: absolute; top: 14px; right: 14px; }
+    #picker select { background: #1a222c; color: #e7ecf3; border: 1px solid #38465a; border-radius: 6px; padding: 6px 8px; font: 13px Arial, sans-serif; }
+    #picker.hidden { display: none; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="stage">
+  <canvas id="canvas"></canvas>
+  <div id="label"></div>
+  <div id="picker"><select id="avatarSel" title="personagem"></select></div>
+  </div>
+  <script type="module">
+    import * as THREE from "three";
+    import { AVATARS, DEFAULT_AVATAR_ID, fillAvatarSelect, loadAvatar } from "/static/avatar_assets.js";
+    import {
+      auxFromSmpl,
+      auxFromPose33,
+      buildAvatarRig,
+      createAvatarMotion,
+      footDirectionsFromSmplAux,
+      headForwardFromSmplAux,
+      resetAvatarMotion,
+      resetRetargetFilters,
+      updateAvatarPose,
+    } from "/static/mikapo_mixamo_solver.js";
+
+    const JOINT_NAMES = [
+      "pelvis", "left_hip", "right_hip", "left_knee", "right_knee",
+      "left_ankle", "right_ankle", "spine", "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow", "left_wrist", "right_wrist", "neck", "head",
+    ];
+    const JOINT_INDEX = Object.fromEntries(JOINT_NAMES.map((name, index) => [name, index]));
+    const query = new URLSearchParams(location.search);
+    const poseUrl = query.get("pose");
+    const useCollarShoulders = query.get("collars") === "1";
+    const useSurfaceBody = query.get("surface") === "1";
+    const camSide = query.get("side") === "1";
+    const avatarId = query.get("avatar") || DEFAULT_AVATAR_ID;
+    const fps = Number(query.get("fps") || 30);
+    const canvas = document.getElementById("canvas");
+    const label = query.get("label");
+    if (label) document.getElementById("label").textContent = label;
+    window.__BAKE_READY__ = false;
+    window.__BAKE_ERROR__ = null;
+    window.__BAKE_SEQ_FRAME__ = -1;
+    window.__BAKE_SEQ_TOTAL__ = 0;
+
+    // Same convention as avatar_bake.html: OpenCV-ish input → viewer space with
+    // Y up and Z flipped, so pose and aux (auxFromSmpl flips Z too) stay in the
+    // same space. The Z-flip is what makes the avatar face the camera instead of
+    // showing its back (arms/legs follow the pose; spine/head follow the aux).
+    // Center on the CURRENT frame's pelvis (not the first frame's): NLF is
+    // root-centered per frame, and camera-space sources (teacher) drift across
+    // the clip — per-frame centering keeps both datasets comparable and in frame.
+    function toViewerSpace(pose) {
+      const pelvis = pose[0];
+      const lowestAnkle = Math.min(pose[5][1], pose[6][1]);
+      return pose.map((point) => [
+        point[0] - pelvis[0],
+        -point[1] + lowestAnkle,
+        -(point[2] - pelvis[2]),
+      ]);
+    }
+
+    function fail(error) {
+      window.__BAKE_ERROR__ = error?.message || String(error);
+      console.error(error);
+    }
+
+    async function main() {
+      if (!poseUrl) throw new Error("missing pose URL");
+      const data = await fetch(poseUrl).then((response) => {
+        if (!response.ok) throw new Error(`pose fetch failed: ${response.status}`);
+        return response.json();
+      });
+      const frames = Array.isArray(data) ? data : [data];
+      if (!frames.length || !frames[0].joints) throw new Error("pose file must be an array of {joints, aux_smpl}");
+      window.__BAKE_SEQ_TOTAL__ = frames.length;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(1);
+      renderer.setSize(720, 960, false);
+      renderer.setClearColor(0x222a31, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = false;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 720 / 960, 0.01, 100);
+      // Character faces +Z after toViewerSpace (Z-flipped), so a side view is
+      // along ±X: camera at +X lets the punch extension read across the screen.
+      if (camSide) {
+        camera.position.set(1.55, 1.0, 0.15);
+        camera.lookAt(0, 0.42, 0);
+      } else {
+        camera.position.set(1.55, 1.45, 2.35);
+        camera.lookAt(0, 0.9, 0);
+      }
+      scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+      scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+      const key = new THREE.DirectionalLight(0xffffff, 3.2);
+      key.position.set(2, 3, 2);
+      scene.add(key);
+      scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+
+      const { root: avatar, spec } = await loadAvatar(avatarId);
+      window.__BAKE_AVATAR_ID__ = spec.id;
+      const rig = buildAvatarRig(avatar);
+      window.__BAKE_RIG_KEYS__ = [...rig.bones.keys()];
+      if (rig.bones.size < 4) throw new Error("Mixamo rig mapping failed");
+      window.__BAKE_RIG__ = rig;
+      window.__BAKE_AVATAR__ = avatar;
+      window.__BAKE_CAMERA__ = camera;
+      window.__BAKE_THREE__ = THREE;
+      // Same close-up hooks as smpl_fit_seq.html so the avatar and the fit mesh
+      // can be shot with a matched camera for side-by-side comparison.
+      window.__bakeRender = () => renderer.render(scene, camera);
+      window.__bakeLookAt = (eye, target) => {
+        camera.position.set(eye[0], eye[1], eye[2]);
+        camera.lookAt(target[0], target[1], target[2]);
+        camera.updateProjectionMatrix();
+        renderer.render(scene, camera);
+      };
+      window.__bakeSetLabel = (t) => { document.getElementById("label").textContent = t; };
+      scene.add(avatar);
+      avatar.updateWorldMatrix(true, true);
+
+      const motion = createAvatarMotion();
+      resetAvatarMotion(avatar, motion);
+      resetRetargetFilters(rig);
+
+      let frameIndex = 0;
+      window.__bakeSeqStep = () => {
+        if (frameIndex >= frames.length) return null;
+        const f = frames[frameIndex];
+        const pose = toViewerSpace(f.joints);
+        const aux = f.aux_smpl ? auxFromSmpl(f.aux_smpl, true)
+          : f.aux_pose33 ? auxFromPose33(f.aux_pose33, true) : null;
+        const surfaceAux = f.surface_smpl ? auxFromSmpl(f.surface_smpl, true) : null;
+        const footDirections = footDirectionsFromSmplAux(aux);
+        const headForward = headForwardFromSmplAux(aux);
+        updateAvatarPose({
+          model: avatar,
+          rig,
+          pose,
+          nameToIndex: JOINT_INDEX,
+          motion,
+          aux,
+          footDirections,
+          headForward,
+          allowFeet: true,
+          footMode: "yawFromDir",
+          plantGround: true,
+          groundY: 0,
+          timestampMs: 1000 + (frameIndex * 1000) / fps,
+          useWitness: true,
+          useCollarShoulders,
+          useSurfaceBody,
+          surfaceAux,
+          fitPalm: f.aux_smpl?.fitPalm === true,
+        });
+        renderer.render(scene, camera);
+        window.__BAKE_SEQ_FRAME__ = frameIndex;
+        frameIndex += 1;
+        return frameIndex;
+      };
+      // Dropdown: reload with ?avatar=<id>, preserving the other params. A
+      // reload (rather than a hot swap) is deliberate — buildAvatarRig caches
+      // rest poses, and the motion/filter state is per-rig, so a fresh page is
+      // the honest way to switch characters.
+      const picker = document.getElementById("picker");
+      if (query.get("ui") === "0") {
+        picker.classList.add("hidden");
+      } else {
+        const sel = document.getElementById("avatarSel");
+        fillAvatarSelect(sel, spec.id);
+        sel.addEventListener("change", () => {
+          const q = new URLSearchParams(location.search);
+          q.set("avatar", sel.value);
+          location.search = q.toString();
+        });
+      }
+      window.__BAKE_READY__ = true;
+      if (query.has("frame")) {
+        const target = Math.min(frames.length - 1, Math.max(0, Number(query.get("frame")) || 0));
+        for (let i = 0; i <= target; i++) window.__bakeSeqStep();
+      }
+    }
+
+    main().catch(fail);
+  </script>
+</body>
+</html>

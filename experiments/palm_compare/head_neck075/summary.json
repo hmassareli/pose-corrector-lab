@@ -1,0 +1,24 @@
+{
+ "side": "right",
+ "tag": "head_neck075",
+ "rows": [
+  {
+   "t": 334,
+   "mesh_palm_y": 0.005,
+   "avatar_palm_y": -0.039,
+   "delta": 0.044
+  },
+  {
+   "t": 640,
+   "mesh_palm_y": -0.198,
+   "avatar_palm_y": -0.229,
+   "delta": 0.031
+  },
+  {
+   "t": 906,
+   "mesh_palm_y": -0.081,
+   "avatar_palm_y": -0.096,
+   "delta": 0.015
+  }
+ ]
+}

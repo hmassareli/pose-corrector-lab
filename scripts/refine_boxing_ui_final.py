@@ -1,0 +1,15 @@
+from pathlib import Path
+root=Path(__file__).resolve().parents[1]/'viewer';p=root/'boxing.js';s=p.read_text(encoding='utf-8')
+s=s.replace("function setView(){first=$('view').value==='first';", "function setView(){first=$('view').value==='first';document.body.classList.toggle('first-person',first);")
+s=s.replace("last=now;sound.update(dt);", "last=now;document.body.classList.toggle('pose-active',active&&cameraOn&&fighters[self].tracking&&now-lastPoseTime<500);sound.update(dt);")
+s=s.replace("dummy.rotation.set(0,side*Math.PI/2,0)", "dummy.rotation.set(0,side*Math.PI/2+Math.sin(i*3.1)*.15,Math.sin(i*2.7)*.04)")
+s=s.replace("crowd.setMatrixAt(i,dummy.matrix);", "crowd.setMatrixAt(i,dummy.matrix);crowd.setColorAt(i,new THREE.Color().setHSL(.61+(i%7)*.007,.18+(i%4)*.035,.075+(i%5)*.016));")
+s=s.replace("heads.setMatrixAt(i,dummy.matrix);", "heads.setMatrixAt(i,dummy.matrix);heads.setColorAt(i,new THREE.Color().setHSL(.06,.15,.18+(i%6)*.016));")
+p.write_text(s,encoding='utf-8')
+p=root/'boxing.css';s=p.read_text(encoding='utf-8')
+s+='''\n#guide{height:auto;max-height:310px;overflow:auto;align-self:start}#preview{width:136px;height:76px;object-fit:cover}body.pose-active #guide{width:230px;padding:12px 16px}body.pose-active #guide p{display:none}body.pose-active #guide h3{font-size:18px;margin:6px 0 9px}body.first-person #guide{top:235px;bottom:auto;width:205px;max-height:240px;background:#0c1524ba}body.first-person.pose-active #guide{width:190px}body.first-person footer>div{position:fixed;right:4%;top:78px;gap:7px}body.first-person footer .ghost{font-size:9px;padding:7px 10px}body.first-person footer>span{opacity:.45}@media(max-height:800px){body.pose-active #guide{max-height:220px}body.first-person #guide{top:217px}}\n'''
+p.write_text(s,encoding='utf-8')
+p=Path(__file__).resolve().parent/'review_boxing.py';s=p.read_text(encoding='utf-8')
+s=s.replace("page.screenshot(path=str(out / '04-first.png')", "page.evaluate(\"async()=>{const {neutralPose}=await import('/static/boxing_core.mjs');cornerDebug.reviewPose(neutralPose());cornerDebug.frame(performance.now());}\")\n    page.screenshot(path=str(out / '04-first.png')")
+s=s.replace("page.screenshot(path=str(out / '06-small.png')", "page.evaluate(\"async()=>{const {neutralPose}=await import('/static/boxing_core.mjs');cornerDebug.reviewPose(neutralPose());cornerDebug.frame(performance.now());}\")\n    page.screenshot(path=str(out / '06-small.png')")
+p.write_text(s,encoding='utf-8')

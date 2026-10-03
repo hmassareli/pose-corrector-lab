@@ -1,0 +1,3 @@
+[0:v]scale=720:960,setsar=1,drawtext=fontfile=data/compare/arialbd.ttf:text=TEACHER  GVHMR  (offline):fontcolor=white:fontsize=34:x=(w-text_w)/2:y=30:box=1:boxcolor=black@0.55:boxborderw=14[a];
+[1:v]scale=720:960,setsar=1,drawtext=fontfile=data/compare/arialbd.ttf:text=NLF-S  (live):fontcolor=white:fontsize=34:x=(w-text_w)/2:y=30:box=1:boxcolor=black@0.55:boxborderw=14[b];
+[a][b]hstack=inputs=2

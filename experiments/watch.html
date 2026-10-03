@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8" />
+<title>NLF-S fit vs fast — mesh e avatar</title>
+<style>
+  body { margin: 0; background: #0e1116; color: #e7ecf3; font-family: Arial, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p.note { color: #8b98a8; font-size: 13px; margin: 0 0 18px; }
+  video { width: 100%; border-radius: 8px; background: #000; display: block; }
+  .row { display: flex; gap: 16px; margin-top: 20px; }
+  .row figure { flex: 1; margin: 0; }
+  .row figcaption { font-size: 13px; color: #8b98a8; margin-top: 6px; text-align: center; }
+  h2 { font-size: 16px; margin: 28px 0 8px; color: #3ddea5; }
+  a.dl { color: #3ddea5; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>NLF-S — FIT vs FAST · henrique_webcam_1.mp4</h1>
+  <p class="note">528 frames @30fps (2x) · lado a lado: esquerda = fit com rotações, direita = caminho rápido (o que o jogo usa hoje)</p>
+
+  <h2>0 · BAKER TOP v4 — a palma do avatar segue a palma do fit (medido sem calibração)</h2>
+  <p class="note">
+    <b>O diagnóstico do v3 estava errado.</b> O "span sintético de 0.6m pra saturar o fade" é um
+    <b>no-op</b>: <code>computeHandPalmAxes</code> normaliza o across, então 0.06m e 0.6m dão o mesmo
+    vetor — o fade nunca era o problema. E a validação do v3 (os "7.6°/7.4°") era <b>circular</b>:
+    reconstruía o across do avatar a partir de <code>restAcrossInRoot</code>, exatamente o vetor que o
+    solver acabou de alinhar ao alvo, então passava por construção mesmo com a mão errada.
+  </p>
+  <p class="note">
+    <b>Causa raiz real:</b> o rest across da mão/antebraço era <code>boneDir × up</code>, assumindo
+    T-pose com palma pra baixo. O GLB do boxeador é <b>A-pose</b> (braços ~66° abaixo da horizontal),
+    então essa referência estava <b>41° (esq) / 35° (dir)</b> fora do plano real da palma — e o
+    antebraço, que recebe o across <i>da palma</i>, usava um eixo ainda ~25° diferente do da mão.
+    <b>Fix (v4):</b> o across da palma é o <b>eixo de flexão dos dedos</b> — ajusta-se um plano à
+    cadeia de dedos do próprio rig (as duas mãos concordam a 3.3° sob espelhamento). PCA da malha da
+    luva <i>não</i> funciona: a luva é uma mitene quase isotrópica (6.57/6.12/4.22) e isso chegou a
+    inverter a mão esquerda em 180°.
+  </p>
+  <p class="note">
+    <b>Medido sem calibração</b> (264 frames, <code>scripts/absolute_palm_error.py</code>): erro
+    absoluto de palma <b>133°/50° → 8.3°/8.4°</b>; no soco a palma-Y do avatar bate com o mesh a
+    <b>0.03–0.04</b> (dir: fit −0.47 vs avatar −0.47). Close-ups pareados mesh × avatar em
+    <code>experiments/palm_compare/</code>. À direita: dedos observados, pra comparação.
+  </p>
+  <video controls autoplay loop muted playsinline src="bake_top/henrique_webcam_1_bake_top_vs_fit.mp4"></video>
+  <div class="row">
+    <figure>
+      <video controls muted playsinline src="bake_top/henrique_webcam_1_bake_top.mp4"></video>
+      <figcaption>BAKER TOP v4 — palma do fit (rotações)</figcaption>
+    </figure>
+    <figure>
+      <video controls muted playsinline src="bake_top/henrique_webcam_1_bake_fit_joints.mp4"></video>
+      <figcaption>FIT JOINTS — dedos observados</figcaption>
+    </figure>
+  </div>
+
+  <h2>1 · Avatar Mixamo (bake do solver) — fit vs fast</h2>
+  <p class="note">O mesmo avatar e solver de sempre, só trocando a fonte: esquerda = juntas + aux do <b>fit</b> (SMPL-X com dedos, olhos e colares), direita = juntas + aux do <b>x55 rápido</b>.</p>
+  <video controls autoplay loop muted playsinline src="bake_fit_vs_fast/henrique_webcam_1_bake_fit_vs_fast.mp4"></video>
+  <div class="row">
+    <figure>
+      <video controls muted playsinline src="bake_fit_vs_fast/henrique_webcam_1_bake_fit.mp4"></video>
+      <figcaption>Avatar dirigido pelo FIT (rotações)</figcaption>
+    </figure>
+    <figure>
+      <video controls muted playsinline src="bake_fit_vs_fast/henrique_webcam_1_bake_fast.mp4"></video>
+      <figcaption>Avatar dirigido pelo FAST x55 (game path)</figcaption>
+    </figure>
+  </div>
+
+  <h2>2 · Mesh do fit vs esqueleto rápido (referência do sinal)</h2>
+  <p class="note">O mesh verde é o fit completo (10475 vértices, dedos articulados); o esqueleto azul é o caminho rápido. É a prova de que a rotação existe no fit.</p>
+  <video controls autoplay loop muted playsinline src="nlf_fit_webcam1/henrique_webcam_1_nlf_fit_vs_fast.mp4"></video>
+  <div class="row">
+    <figure>
+      <video controls muted playsinline src="nlf_fit_webcam1/henrique_webcam_1_nlf_fit_mesh.mp4"></video>
+      <figcaption>NLF-S FIT SMPL-X (rotações)</figcaption>
+    </figure>
+    <figure>
+      <video controls muted playsinline src="nlf_fit_webcam1/henrique_webcam_1_nlf_x55_fast.mp4"></video>
+      <figcaption>NLF-S FAST x55 (caminho do jogo)</figcaption>
+    </figure>
+  </div>
+
+  <p class="note" style="margin-top:16px">
+    Baker top: <a class="dl" href="bake_top/henrique_webcam_1_bake_top_vs_fit.mp4">side-by-side</a> ·
+    <a class="dl" href="bake_top/henrique_webcam_1_bake_top.mp4">só rotações</a> ·
+    <a class="dl" href="bake_top/henrique_webcam_1_bake_fit_joints.mp4">só juntas</a><br/>
+    Bake: <a class="dl" href="bake_fit_vs_fast/henrique_webcam_1_bake_fit_vs_fast.mp4">side-by-side</a> ·
+    <a class="dl" href="bake_fit_vs_fast/henrique_webcam_1_bake_fit.mp4">só fit</a> ·
+    <a class="dl" href="bake_fit_vs_fast/henrique_webcam_1_bake_fast.mp4">só fast</a><br/>
+    Mesh: <a class="dl" href="nlf_fit_webcam1/henrique_webcam_1_nlf_fit_vs_fast.mp4">side-by-side</a> ·
+    <a class="dl" href="nlf_fit_webcam1/henrique_webcam_1_nlf_fit_mesh.mp4">fit mesh</a> ·
+    <a class="dl" href="nlf_fit_webcam1/henrique_webcam_1_nlf_x55_fast.mp4">x55 fast</a>
+  </p>
+</div>
+</body>
+</html>

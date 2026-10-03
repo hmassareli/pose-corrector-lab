@@ -1,0 +1,8 @@
+# Phase 2 control: frozen architecture/loss with a different initialization.
+team: phase2
+notes: "baseline dropaccel replication; seed=2026"
+
+seed: 2026
+
+logging:
+  run_name: abl2_baseline_seed2026

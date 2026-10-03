@@ -1,0 +1,61 @@
+{
+  "metrics": {
+    "high": {
+      "medianMs": 16.69999999999709,
+      "p95Ms": 16.700000000000728,
+      "calls": 66,
+      "triangles": 1920703,
+      "pixelRatio": 1,
+      "shadows": true,
+      "geometries": 83,
+      "textures": 9
+    },
+    "balanced": {
+      "medianMs": 16.700000000000728,
+      "p95Ms": 16.799999999999272,
+      "calls": 67,
+      "triangles": 1879237,
+      "pixelRatio": 1,
+      "shadows": true,
+      "geometries": 83,
+      "textures": 9
+    },
+    "low": {
+      "medianMs": 16.69999999999709,
+      "p95Ms": 16.700000000000728,
+      "calls": 62,
+      "triangles": 1838335,
+      "pixelRatio": 0.85,
+      "shadows": false,
+      "geometries": 83,
+      "textures": 9
+    }
+  },
+  "tests": {
+    "slow": 0,
+    "notStunned": 0,
+    "fast": 2,
+    "counts": [
+      160,
+      32,
+      64
+    ],
+    "memory": [
+      {
+        "geometries": 86,
+        "textures": 9
+      },
+      {
+        "geometries": 86,
+        "textures": 9
+      },
+      {
+        "geometries": 86,
+        "textures": 9
+      }
+    ],
+    "trailWidth": 0.26000002938913025,
+    "words": 0
+  },
+  "errors": []
+}

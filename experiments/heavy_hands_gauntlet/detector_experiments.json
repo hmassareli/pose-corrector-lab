@@ -1,0 +1,98 @@
+[
+  {
+    "cooldown": 225,
+    "capture": "cached",
+    "events": 72,
+    "match": 65,
+    "false": 7,
+    "fist": 10.168890543114143
+  },
+  {
+    "cooldown": 225,
+    "capture": "fresh",
+    "events": 72,
+    "match": 65,
+    "false": 7,
+    "fist": 10.147708190133404
+  },
+  {
+    "cooldown": 240,
+    "capture": "cached",
+    "events": 68,
+    "match": 65,
+    "false": 3,
+    "fist": 10.710827084758026
+  },
+  {
+    "cooldown": 240,
+    "capture": "fresh",
+    "events": 68,
+    "match": 65,
+    "false": 3,
+    "fist": 10.695302941983963
+  },
+  {
+    "cooldown": 250,
+    "capture": "cached",
+    "events": 68,
+    "match": 65,
+    "false": 3,
+    "fist": 10.710827084758026
+  },
+  {
+    "cooldown": 250,
+    "capture": "fresh",
+    "events": 68,
+    "match": 65,
+    "false": 3,
+    "fist": 10.695302941983963
+  },
+  {
+    "cooldown": 260,
+    "capture": "cached",
+    "events": 68,
+    "match": 65,
+    "false": 3,
+    "fist": 10.710827084758026
+  },
+  {
+    "cooldown": 260,
+    "capture": "fresh",
+    "events": 68,
+    "match": 65,
+    "false": 3,
+    "fist": 10.695302941983963
+  },
+  {
+    "cooldown": 270,
+    "capture": "cached",
+    "events": 65,
+    "match": 64,
+    "false": 1,
+    "fist": 11.56387782936939
+  },
+  {
+    "cooldown": 270,
+    "capture": "fresh",
+    "events": 65,
+    "match": 64,
+    "false": 1,
+    "fist": 11.547671213917754
+  },
+  {
+    "cooldown": 280,
+    "capture": "cached",
+    "events": 65,
+    "match": 64,
+    "false": 1,
+    "fist": 11.56387782936939
+  },
+  {
+    "cooldown": 280,
+    "capture": "fresh",
+    "events": 65,
+    "match": 64,
+    "false": 1,
+    "fist": 11.547671213917754
+  }
+]

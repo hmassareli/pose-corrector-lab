@@ -1,0 +1,14 @@
+# Direction is tested only after reducing both temporal terms by 10-20x.
+team: phase2
+notes: "last-frame position + w_vel=0.005 + w_dir=0.005"
+
+model:
+  predict_sequence: true
+
+loss:
+  sequence_position_mode: last
+  w_vel: 0.005
+  w_dir: 0.005
+
+logging:
+  run_name: abl2_lastpos_vel005_dir005

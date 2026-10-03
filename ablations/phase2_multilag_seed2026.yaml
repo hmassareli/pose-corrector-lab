@@ -1,0 +1,13 @@
+# Replicate the phase-1 multilag winner with a different initialization.
+team: phase2
+notes: "multilag 1/3/6 replication; seed=2026"
+
+seed: 2026
+
+features:
+  zero_accel: false
+  multilag: true
+  multilag_steps: [1, 3, 6]
+
+logging:
+  run_name: abl2_multilag_seed2026

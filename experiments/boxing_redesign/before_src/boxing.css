@@ -1,0 +1,608 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap");
+:root {
+  color-scheme: dark;
+  --gold: #edbd75;
+  --ink: #0b111b;
+  --muted: #a7afbc;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--ink);
+  color: #f6f4ef;
+  font-family:
+    Inter,
+    Segoe UI,
+    sans-serif;
+  overflow: hidden;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+  border: 0;
+  color: inherit;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+#arena,
+.vignette {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.vignette {
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(6, 12, 21, 0.95), transparent 73%),
+    linear-gradient(
+      0deg,
+      rgba(5, 10, 17, 0.8),
+      transparent 22%,
+      transparent 80%,
+      rgba(5, 10, 17, 0.75)
+    );
+}
+body.fighting .vignette {
+  background: linear-gradient(
+    0deg,
+    rgba(5, 10, 17, 0.8),
+    transparent 20%,
+    transparent 80%,
+    rgba(5, 10, 17, 0.8)
+  );
+}
+header,
+footer {
+  position: fixed;
+  left: 4%;
+  right: 4%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+header {
+  top: 28px;
+}
+.brand {
+  font-family:
+    Barlow Condensed,
+    sans-serif;
+  font-size: 34px;
+  letter-spacing: 4px;
+  font-weight: 800;
+  color: #fff;
+  text-decoration: none;
+}
+.brand span {
+  color: var(--gold);
+}
+.brand small {
+  display: block;
+  font: 8px Inter;
+  letter-spacing: 3.6px;
+  margin-top: 2px;
+}
+.live-tag {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #c1c6cf;
+}
+.live-tag i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px #edbd7580;
+}
+.ghost {
+  background: #ffffff08;
+  border: 1px solid #ffffff18;
+  padding: 11px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.ghost:hover {
+  background: #ffffff16;
+}
+main {
+  position: fixed;
+  left: 8%;
+  top: 24%;
+  max-width: 500px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.eyebrow:before {
+  content: "";
+  width: 35px;
+  height: 1px;
+  background: var(--gold);
+}
+h1 {
+  font:
+    800 clamp(56px, 7vw, 104px) / 0.95 Barlow Condensed,
+    Impact,
+    sans-serif;
+  margin: 25px 0;
+  letter-spacing: -1px;
+}
+h1 em {
+  font-style: normal;
+  color: var(--gold);
+}
+main p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #b8c1ce;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+.primary,
+.secondary {
+  padding: 16px 24px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.primary {
+  background: var(--gold);
+  color: #202127;
+  box-shadow: 0 8px 32px #edbd7514;
+}
+.primary:hover {
+  background: #ffd89e;
+}
+.primary span {
+  margin-left: 25px;
+}
+.secondary {
+  background: #ffffff0d;
+  border: 1px solid #ffffff2b;
+}
+.hero-meta {
+  display: flex;
+  gap: 22px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  margin: 34px 0 18px;
+}
+.hero-meta b {
+  color: #99a4b5;
+  margin-left: 8px;
+  font-weight: 500;
+}
+.muted {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+footer {
+  bottom: 22px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #a8b0bd;
+}
+footer i {
+  color: var(--gold);
+  font-style: normal;
+}
+footer > div {
+  display: flex;
+  gap: 10px;
+}
+kbd {
+  font: 10px Inter;
+  border: 1px solid #ffffff30;
+  padding: 2px 5px;
+  margin-left: 8px;
+}
+#hud {
+  position: fixed;
+  top: 108px;
+  left: 8%;
+  right: 8%;
+  display: flex;
+  justify-content: space-between;
+  gap: 35px;
+  pointer-events: none;
+}
+#hud[hidden] {
+  display: none;
+}
+.fighter {
+  width: 31%;
+  max-width: 370px;
+}
+.fighter small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #7aaedc;
+}
+.fighter strong {
+  display: block;
+  font: 700 26px Barlow Condensed;
+  margin: 6px 0 9px;
+}
+.fighter.right {
+  text-align: right;
+}
+.fighter.right small {
+  color: #e18888;
+}
+.health {
+  height: 7px;
+  background: #ffffff15;
+  overflow: hidden;
+  transform: skewX(-18deg);
+}
+.health i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #4b85c4, #9cd0ed);
+  width: 100%;
+  transition: width 0.15s;
+}
+.right .health i {
+  background: linear-gradient(90deg, #d55d67, #efa39f);
+  margin-left: auto;
+}
+.fighter > span {
+  display: block;
+  font-size: 9px;
+  color: #bcc5d0;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+.round {
+  text-align: center;
+  min-width: 125px;
+}
+.round small {
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+.round b {
+  display: block;
+  font: 600 45px Barlow Condensed;
+  margin: 3px 0;
+}
+.round span {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #b9c1ce;
+}
+#guide {
+  position: fixed;
+  left: 4%;
+  bottom: 90px;
+  width: 270px;
+  border-left: 2px solid var(--gold);
+  padding: 17px 19px;
+  background: linear-gradient(90deg, #0c1524ed, #0c15248c);
+  border-radius: 0 8px 8px 0;
+}
+#guide small {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+h3 {
+  font: 600 23px Barlow Condensed;
+  margin: 8px 0;
+}
+#guide p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #bdc5d2;
+}
+.guide-actions {
+  display: flex;
+  gap: 8px;
+}
+.guide-actions button {
+  background: #ffffff12;
+  border: 1px solid #ffffff20;
+  padding: 7px;
+  font-size: 9px;
+  border-radius: 4px;
+}
+#trackingStatus {
+  display: block;
+  font-size: 9px;
+  margin-top: 10px;
+  color: #a9b8c8;
+}
+#preview {
+  width: 120px;
+  display: block;
+  transform: scaleX(-1);
+  border-radius: 4px;
+  margin-top: 10px;
+}
+#preview[hidden] {
+  display: none;
+}
+#combatMessage {
+  position: fixed;
+  top: 36%;
+  left: 25%;
+  right: 25%;
+  text-align: center;
+  font: 700 48px Barlow Condensed;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 2px 25px #000;
+  pointer-events: none;
+}
+dialog {
+  width: 440px;
+  max-width: calc(100% - 28px);
+  max-height: 90vh;
+  border: 1px solid #42516a;
+  background: linear-gradient(145deg, #1b273a, #0c1422);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 24px 100px #000a;
+  color: #fff;
+}
+dialog::backdrop {
+  background: #02060bb8;
+  backdrop-filter: blur(8px);
+}
+.dialog-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dialog-top small,
+dialog > small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+.dialog-top button {
+  background: #ffffff0a;
+  border-radius: 5px;
+  font-size: 22px;
+  width: 28px;
+}
+h2 {
+  font: 700 38px Barlow Condensed;
+  margin: 15px 0 24px;
+}
+dialog label {
+  display: block;
+  font-size: 11px;
+  color: #d1dae5;
+  margin: 16px 0;
+}
+select,
+input:not([type="checkbox"]):not([type="range"]) {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px;
+  background: #070e19;
+  border: 1px solid #3a465a;
+  color: #e3eaf3;
+  border-radius: 5px;
+}
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--gold);
+  margin: 15px 0 0;
+}
+.range-label output {
+  float: right;
+  color: var(--gold);
+}
+.check {
+  display: flex !important;
+  gap: 10px;
+  line-height: 1.6;
+}
+input[type="checkbox"] {
+  accent-color: var(--gold);
+}
+#roomStatus {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--gold);
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  header {
+    top: 18px;
+  }
+  .brand {
+    font-size: 25px;
+  }
+  .live-tag {
+    display: none;
+  }
+  main {
+    left: 6%;
+    top: 25%;
+  }
+  h1 {
+    font-size: 68px;
+  }
+  .hero-meta {
+    gap: 12px;
+    font-size: 7px;
+  }
+  footer > span {
+    display: none;
+  }
+  footer {
+    justify-content: flex-end;
+  }
+  #hud {
+    left: 4%;
+    right: 4%;
+    gap: 12px;
+    top: 88px;
+  }
+  .fighter strong {
+    font-size: 20px;
+  }
+  .round b {
+    font-size: 34px;
+  }
+  .round {
+    min-width: 100px;
+  }
+  #guide {
+    width: 200px;
+    bottom: 80px;
+    padding: 10px;
+  }
+  #guide p {
+    font-size: 9px;
+  }
+  #combatMessage {
+    font-size: 36px;
+  }
+  dialog {
+    padding: 22px;
+  }
+}
+@media (max-height: 720px) {
+  main {
+    top: 21%;
+  }
+  h1 {
+    font-size: 76px;
+    margin: 20px 0;
+  }
+  .hero-meta {
+    margin: 22px 0 12px;
+  }
+  #guide {
+    bottom: 74px;
+    padding: 10px 15px;
+  }
+  #guide p {
+    margin: 6px 0;
+  }
+}
+
+#combatMessage {
+  top: 222px;
+  font: 700 24px Barlow Condensed;
+  letter-spacing: 2px;
+  color: #f4cf90;
+}
+@media (max-height: 720px) {
+  #combatMessage {
+    top: 205px;
+    font-size: 20px;
+  }
+}
+
+#combatMessage {
+  top: 78px;
+  left: 35%;
+  right: 35%;
+  font: 600 16px Barlow Condensed;
+  letter-spacing: 2px;
+  color: #f0c483;
+  background: #152134b0;
+  border-radius: 4px;
+  line-height: 26px;
+}
+#combatMessage:empty {
+  display: none;
+}
+@media (max-width: 700px) {
+  #combatMessage {
+    top: 66px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+}
+
+#guide {
+  height: auto;
+  max-height: 310px;
+  overflow: auto;
+  align-self: start;
+}
+#preview {
+  width: 136px;
+  height: 76px;
+  object-fit: cover;
+}
+body.pose-active #guide {
+  width: 230px;
+  padding: 12px 16px;
+}
+body.pose-active #guide p {
+  display: none;
+}
+body.pose-active #guide h3 {
+  font-size: 18px;
+  margin: 6px 0 9px;
+}
+body.first-person #guide {
+  top: 235px;
+  bottom: auto;
+  width: 205px;
+  max-height: 240px;
+  background: #0c1524ba;
+}
+body.first-person.pose-active #guide {
+  width: 190px;
+}
+body.first-person footer > div {
+  position: fixed;
+  right: 4%;
+  top: 78px;
+  gap: 7px;
+}
+body.first-person footer .ghost {
+  font-size: 9px;
+  padding: 7px 10px;
+}
+body.first-person footer > span {
+  opacity: 0.45;
+}
+@media (max-height: 800px) {
+  body.pose-active #guide {
+    max-height: 220px;
+  }
+  body.first-person #guide {
+    top: 217px;
+  }
+}

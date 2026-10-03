@@ -1,0 +1,18 @@
+{
+  "normal": {
+    "det_R": 1.0,
+    "orthonormal_error": 0.0,
+    "max_target_displacement_with_zero_delta_m": 0.0
+  },
+  "coincident_shoulders": {
+    "det_R": 0.0,
+    "orthonormal_error": 1.7320508075688772,
+    "max_target_displacement_with_zero_delta_m": 0.5244044240850758
+  },
+  "metric_units": {
+    "shoulder_width_m": 0.4,
+    "bodyframe_error": 0.25,
+    "expected_physical_error_mm": 100,
+    "reported_mpjpe_overall_mm": 250.0
+  }
+}

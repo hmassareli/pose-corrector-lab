@@ -1,0 +1,891 @@
+{
+  "solverSha256": "b9d97355a288107961dc2f09fb6815c426e66b527ae14d1b834804e4047620fc",
+  "method": "Game rig creation/calibration reproduced in an isolated harness, actual assets and current solver. Raw NLF x55 from existing 1056-frame sequence; default smoothing 50%, game-facing clamp, before game leg IK. Head synthetic probes bypass smoothing.",
+  "limitations": [
+    "Input agreement is not human ground truth.",
+    "No live human recording or end-to-end latency measurement.",
+    "Clavicle/spine definitions differ across rigs; raw angle includes authored offsets.",
+    "Head independent trials rotate eyes/jaw around a stationary skull joint, isolating head orientation."
+  ],
+  "avatars": {
+    "boxer-prism31": {
+      "mapped": {
+        "hips": {
+          "bone": "mixamorigHips",
+          "child": "mixamorigSpine"
+        },
+        "spine": {
+          "bone": "mixamorigSpine",
+          "child": "mixamorigSpine1"
+        },
+        "spine1": {
+          "bone": "mixamorigSpine1",
+          "child": "mixamorigSpine2"
+        },
+        "spine2": {
+          "bone": "mixamorigSpine2",
+          "child": "mixamorigNeck"
+        },
+        "neck": {
+          "bone": "mixamorigNeck",
+          "child": "mixamorigHead"
+        },
+        "head": {
+          "bone": "mixamorigHead",
+          "child": "mixamorigHeadTop_End"
+        },
+        "leftArm": {
+          "bone": "mixamorigLeftArm",
+          "child": "mixamorigLeftForeArm"
+        },
+        "leftForeArm": {
+          "bone": "mixamorigLeftForeArm",
+          "child": "mixamorigLeftHand"
+        },
+        "rightArm": {
+          "bone": "mixamorigRightArm",
+          "child": "mixamorigRightForeArm"
+        },
+        "rightForeArm": {
+          "bone": "mixamorigRightForeArm",
+          "child": "mixamorigRightHand"
+        },
+        "leftShoulder": {
+          "bone": "mixamorigLeftShoulder",
+          "child": "mixamorigLeftArm"
+        },
+        "rightShoulder": {
+          "bone": "mixamorigRightShoulder",
+          "child": "mixamorigRightArm"
+        },
+        "leftHand": {
+          "bone": "mixamorigLeftHand",
+          "child": null
+        },
+        "rightHand": {
+          "bone": "mixamorigRightHand",
+          "child": null
+        },
+        "leftUpLeg": {
+          "bone": "mixamorigLeftUpLeg",
+          "child": "mixamorigLeftLeg"
+        },
+        "leftLeg": {
+          "bone": "mixamorigLeftLeg",
+          "child": "mixamorigLeftFoot"
+        },
+        "rightUpLeg": {
+          "bone": "mixamorigRightUpLeg",
+          "child": "mixamorigRightLeg"
+        },
+        "rightLeg": {
+          "bone": "mixamorigRightLeg",
+          "child": "mixamorigRightFoot"
+        },
+        "leftFoot": {
+          "bone": "mixamorigLeftFoot",
+          "child": "mixamorigLeftToeBase"
+        },
+        "rightFoot": {
+          "bone": "mixamorigRightFoot",
+          "child": "mixamorigRightToeBase"
+        }
+      },
+      "allBones": [
+        "mixamorigHips",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftLeg",
+        "mixamorigLeftFoot",
+        "mixamorigLeftToeBase",
+        "mixamorigLeftToe_End",
+        "mixamorigRightUpLeg",
+        "mixamorigRightLeg",
+        "mixamorigRightFoot",
+        "mixamorigRightToeBase",
+        "mixamorigRightToe_End",
+        "mixamorigSpine",
+        "mixamorigSpine1",
+        "mixamorigSpine2",
+        "mixamorigLeftShoulder",
+        "mixamorigLeftArm",
+        "mixamorigLeftForeArm",
+        "mixamorigLeftHand",
+        "mixamorigNeck",
+        "mixamorigHead",
+        "mixamorigHeadTop_End",
+        "mixamorigRightShoulder",
+        "mixamorigRightArm",
+        "mixamorigRightForeArm",
+        "mixamorigRightHand"
+      ],
+      "headTrials": [
+        {
+          "axis": "yaw",
+          "inputDegrees": 45,
+          "headDegrees": 40.50000021451885,
+          "neckDegrees": 33.749999264938644
+        },
+        {
+          "axis": "yaw",
+          "inputDegrees": -45,
+          "headDegrees": 40.500000209851414,
+          "neckDegrees": 33.75000219788068
+        },
+        {
+          "axis": "pitch",
+          "inputDegrees": 30,
+          "headDegrees": 0.010764123246775411,
+          "neckDegrees": 0.010776083530747462
+        },
+        {
+          "axis": "pitch",
+          "inputDegrees": -30,
+          "headDegrees": 0.010764123246775411,
+          "neckDegrees": 0.010776083530747462
+        },
+        {
+          "axis": "roll",
+          "inputDegrees": 25,
+          "headDegrees": 0.010764123246775411,
+          "neckDegrees": 0.010776083530747462
+        },
+        {
+          "axis": "roll",
+          "inputDegrees": -25,
+          "headDegrees": 0.010764123246775411,
+          "neckDegrees": 0.010776083530747462
+        },
+        {
+          "axis": "missing_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 33.5016149869095,
+          "neckDegrees": 0.08512251030953633
+        },
+        {
+          "axis": "collapsed_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 33.5016149869095,
+          "neckDegrees": 0.08512251030953633
+        },
+        {
+          "axis": "short_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 81.00000040158625,
+          "neckDegrees": 67.49999846444356
+        }
+      ],
+      "pose33": {
+        "headDegrees": 60.893615289584545,
+        "neckDegrees": 42.4028650199737
+      },
+      "sourceFrames": 1056,
+      "sampledFrames": 264,
+      "directions": {
+        "hips": {
+          "p50": 13.6,
+          "p95": 21.54
+        },
+        "spine": {
+          "p50": 14.6,
+          "p95": 25.34
+        },
+        "spine1": {
+          "p50": 32.46,
+          "p95": 41.13
+        },
+        "spine2": {
+          "p50": 1.8,
+          "p95": 3.82
+        },
+        "neck": {
+          "p50": 12.08,
+          "p95": 16.0
+        },
+        "leftShoulder": {
+          "p50": 19.62,
+          "p95": 21.51
+        },
+        "rightShoulder": {
+          "p50": 18.87,
+          "p95": 21.39
+        },
+        "leftArm": {
+          "p50": 2.29,
+          "p95": 7.66
+        },
+        "rightArm": {
+          "p50": 2.62,
+          "p95": 8.06
+        },
+        "leftForeArm": {
+          "p50": 1.93,
+          "p95": 10.39
+        },
+        "rightForeArm": {
+          "p50": 1.96,
+          "p95": 10.81
+        },
+        "leftHand": {
+          "p50": 2.22,
+          "p95": 7.74
+        },
+        "rightHand": {
+          "p50": 2.48,
+          "p95": 9.34
+        },
+        "leftUpLeg": {
+          "p50": 2.49,
+          "p95": 6.24
+        },
+        "rightUpLeg": {
+          "p50": 3.07,
+          "p95": 6.84
+        },
+        "leftLeg": {
+          "p50": 1.81,
+          "p95": 4.5
+        },
+        "rightLeg": {
+          "p50": 2.23,
+          "p95": 5.62
+        },
+        "leftFoot": {
+          "p50": 5.13,
+          "p95": 8.94
+        },
+        "rightFoot": {
+          "p50": 6.09,
+          "p95": 10.9
+        }
+      },
+      "faceOrientationResidual": {
+        "p50": 5.976502450095056,
+        "p95": 13.663297511997325,
+        "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+      },
+      "uniqueBoneNames": 25
+    },
+    "boxeador": {
+      "mapped": {
+        "hips": {
+          "bone": "mixamorigHips",
+          "child": "mixamorigSpine"
+        },
+        "spine": {
+          "bone": "mixamorigSpine",
+          "child": "mixamorigSpine1"
+        },
+        "spine1": {
+          "bone": "mixamorigSpine1",
+          "child": "mixamorigSpine2"
+        },
+        "spine2": {
+          "bone": "mixamorigSpine2",
+          "child": "mixamorigNeck"
+        },
+        "neck": {
+          "bone": "mixamorigNeck",
+          "child": "mixamorigHead"
+        },
+        "head": {
+          "bone": "mixamorigHead",
+          "child": "mixamorigHeadTop_End"
+        },
+        "leftArm": {
+          "bone": "mixamorigLeftArm",
+          "child": "mixamorigLeftForeArm"
+        },
+        "leftForeArm": {
+          "bone": "mixamorigLeftForeArm",
+          "child": "mixamorigLeftHand"
+        },
+        "rightArm": {
+          "bone": "mixamorigRightArm",
+          "child": "mixamorigRightForeArm"
+        },
+        "rightForeArm": {
+          "bone": "mixamorigRightForeArm",
+          "child": "mixamorigRightHand"
+        },
+        "leftShoulder": {
+          "bone": "mixamorigLeftShoulder",
+          "child": "mixamorigLeftArm"
+        },
+        "rightShoulder": {
+          "bone": "mixamorigRightShoulder",
+          "child": "mixamorigRightArm"
+        },
+        "leftHand": {
+          "bone": "mixamorigLeftHand",
+          "child": "mixamorigLeftHandIndex1"
+        },
+        "rightHand": {
+          "bone": "mixamorigRightHand",
+          "child": "mixamorigRightHandIndex1"
+        },
+        "leftUpLeg": {
+          "bone": "mixamorigLeftUpLeg",
+          "child": "mixamorigLeftLeg"
+        },
+        "leftLeg": {
+          "bone": "mixamorigLeftLeg",
+          "child": "mixamorigLeftFoot"
+        },
+        "rightUpLeg": {
+          "bone": "mixamorigRightUpLeg",
+          "child": "mixamorigRightLeg"
+        },
+        "rightLeg": {
+          "bone": "mixamorigRightLeg",
+          "child": "mixamorigRightFoot"
+        },
+        "leftFoot": {
+          "bone": "mixamorigLeftFoot",
+          "child": "mixamorigLeftToeBase"
+        },
+        "rightFoot": {
+          "bone": "mixamorigRightFoot",
+          "child": "mixamorigRightToeBase"
+        }
+      },
+      "allBones": [
+        "mixamorigHips",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftLeg",
+        "mixamorigLeftFoot",
+        "mixamorigLeftToeBase",
+        "mixamorigLeftToe_End",
+        "mixamorigRightUpLeg",
+        "mixamorigRightLeg",
+        "mixamorigRightFoot",
+        "mixamorigRightToeBase",
+        "mixamorigRightToe_End",
+        "mixamorigSpine",
+        "mixamorigSpine1",
+        "mixamorigSpine2",
+        "mixamorigLeftShoulder",
+        "mixamorigLeftArm",
+        "mixamorigLeftForeArm",
+        "mixamorigLeftHand",
+        "mixamorigLeftHandIndex1",
+        "mixamorigLeftHandIndex2",
+        "mixamorigLeftHandIndex3",
+        "mixamorigLeftHandIndex4",
+        "mixamorigNeck",
+        "mixamorigHead",
+        "mixamorigHeadTop_End",
+        "mixamorigRightShoulder",
+        "mixamorigRightArm",
+        "mixamorigRightForeArm",
+        "mixamorigRightHand",
+        "mixamorigRightHandIndex1",
+        "mixamorigRightHandIndex2",
+        "mixamorigRightHandIndex3",
+        "mixamorigRightHandIndex4"
+      ],
+      "headTrials": [
+        {
+          "axis": "yaw",
+          "inputDegrees": 45,
+          "headDegrees": 40.500000197332135,
+          "neckDegrees": 33.75000035956906
+        },
+        {
+          "axis": "yaw",
+          "inputDegrees": -45,
+          "headDegrees": 40.50000018859346,
+          "neckDegrees": 33.75000037779022
+        },
+        {
+          "axis": "pitch",
+          "inputDegrees": 30,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "pitch",
+          "inputDegrees": -30,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "roll",
+          "inputDegrees": 25,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "roll",
+          "inputDegrees": -25,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "missing_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 33.479368802528434,
+          "neckDegrees": 0.19939711801302482
+        },
+        {
+          "axis": "collapsed_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 33.479368802528434,
+          "neckDegrees": 0.19939711801302482
+        },
+        {
+          "axis": "short_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 81.0000004673069,
+          "neckDegrees": 67.50000166355159
+        }
+      ],
+      "pose33": {
+        "headDegrees": 60.921009162361706,
+        "neckDegrees": 42.403223041820034
+      },
+      "sourceFrames": 1056,
+      "sampledFrames": 264,
+      "directions": {
+        "hips": {
+          "p50": 13.67,
+          "p95": 22.1
+        },
+        "spine": {
+          "p50": 14.58,
+          "p95": 25.35
+        },
+        "spine1": {
+          "p50": 32.44,
+          "p95": 41.13
+        },
+        "spine2": {
+          "p50": 1.8,
+          "p95": 3.85
+        },
+        "neck": {
+          "p50": 12.13,
+          "p95": 15.99
+        },
+        "leftShoulder": {
+          "p50": 33.4,
+          "p95": 35.26
+        },
+        "rightShoulder": {
+          "p50": 32.9,
+          "p95": 35.29
+        },
+        "leftArm": {
+          "p50": 2.23,
+          "p95": 7.92
+        },
+        "rightArm": {
+          "p50": 2.54,
+          "p95": 7.53
+        },
+        "leftForeArm": {
+          "p50": 1.9,
+          "p95": 10.3
+        },
+        "rightForeArm": {
+          "p50": 2.01,
+          "p95": 10.84
+        },
+        "leftHand": {
+          "p50": 2.3,
+          "p95": 7.9
+        },
+        "rightHand": {
+          "p50": 2.53,
+          "p95": 9.2
+        },
+        "leftUpLeg": {
+          "p50": 2.47,
+          "p95": 6.12
+        },
+        "rightUpLeg": {
+          "p50": 3.2,
+          "p95": 6.78
+        },
+        "leftLeg": {
+          "p50": 1.82,
+          "p95": 4.55
+        },
+        "rightLeg": {
+          "p50": 2.25,
+          "p95": 5.56
+        },
+        "leftFoot": {
+          "p50": 5.53,
+          "p95": 9.39
+        },
+        "rightFoot": {
+          "p50": 6.49,
+          "p95": 11.56
+        }
+      },
+      "faceOrientationResidual": {
+        "p50": 5.949952024075943,
+        "p95": 13.616349253659353,
+        "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+      },
+      "uniqueBoneNames": 33
+    },
+    "fighter-web": {
+      "mapped": {
+        "hips": {
+          "bone": "mixamorigHips",
+          "child": "mixamorigSpine"
+        },
+        "spine": {
+          "bone": "mixamorigSpine",
+          "child": "mixamorigSpine1"
+        },
+        "spine1": {
+          "bone": "mixamorigSpine1",
+          "child": "mixamorigSpine2"
+        },
+        "spine2": {
+          "bone": "mixamorigSpine2",
+          "child": "mixamorigNeck"
+        },
+        "neck": {
+          "bone": "mixamorigNeck",
+          "child": "mixamorigHead"
+        },
+        "head": {
+          "bone": "mixamorigHead",
+          "child": null
+        },
+        "leftArm": {
+          "bone": "mixamorigLeftArm",
+          "child": "mixamorigLeftForeArm"
+        },
+        "leftForeArm": {
+          "bone": "mixamorigLeftForeArm",
+          "child": "mixamorigLeftHand"
+        },
+        "rightArm": {
+          "bone": "mixamorigRightArm",
+          "child": "mixamorigRightForeArm"
+        },
+        "rightForeArm": {
+          "bone": "mixamorigRightForeArm",
+          "child": "mixamorigRightHand"
+        },
+        "leftShoulder": {
+          "bone": "mixamorigLeftShoulder",
+          "child": "mixamorigLeftArm"
+        },
+        "rightShoulder": {
+          "bone": "mixamorigRightShoulder",
+          "child": "mixamorigRightArm"
+        },
+        "leftHand": {
+          "bone": "mixamorigLeftHand",
+          "child": "mixamorigLeftHandMiddle1"
+        },
+        "rightHand": {
+          "bone": "mixamorigRightHand",
+          "child": "mixamorigRightHandMiddle1"
+        },
+        "leftUpLeg": {
+          "bone": "mixamorigLeftUpLeg",
+          "child": "mixamorigLeftLeg"
+        },
+        "leftLeg": {
+          "bone": "mixamorigLeftLeg",
+          "child": "mixamorigLeftFoot"
+        },
+        "rightUpLeg": {
+          "bone": "mixamorigRightUpLeg",
+          "child": "mixamorigRightLeg"
+        },
+        "rightLeg": {
+          "bone": "mixamorigRightLeg",
+          "child": "mixamorigRightFoot"
+        },
+        "leftFoot": {
+          "bone": "mixamorigLeftFoot",
+          "child": "mixamorigLeftToeBase"
+        },
+        "rightFoot": {
+          "bone": "mixamorigRightFoot",
+          "child": "mixamorigRightToeBase"
+        }
+      },
+      "allBones": [
+        "mixamorigHips",
+        "mixamorigHips",
+        "mixamorigHips",
+        "mixamorigHips",
+        "mixamorigSpine",
+        "mixamorigSpine",
+        "mixamorigSpine1",
+        "mixamorigSpine1",
+        "mixamorigSpine1",
+        "mixamorigSpine2",
+        "mixamorigSpine2",
+        "mixamorigSpine2",
+        "mixamorigSpine2",
+        "mixamorigSpine2",
+        "mixamorigSpine2",
+        "mixamorigSpine2",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigNeck",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigHead",
+        "mixamorigLeftShoulder",
+        "mixamorigLeftShoulder",
+        "mixamorigLeftShoulder",
+        "mixamorigLeftArm",
+        "mixamorigLeftArm",
+        "mixamorigLeftArm",
+        "mixamorigLeftArm",
+        "mixamorigLeftForeArm",
+        "mixamorigLeftForeArm",
+        "mixamorigLeftHand",
+        "mixamorigLeftHand",
+        "mixamorigLeftHandThumb1",
+        "mixamorigLeftHandThumb1",
+        "mixamorigLeftHandThumb2",
+        "mixamorigLeftHandThumb3",
+        "mixamorigLeftHandIndex1",
+        "mixamorigLeftHandIndex2",
+        "mixamorigLeftHandIndex3",
+        "mixamorigLeftHandMiddle1",
+        "mixamorigLeftHandMiddle2",
+        "mixamorigLeftHandMiddle3",
+        "mixamorigLeftHandRing1",
+        "mixamorigLeftHandRing2",
+        "mixamorigLeftHandRing3",
+        "mixamorigLeftHandPinky1",
+        "mixamorigLeftHandPinky1",
+        "mixamorigLeftHandPinky2",
+        "mixamorigLeftHandPinky3",
+        "mixamorigRightShoulder",
+        "mixamorigRightShoulder",
+        "mixamorigRightShoulder",
+        "mixamorigRightArm",
+        "mixamorigRightArm",
+        "mixamorigRightArm",
+        "mixamorigRightArm",
+        "mixamorigRightForeArm",
+        "mixamorigRightForeArm",
+        "mixamorigRightHand",
+        "mixamorigRightHand",
+        "mixamorigRightHandThumb1",
+        "mixamorigRightHandThumb1",
+        "mixamorigRightHandThumb2",
+        "mixamorigRightHandThumb3",
+        "mixamorigRightHandMiddle1",
+        "mixamorigRightHandMiddle2",
+        "mixamorigRightHandMiddle3",
+        "mixamorigRightHandRing1",
+        "mixamorigRightHandRing2",
+        "mixamorigRightHandRing3",
+        "mixamorigRightHandIndex1",
+        "mixamorigRightHandIndex2",
+        "mixamorigRightHandIndex3",
+        "mixamorigRightHandPinky1",
+        "mixamorigRightHandPinky1",
+        "mixamorigRightHandPinky2",
+        "mixamorigRightHandPinky3",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftUpLeg",
+        "mixamorigLeftLeg",
+        "mixamorigLeftLeg",
+        "mixamorigLeftLeg",
+        "mixamorigLeftLeg",
+        "mixamorigLeftFoot",
+        "mixamorigLeftFoot",
+        "mixamorigLeftFoot",
+        "mixamorigLeftFoot",
+        "mixamorigLeftToeBase",
+        "mixamorigLeftToeBase",
+        "mixamorigLeftToeBase",
+        "mixamorigRightUpLeg",
+        "mixamorigRightUpLeg",
+        "mixamorigRightUpLeg",
+        "mixamorigRightUpLeg",
+        "mixamorigRightUpLeg",
+        "mixamorigRightUpLeg",
+        "mixamorigRightLeg",
+        "mixamorigRightLeg",
+        "mixamorigRightLeg",
+        "mixamorigRightLeg",
+        "mixamorigRightFoot",
+        "mixamorigRightFoot",
+        "mixamorigRightFoot",
+        "mixamorigRightFoot",
+        "mixamorigRightToeBase",
+        "mixamorigRightToeBase",
+        "mixamorigRightToeBase"
+      ],
+      "headTrials": [
+        {
+          "axis": "yaw",
+          "inputDegrees": 45,
+          "headDegrees": 40.49999956878971,
+          "neckDegrees": 33.75000010616993
+        },
+        {
+          "axis": "yaw",
+          "inputDegrees": -45,
+          "headDegrees": 40.50000011655962,
+          "neckDegrees": 33.750000099312494
+        },
+        {
+          "axis": "pitch",
+          "inputDegrees": 30,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "pitch",
+          "inputDegrees": -30,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "roll",
+          "inputDegrees": 25,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "roll",
+          "inputDegrees": -25,
+          "headDegrees": 0,
+          "neckDegrees": 0
+        },
+        {
+          "axis": "missing_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 34.39035672600632,
+          "neckDegrees": 4.361630900749169
+        },
+        {
+          "axis": "collapsed_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 34.39035672600632,
+          "neckDegrees": 4.361630900749169
+        },
+        {
+          "axis": "short_eyes",
+          "inputDegrees": 0,
+          "headDegrees": 80.99999939027776,
+          "neckDegrees": 67.50000048189999
+        }
+      ],
+      "pose33": {
+        "headDegrees": 62.07849711378699,
+        "neckDegrees": 42.609279810988596
+      },
+      "sourceFrames": 1056,
+      "sampledFrames": 264,
+      "directions": {
+        "hips": {
+          "p50": 13.62,
+          "p95": 21.84
+        },
+        "spine": {
+          "p50": 14.58,
+          "p95": 25.28
+        },
+        "spine1": {
+          "p50": 32.48,
+          "p95": 41.15
+        },
+        "spine2": {
+          "p50": 1.78,
+          "p95": 3.84
+        },
+        "neck": {
+          "p50": 11.74,
+          "p95": 15.74
+        },
+        "leftShoulder": {
+          "p50": 18.14,
+          "p95": 20.33
+        },
+        "rightShoulder": {
+          "p50": 28.29,
+          "p95": 29.97
+        },
+        "leftArm": {
+          "p50": 2.22,
+          "p95": 7.34
+        },
+        "rightArm": {
+          "p50": 2.57,
+          "p95": 7.79
+        },
+        "leftForeArm": {
+          "p50": 1.92,
+          "p95": 10.15
+        },
+        "rightForeArm": {
+          "p50": 1.98,
+          "p95": 10.73
+        },
+        "leftHand": {
+          "p50": 2.19,
+          "p95": 8.1
+        },
+        "rightHand": {
+          "p50": 2.49,
+          "p95": 8.65
+        },
+        "leftUpLeg": {
+          "p50": 2.49,
+          "p95": 6.18
+        },
+        "rightUpLeg": {
+          "p50": 3.13,
+          "p95": 6.8
+        },
+        "leftLeg": {
+          "p50": 1.83,
+          "p95": 4.71
+        },
+        "rightLeg": {
+          "p50": 2.24,
+          "p95": 5.58
+        },
+        "leftFoot": {
+          "p50": 5.06,
+          "p95": 9.07
+        },
+        "rightFoot": {
+          "p50": 6.37,
+          "p95": 11.37
+        }
+      },
+      "faceOrientationResidual": {
+        "p50": 5.918648381961414,
+        "p95": 13.579589200849437,
+        "method": "Residual vs raw eye-midpoint/head facial basis after removing ONE constant rig offset, not human truth."
+      },
+      "uniqueBoneNames": 52
+    }
+  },
+  "observedPageErrors": []
+}

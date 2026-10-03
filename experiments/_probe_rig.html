@@ -1,0 +1,22 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head><body><script type="module">
+window.__R__ = null; window.__E__ = null;
+try {
+  const { loadAvatar } = await import("/static/avatar_assets.js");
+  const { buildAvatarRig } = await import("/static/mikapo_mixamo_solver.js");
+  const id = new URLSearchParams(location.search).get("avatar");
+  const { root, spec } = await loadAvatar(id);
+  const all = []; root.traverse(n => { if (n.isBone || n.type === "Bone") all.push(n.name); });
+  const rig = buildAvatarRig(root);
+  const mapped = {};
+  for (const [k, v] of rig.bones) mapped[k] = { bone: v.bone.name, child: v.child ? v.child.name : null };
+  const fingers = {};
+  for (const side of ["left","right"]) {
+    const hand = rig.bones.get(side === "left" ? "leftHand" : "rightHand");
+    fingers[side] = hand ? hand.bone.children.filter(c => c.isBone || c.type === "Bone").map(c => c.name) : [];
+  }
+  window.__R__ = { spec, bone_nodes: all.length, unique: [...new Set(all)].length,
+                   names: [...new Set(all)], mapped, fingers };
+} catch (e) { window.__E__ = String(e && e.stack || e); }
+</script></body></html>

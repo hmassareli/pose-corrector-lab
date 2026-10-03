@@ -1,0 +1,41 @@
+{
+  "n_rows": 17,
+  "top": [
+    {
+      "name": "lastpos_vel003_best",
+      "hand_prox_mae_C": "0.0758",
+      "test_hard_mm": "187.4433",
+      "test_hard_impr_pct": "63.9446",
+      "punch_score": 0.5043141906026818
+    },
+    {
+      "name": "arch_hidden192_best",
+      "hand_prox_mae_C": "0.0767",
+      "test_hard_mm": "189.4163",
+      "test_hard_impr_pct": "63.565",
+      "punch_score": 0.48093081630993934
+    },
+    {
+      "name": "multilag_separate_best",
+      "hand_prox_mae_C": "0.0769",
+      "test_hard_mm": "192.7027",
+      "test_hard_impr_pct": "62.9329",
+      "punch_score": 0.4826448651059733
+    },
+    {
+      "name": "lastpos_vel005_best",
+      "hand_prox_mae_C": "0.0772",
+      "test_hard_mm": "188.3285",
+      "test_hard_impr_pct": "63.7743",
+      "punch_score": 0.5029461282315464
+    },
+    {
+      "name": "baseline_seed42_best",
+      "hand_prox_mae_C": "0.0772",
+      "test_hard_mm": "194.7699",
+      "test_hard_impr_pct": "62.5352",
+      "punch_score": 0.49348055589787293
+    }
+  ],
+  "leaderboard": "C:\\Users\\Henrique\\studies\\3d augmented games using mocap\\pose_corrector_lab\\ablations\\phase2_20260728\\leaderboard.tsv"
+}

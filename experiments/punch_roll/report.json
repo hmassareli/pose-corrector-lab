@@ -1,0 +1,301 @@
+{
+  "purpose": "wrist-roll signal: x55 knuckles (what the live viewer draws) vs SMPL fit",
+  "device": "cuda",
+  "n_images": 13,
+  "note": "roll_deg is the signed angle of across(index<->pinky) around the current forearm axis; swept is its cumulative travel (unwrap). fit_wrist_roll is the fit's wrist rotvec projected on the fitted forearm axis. Angles in degrees.",
+  "summary": {
+    "left": {
+      "x55_roll_deg": {
+        "n": 13,
+        "min": -149.15,
+        "max": 124.83,
+        "range": 273.98,
+        "mean": 38.42,
+        "std": 65.89
+      },
+      "x55_swept_roll_deg": 398.53,
+      "x55_across_span_mm": {
+        "n": 13,
+        "min": 44.01,
+        "max": 67.18,
+        "range": 23.17,
+        "mean": 53.71,
+        "std": 7.39
+      },
+      "fit_wrist_tot_deg": {
+        "n": 13,
+        "min": 18.22,
+        "max": 48.83,
+        "range": 30.61,
+        "mean": 28.64,
+        "std": 9.03
+      },
+      "fit_wrist_roll_deg": {
+        "n": 13,
+        "min": -14.19,
+        "max": 16.42,
+        "range": 30.61,
+        "mean": -1.03,
+        "std": 9.89
+      }
+    },
+    "right": {
+      "x55_roll_deg": {
+        "n": 13,
+        "min": -51.06,
+        "max": 161.63,
+        "range": 212.69,
+        "mean": 84.51,
+        "std": 66.58
+      },
+      "x55_swept_roll_deg": -5.22,
+      "x55_across_span_mm": {
+        "n": 13,
+        "min": 19.62,
+        "max": 63.85,
+        "range": 44.23,
+        "mean": 47.57,
+        "std": 11.79
+      },
+      "fit_wrist_tot_deg": {
+        "n": 13,
+        "min": 9.17,
+        "max": 51.24,
+        "range": 42.07,
+        "mean": 28.63,
+        "std": 13.94
+      },
+      "fit_wrist_roll_deg": {
+        "n": 13,
+        "min": -21.36,
+        "max": 26.89,
+        "range": 48.25,
+        "mean": 6.66,
+        "std": 15.57
+      }
+    }
+  },
+  "frames": [
+    {
+      "image": "WIN_20260801_13_57_25_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 38.21,
+        "span_mm": 56.47,
+        "fit_wrist_tot_deg": 24.19,
+        "fit_wrist_roll_deg": -10.48
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 120.69,
+        "span_mm": 62.84,
+        "fit_wrist_tot_deg": 10.02,
+        "fit_wrist_roll_deg": 9.39
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_30_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 124.83,
+        "span_mm": 44.53,
+        "fit_wrist_tot_deg": 18.51,
+        "fit_wrist_roll_deg": 6.91
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 161.63,
+        "span_mm": 52.67,
+        "fit_wrist_tot_deg": 51.24,
+        "fit_wrist_roll_deg": 6.45
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_35_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 0.42,
+        "span_mm": 49.65,
+        "fit_wrist_tot_deg": 48.83,
+        "fit_wrist_roll_deg": -4.34
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": -51.06,
+        "span_mm": 32.01,
+        "fit_wrist_tot_deg": 22.92,
+        "fit_wrist_roll_deg": 9.52
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_40_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 12.23,
+        "span_mm": 51.63,
+        "fit_wrist_tot_deg": 18.98,
+        "fit_wrist_roll_deg": -6.72
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 140.19,
+        "span_mm": 53.83,
+        "fit_wrist_tot_deg": 18.39,
+        "fit_wrist_roll_deg": 17.28
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_44_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 33.75,
+        "span_mm": 48.68,
+        "fit_wrist_tot_deg": 31.69,
+        "fit_wrist_roll_deg": -12.5
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 114.71,
+        "span_mm": 49.8,
+        "fit_wrist_tot_deg": 24.48,
+        "fit_wrist_roll_deg": 22.41
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_50_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 59.51,
+        "span_mm": 67.0,
+        "fit_wrist_tot_deg": 25.29,
+        "fit_wrist_roll_deg": -9.87
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 148.26,
+        "span_mm": 63.85,
+        "fit_wrist_tot_deg": 40.5,
+        "fit_wrist_roll_deg": 21.25
+      }
+    },
+    {
+      "image": "WIN_20260801_13_57_54_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 72.95,
+        "span_mm": 60.55,
+        "fit_wrist_tot_deg": 29.5,
+        "fit_wrist_roll_deg": 7.19
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 133.63,
+        "span_mm": 54.71,
+        "fit_wrist_tot_deg": 33.49,
+        "fit_wrist_roll_deg": 22.59
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_00_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 117.36,
+        "span_mm": 57.41,
+        "fit_wrist_tot_deg": 18.22,
+        "fit_wrist_roll_deg": 16.42
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": -14.02,
+        "span_mm": 46.17,
+        "fit_wrist_tot_deg": 9.17,
+        "fit_wrist_roll_deg": -1.38
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_05_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 68.51,
+        "span_mm": 53.74,
+        "fit_wrist_tot_deg": 26.11,
+        "fit_wrist_roll_deg": -9.39
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 93.19,
+        "span_mm": 45.22,
+        "fit_wrist_tot_deg": 37.77,
+        "fit_wrist_roll_deg": -21.36
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_10_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 42.68,
+        "span_mm": 67.18,
+        "fit_wrist_tot_deg": 42.99,
+        "fit_wrist_roll_deg": 5.1
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": -3.66,
+        "span_mm": 35.94,
+        "fit_wrist_tot_deg": 30.58,
+        "fit_wrist_roll_deg": -12.13
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_15_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": -149.15,
+        "span_mm": 50.94,
+        "fit_wrist_tot_deg": 24.47,
+        "fit_wrist_roll_deg": -14.19
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 105.52,
+        "span_mm": 19.62,
+        "fit_wrist_tot_deg": 50.85,
+        "fit_wrist_roll_deg": -19.69
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_20_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 1.39,
+        "span_mm": 44.01,
+        "fit_wrist_tot_deg": 37.14,
+        "fit_wrist_roll_deg": 8.26
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 34.07,
+        "span_mm": 51.06,
+        "fit_wrist_tot_deg": 9.47,
+        "fit_wrist_roll_deg": 5.3
+      }
+    },
+    {
+      "image": "WIN_20260801_13_58_26_Pro.jpg",
+      "left": {
+        "ok": true,
+        "roll_deg": 76.74,
+        "span_mm": 46.48,
+        "fit_wrist_tot_deg": 26.35,
+        "fit_wrist_roll_deg": 10.25
+      },
+      "right": {
+        "ok": true,
+        "roll_deg": 115.48,
+        "span_mm": 50.68,
+        "fit_wrist_tot_deg": 33.35,
+        "fit_wrist_roll_deg": 26.89
+      }
+    }
+  ]
+}

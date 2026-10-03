@@ -1,0 +1,12 @@
+# Preserve lag 1/3/6 as separate channels instead of averaging them.
+team: phase2
+notes: "separate multilag channels; F=149; last-frame objective"
+
+features:
+  zero_accel: false
+  multilag: true
+  multilag_steps: [1, 3, 6]
+  multilag_mode: separate
+
+logging:
+  run_name: abl2_multilag_separate

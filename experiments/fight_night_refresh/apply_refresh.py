@@ -1,0 +1,53 @@
+from pathlib import Path
+p=Path('pose_corrector_lab/viewer/boxing_arena.js');s=p.read_text(encoding='utf-8-sig')
+s=s.replace('// Cartoon championship arena: toon-shaded ring, outlined props, animated crowd,\n// light cones and an in-world scoreboard. Purely presentational.','// Fight-night arena: graphite surfaces, electric corners and warm championship gold.')
+s=s.replace('toon, toonGradient, outline, INK','toon, INK').replace('    if (line) outline(mesh, line);','    // No inverted hull: clean silhouettes and one draw per prop.')
+s=s.replace('sky: ["#060b17", "#14213a", "#304558"]','sky: ["#03050a", "#091324", "#17324c"]')
+s=s.replace('fog: "#111c30"','fog: "#080e1b"').replace('hemi: ["#dee8f5", "#252837", 0.95]','hemi: ["#e5efff", "#151c29", 1.15]').replace('canvas: "#8d9dcb"','canvas: "#25425c"')
+s=s.replace('sky: ["#2b3f8f", "#ff8a6b", "#ffd27a"]','sky: ["#081222", "#753222", "#e86a21"]').replace('fog: "#6f5a9a"','fog: "#33241f"').replace('hemi: ["#fff1d6", "#6b4d70", 1.1]','hemi: ["#fff1dc", "#202635", 1.2]').replace('canvas: "#d4c09e"','canvas: "#3b494e"')
+replacements={'#3ab0ff':'#009dff','#ff4d63':'#ef233c','#ffd23f':'#ffb21a','#2a1d5c':'#131d2c','#21153f':'#080d16','#2c1d55':'#111b28','#3650d6':'#121c2b','#e8e3f2':'#657b8c','#f6f2ff':'#d5e3ee','#3a2f5f':'#283543','#140b2e':'#070b12','#0b0620':'#080d16','#ff5fd2':'#ff243f','#46d6ff':'#008dff'}
+for a,b in replacements.items():s=s.replace(a,b)
+s=s.replace('new THREE.MeshToonMaterial({ color: "#b4b6d2", gradientMap: toonGradient() })','toon("#ffffff", { roughness: .92, metalness: 0 })')
+s=s.replace('    mesh.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.044, 8), inkRope));','')
+s=s.replace('  const inkRope = new THREE.MeshBasicMaterial({ color: INK, side: THREE.BackSide });\n','')
+s=s.replace('rgba(42,29,92,.16)','rgba(4,10,18,.22)').replace('rgba(42,29,92,.55)','rgba(119,165,190,.34)').replace('rgba(255,210,63,.9)','rgba(255,178,26,.95)').replace('rgba(23,15,46,.75)','rgba(4,10,18,.75)').replace('rgba(42,29,92,.7)','rgba(161,188,206,.7)')
+s=s.replace("'Lilita One'","'Barlow Condensed'").replace('Nunito','Inter')
+s=s.replace('    x.lineWidth = 10;','    x.lineWidth = 3;').replace('INK.getStyle(), 14','INK.getStyle(), 3').replace('INK.getStyle(), 7','INK.getStyle(), 0').replace('INK.getStyle(), 9','INK.getStyle(), 0')
+s=s.replace('  ctx.strokeText(text, x, y);','  if (width > 0) ctx.strokeText(text, x, y);')
+s=s.replace('"rgba(255,255,255,.08)"','"rgba(255,178,26,.035)"')
+s=s.replace('  // Crowd: bright shirts, bobbing with excitement.','  // Curated spectator palette: dark apparel with saturated team accents.')
+s=s.replace('  const skin =', '  const shirts = ["#132133", "#213851", "#075db1", "#bd1730", "#283442", "#d28d16", "#182332", "#29414a"];\n  const skin =')
+s=s.replace('new THREE.Color().setHSL(Math.random(), 0.45 + Math.random() * 0.25, 0.36 + Math.random() * 0.14)','new THREE.Color(shirts[(i * 7 + Math.floor(i / 11)) % shirts.length])')
+# Neon trim: emission on small strips, no extra lights or fullscreen bloom.
+s=s.replace('  // Corner stools and buckets.', '''  const trimMaterials = ["#009dff", "#ef233c"].map(color => new THREE.MeshBasicMaterial({ color, toneMapped: false }));
+  for (const side of [-1, 1]) {
+    box(6.75, .018, .018, 0, -.12, side * 3.458, trimMaterials[side < 0 ? 0 : 1], 0);
+    box(.018, .018, 6.75, side * 3.458, -.12, 0, trimMaterials[side < 0 ? 0 : 1], 0);
+  }
+  // Corner stools and buckets.''')
+# No shadow maps for audience, truss, background and apron trim.
+s=s.replace('    mesh.castShadow = mesh.receiveShadow = true;','    mesh.castShadow = mesh.receiveShadow = true;')
+s=s.replace('  function update(t, excitement) {','  let lastCrowdUpdate = -Infinity;\n  function update(t, excitement) {\n    if (t - lastCrowdUpdate < 1 / 30 && t >= lastCrowdUpdate) return;\n    lastCrowdUpdate = t;')
+s=s.replace('  arena.add(bodies, heads);','  bodies.instanceMatrix.setUsage(THREE.DynamicDrawUsage);\n  heads.instanceMatrix.setUsage(THREE.DynamicDrawUsage);\n  arena.add(bodies, heads);')
+p.write_text(s,encoding='utf-8')
+p=Path('pose_corrector_lab/viewer/boxing.js');s=p.read_text(encoding='utf-8-sig')
+s=s.replace('["#5cc8ff", "#ff6b7d"]','["#009dff", "#ff183b"]')
+s=s.replace('localStorage.getItem("cornerToon") !== "off"','localStorage.getItem("cornerMaterial") !== "original"')
+s=s.replace('localStorage.getItem("cornerToon") === "off" ? "classic" : "toon"','localStorage.getItem("cornerMaterial") === "original" ? "classic" : "modern"')
+s=s.replace('localStorage.setItem("cornerToon", $("artStyle").value === "classic" ? "off" : "on")','localStorage.setItem("cornerMaterial", $("artStyle").value === "classic" ? "original" : "modern")')
+a=s.index('function popWord(');b=s.index('function showPower',a)
+s=s[:a]+s[b:];s=s.replace('  popWord(pos, kind, forceN);','  // Impact reads through world-space particles; force remains in the HUD.')
+s=s.replace(",'#fxLayer .pow'",'')
+s=s.replace('  // Motion trails: fast punches glow in the corner colour; any punch on a\n  // dazed opponent becomes a golden finisher streak.','  // Glove-width motion wake; a fast strike during the stun window sheds embers.')
+s=s.replace('    const p = bone.getWorldPosition(new THREE.Vector3());','    const p = hitboxes[i]?.gloves[h] ? new THREE.Vector3(...hitboxes[i].gloves[h]) : bone.getWorldPosition(new THREE.Vector3());')
+s=s.replace('    handPrevious[i][h] = p.clone();','    const velocity = prev && dt > 0 ? p.clone().sub(prev).divideScalar(dt) : new THREE.Vector3();\n    handPrevious[i][h] = p.clone();')
+s=s.replace('const finisher = opponentDazed && speed > 1.2 && speed < 15','const finisher = opponentDazed && speed > 2.4 && speed < 14')
+s=s.replace('clamp((speed - 2) / 3, 0.3, 0.6)','clamp((speed - 2) / 3, 0.4, 0.9)')
+s=s.replace('finisher ? "#ffb12e" : force > 0.75 ? "#ff6a3d" : CORNER_COLORS[i]','finisher ? "#ff9b0a" : CORNER_COLORS[i]')
+s=s.replace('(finisher ? 0.075 : 0.04 + 0.04 * force) * (localFirst ? 0.55 : 1)','(finisher ? 0.14 : 0.095 + 0.035 * Math.max(force, fast)) * (localFirst ? 0.85 : 1)')
+s=s.replace('      fxDt,\n    );\n  });','      fxDt,\n    );\n    fx.motion(p, velocity, speed, finisher, i * 2 + h, fxDt);\n  });')
+s=s.replace('a.flashPeak = big ? 0.55 : 0.32','a.flashPeak = big ? 0.22 : 0.12').replace('big ? "#fff1b8" : "#ffffff"','big ? "#ffb21a" : "#c5e6ff"')
+s=s.replace('  renderer,\n  journal:', '  renderer,\n  vfx: { fx, trails, stars },\n  journal:')
+p.write_text(s,encoding='utf-8')
+p=Path('pose_corrector_lab/viewer/boxing.html');s=p.read_text();s=s.replace('<option value="toon" data-i18n="cartoon">Cartoon</option>','<option value="modern" data-i18n="modern">Fight night</option>');p.write_text(s,encoding='utf-8')
+p=Path('pose_corrector_lab/viewer/boxing_i18n.js');s=p.read_text();s=s.replace("cartoon:'Cartoon'","modern:'Fight night'").replace("cartoon:'Desenho'","modern:'Noite de luta'");p.write_text(s,encoding='utf-8')

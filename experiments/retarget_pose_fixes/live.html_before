@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pose Lab — Live</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --panel: #161b22;
+      --line: #2a3340;
+      --text: #e7ecf3;
+      --muted: #8b98a8;
+      --accent: #3ddea5;
+      --accent2: #6ea8fe;
+      --warn: #ffb454;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "IBM Plex Sans", system-ui, sans-serif;
+    }
+    header {
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #141a22, #0e1116);
+    }
+    header h1 {
+      font-size: 0.95rem; font-weight: 600; margin: 0;
+      letter-spacing: 0.02em;
+    }
+    header .meta { color: var(--muted); font-size: 0.8rem; }
+    header .control-label {
+      color: var(--muted); font-size: 0.7rem; text-transform: uppercase;
+    }
+    header select, header button, header label.toggle {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.82rem;
+    }
+    header button { cursor: pointer; }
+    header button:hover { border-color: var(--accent); }
+    header button.active, header button.on {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(61, 222, 165, 0.08);
+    }
+    header button.danger.on {
+      border-color: #ff8e8e;
+      color: #ff8e8e;
+      background: rgba(255, 142, 142, 0.08);
+    }
+    header .nav-tabs { display: inline-flex; gap: 0.35rem; }
+    header .nav-tabs a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+    header .nav-tabs a:hover { color: var(--text); border-color: var(--line); }
+    header .nav-tabs a.on {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(61, 222, 165, 0.08);
+    }
+    header label.toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      cursor: pointer; user-select: none;
+    }
+    header label.toggle input { accent-color: var(--accent); }
+    #avatarSmoothing { width: 110px; }
+    #avatarSmoothingValue { min-width: 7ch; font-variant-numeric: tabular-nums; }
+    #ckptSelect { max-width: 280px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: calc(100% - 52px);
+      gap: 1px;
+      background: var(--line);
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: 42% 58%; }
+    }
+    .pane {
+      background: var(--panel);
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+    #nlfLegend {
+      position: absolute; left: 12px; bottom: 52px; z-index: 3;
+      font-size: 0.72rem; color: var(--muted);
+      background: rgba(14, 17, 22, 0.72);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      pointer-events: none;
+      max-width: 280px;
+      line-height: 1.35;
+    }
+    #nlfLegend strong { color: var(--text); font-weight: 600; }
+    #nlfLegend .row { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+    #camWrap {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background:
+        radial-gradient(ellipse at 30% 20%, #1a2433 0%, transparent 50%),
+        var(--bg);
+      position: relative;
+    }
+    #camVideo {
+      max-width: 100%; max-height: 100%;
+      background: #000;
+      transform: scaleX(-1);
+    }
+    #camCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform: scaleX(-1);
+      object-fit: contain;
+    }
+    #viewport3d {
+      position: absolute;
+      inset: 0;
+      touch-action: none;
+      cursor: grab;
+      background: var(--bg);
+    }
+    #viewport3d:active { cursor: grabbing; }
+    #canvas3d {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+    .hint {
+      position: absolute; top: 10px; right: 12px; z-index: 2;
+      font-size: 0.72rem; color: var(--muted);
+      pointer-events: none;
+      max-width: 48%;
+      text-align: right;
+    }
+    .status-chip {
+      position: absolute; top: 36px; right: 12px; z-index: 3;
+      display: inline-flex;
+      align-items: center; gap: 0.4rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(14,17,22,0.82);
+      backdrop-filter: blur(8px);
+      font-size: 0.72rem;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+    .status-chip .dot {
+      width: 0.55rem; height: 0.55rem; border-radius: 50%;
+      background: var(--muted);
+    }
+    .status-chip.live .dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(61, 222, 165, 0.65);
+    }
+    .status-chip.warn .dot { background: var(--warn); }
+    #fpsHud {
+      position: absolute; top: 10px; left: 12px; z-index: 3;
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      background: rgba(14,17,22,0.82);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+      min-width: 128px;
+    }
+    #fpsHud[hidden] { display: none !important; }
+    #fpsHud .fps-big { font-size: 1.6rem; font-weight: 700; line-height: 1.05; }
+    #fpsHud .fps-sub { font-size: 0.68rem; color: var(--muted); line-height: 1.3; }
+    #fpsHud.good .fps-big { color: var(--accent, #3ddea5); }
+    #fpsHud.ok .fps-big { color: #ffd76e; }
+    #fpsHud.bad .fps-big { color: #ff8e8e; }
+    .controls {
+      position: absolute; bottom: 12px; left: 12px; right: 12px;
+      display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;
+      z-index: 3;
+      background: rgba(14,17,22,0.72);
+      backdrop-filter: blur(8px);
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .controls label {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    .controls input { accent-color: var(--accent); }
+    .err {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      padding: 2rem; text-align: center; color: #ff8e8e;
+      z-index: 4;
+      pointer-events: none;
+      background: rgba(14,17,22,0.55);
+    }
+    .calib-panel {
+      position: absolute; top: 2.4rem; right: 0.65rem; width: min(280px, 46%);
+      z-index: 5;
+      background: rgba(14,17,22,0.92);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.75rem;
+      display: flex; flex-direction: column; gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+    .calib-panel[hidden] { display: none !important; }
+    .calib-panel strong { font-size: 0.82rem; }
+    .calib-help { margin: 0; color: var(--muted); line-height: 1.35; }
+    .calib-panel .toggle { font-size: 0.75rem; }
+    .calib-dump {
+      margin: 0.25rem 0 0;
+      padding: 0.4rem;
+      background: #0a0d11;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      color: #9ecbff;
+      white-space: pre-wrap;
+      max-height: 7rem;
+      overflow: auto;
+    }
+    .note {
+      position: absolute; bottom: 56px; left: 12px; right: 12px; z-index: 2;
+      font-size: 0.7rem; color: var(--muted);
+      pointer-events: none;
+      line-height: 1.35;
+    }
+    /* NLF boot: benchmark overlay + engine chip */
+    #nlfBootOverlay {
+      position: fixed; inset: 0; z-index: 40;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(8,10,14,0.72);
+      backdrop-filter: blur(2px);
+    }
+    #nlfBootOverlay[hidden] { display: none !important; }
+    .boot-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.4rem 2rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+      min-width: min(340px, 80vw);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    }
+    .boot-box .spinner {
+      width: 34px; height: 34px;
+      border: 3px solid rgba(120,160,255,0.25);
+      border-top-color: var(--accent, #58a6ff);
+      border-radius: 50%;
+      animation: bootSpin 0.8s linear infinite;
+    }
+    @keyframes bootSpin { to { transform: rotate(360deg); } }
+    .boot-box #bootText { font-size: 0.9rem; color: var(--text); }
+    .boot-box .boot-sub { font-size: 0.75rem; color: var(--muted); max-width: 300px; text-align: center; line-height: 1.35; }
+    .boot-box .boot-elapsed { font-size: 0.72rem; color: var(--accent, #58a6ff); font-variant-numeric: tabular-nums; }
+    #backendMeta {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 0.15rem 0.45rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      cursor: help;
+      white-space: nowrap;
+    }
+    #backendMeta.rebalanced { color: #ffd76e; border-color: #8a6d1a; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pose Corrector Lab</h1>
+    <nav class="nav-tabs" aria-label="Modo">
+      <a href="/">Offline</a>
+      <a class="on" href="/live">Live</a>
+    </nav>
+    <button type="button" id="btnCam">Iniciar webcam</button>
+    <span class="control-label">Pose</span>
+    <button type="button" id="btnPoseMp" class="active" title="MediaPipe no browser">MediaPipe</button>
+    <button type="button" id="btnPoseNlf" title="NLF-S fast path no servidor (CUDA)">NLF-S</button>
+    <span class="control-label">Exibição</span>
+    <button type="button" id="btnModeRaw">Raw MP</button>
+    <button type="button" id="btnModeCorr" class="active">Corretor</button>
+    <label class="toggle" title="Sobrepor skeleton MediaPipe raw (ou MP enquanto NLF é principal)">
+      <input type="checkbox" id="chkShadow" />
+      Sombra MP
+    </label>
+    <label class="toggle" title="Gate de confiança / delta pequeno → pass-through">
+      <input type="checkbox" id="chkGate" checked />
+      Gate
+    </label>
+    <span class="control-label">Avatar</span>
+    <button type="button" id="btnAvatar" title="Trocar o esqueleto pelo avatar 3D estático">Avatar 3D</button>
+    <select id="avatarSel" title="Personagem"></select>
+    <label class="toggle" title="Suavização do avatar: menos = resposta mais rápida; mais = menos tremor. 50% é o padrão anterior.">
+      Suavização
+      <input type="range" id="avatarSmoothing" min="0" max="100" step="1" value="50" aria-label="Suavização do avatar" />
+      <output id="avatarSmoothingValue" for="avatarSmoothing">50%</output>
+    </label>
+    <label class="toggle" title="Desenha ossos/articulações do próprio Mixamo (não o esqueleto NLF/MP)">
+      <input type="checkbox" id="chkAvatarBones" />
+      Ossos Mixamo
+    </label>
+    <label class="toggle" title="Deixa o mesh do boneco semi-transparente para ver os ossos por baixo">
+      <input type="checkbox" id="chkAvatarXray" />
+      X-ray mesh
+    </label>      <label class="toggle" title="55 juntas SMPL-X do NLF-S, incluindo dedos (sinal de giro do punho). Some no modo Avatar (esqueleto de debug)."><input type="checkbox" id="chkNlfPoints" checked /> Pontos NLF-X55</label>      <label class="toggle" title="1024 pontos de superfície SMPL — query extra, mais lenta. Não são juntas. Desenha por cima do mesh (some no modo Avatar)."><input type="checkbox" id="chkNlfCloud" /> Nuvem 1024</label>
+    <button type="button" id="btnHandCalib" title="Painel para achar polaridade da palm (sem chute)">Calibrar mãos</button>
+    <span class="control-label">Modelo corretor</span>
+    <select id="ckptSelect" title="Modelo corretor"></select>
+    <button type="button" id="btnWarmup">Carregar modelo</button>
+    <button type="button" id="btnResetCam">Reset camera</button>
+    <span class="meta" id="statusMeta">aguardando webcam…</span>
+    <span class="meta" id="backendMeta" hidden title=""></span>
+  </header>
+  <div id="nlfBootOverlay" hidden>
+    <div class="boot-box">
+      <div class="spinner"></div>
+      <div id="bootText">Medindo backends…</div>
+      <div class="boot-sub">Benchmark dos runtimes disponíveis no seu hardware — escolhendo o mais rápido (TRT / DML / OpenVINO / ORT). Apenas na 1ª vez; depois fica em cache (~1s).</div>
+      <div class="boot-elapsed" id="bootElapsed">0s</div>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="pane">
+      <div class="pane-label">Webcam + MediaPipe</div>
+      <div id="camWrap">
+        <video id="camVideo" playsinline muted></video>
+      </div>
+      <div class="note" id="camNote">
+        MediaPipe Pose Landmarker no browser (WASM). World landmarks 3D são aproximados —
+        a profundidade Z é a parte mais fraca.
+      </div>
+    </div>
+    <div class="pane" id="pane3d">
+      <div class="pane-label">Skeleton 3D</div>
+      <div class="hint">arrastar = orbit · scroll = zoom · botão direito = pan</div>
+      <div class="status-chip" id="liveChip">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="liveChipText">idle</span>
+      </div>
+      <div id="viewport3d">
+        <canvas id="canvas3d"></canvas>
+        <div id="fpsHud" class="bad" hidden>
+          <span class="fps-big" id="fpsHudValue">— fps</span>
+          <span class="fps-sub" id="fpsHudSub">aguardando pose</span>
+        </div>
+        <div id="nlfLegend" hidden>
+          <strong>NLF-S não é o esqueleto de 16 juntas</strong>
+          <div class="row"><span class="legend-dot" style="background:#ff40c8"></span> dedos (index/pinky/thumb) = giro do punho</div>
+          <div class="row"><span class="legend-dot" style="background:#ffdd44"></span> punho</div>
+          <div class="row"><span class="legend-dot" style="background:#ff8c42"></span> ombro / cotovelo</div>
+          <div class="row"><span class="legend-dot" style="background:#c084fc"></span> cabeça / pescoço</div>
+          <div class="row"><span class="legend-dot" style="background:#8b98a8"></span> tronco / pernas</div>
+          <div id="nlfLegendHint" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <span id="fpsLabel">MP — · Corr —</span>
+        <span id="deltaLabel">Δ —</span>
+        <span id="shadowLabel">Sombra Raw —</span>
+        <span id="ckptLabel">ckpt —</span>
+      </div>
+      <div class="err" id="err" hidden></div>
+      <aside id="handCalibPanel" class="calib-panel" hidden>
+        <strong>Calibrar mãos (NLF→Mixamo)</strong>
+        <p class="calib-help">
+          Pose de referência: <b>mão direita pra frente</b>, palma pra câmera, dedos pra cima.
+          Ajuste os toggles até a palm bater. Config salva no browser.
+        </p>
+        <label class="toggle"><input type="checkbox" id="chkPalmOn" checked /> Palm SMPL ligada</label>
+        <label class="toggle"><input type="checkbox" id="chkAimOnly" /> Só aim (sem twist) — isola roll</label>
+        <label class="toggle"><input type="checkbox" id="chkSwapCross" checked /> swap cross (legado; across só de indicador/mindinho)</label>
+        <label class="toggle"><input type="checkbox" id="chkNegL" checked /> negate across LEFT</label>
+        <label class="toggle"><input type="checkbox" id="chkNegR" /> negate across RIGHT</label>
+        <label class="toggle"><input type="checkbox" id="chkHandAxes" checked /> Setas debug (cyan=fwd, mag=across)</label>
+        <label class="toggle"><input type="checkbox" id="chkSelfieMirror" checked /> Selfie mirror (−X + L/R)</label>
+        <pre id="handCalibDump" class="calib-dump"></pre>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
+    import {
+      DEFAULT_AVATAR_ID,
+      getAvatarSpec,
+      fillAvatarSelect,
+      loadAvatar as loadAvatarAsset,
+    } from "/static/avatar_assets.js";
+    import {
+      buildAvatarRig,
+      createAvatarMotion,
+      resetAvatarMotion as resetMikapoMotion,
+      resetRetargetFilters,
+      setRetargetSmoothing,
+      updateAvatarPose as applyMikapoAvatarPose,
+      auxFromPose33,
+      auxFromSmpl,
+      footDirectionsFromSmplAux,
+      headForwardFromSmplAux,
+      computeHandPalmAxes,
+      setHandRetargetOpts,
+      getHandRetargetOpts,
+    } from "/static/mikapo_mixamo_solver.js";
+
+    // ---- Lab skeleton (mirrors pose_lab.skeleton) ----
+    const LAB_JOINTS = [
+      "pelvis", "left_hip", "right_hip", "left_knee", "right_knee",
+      "left_ankle", "right_ankle", "spine", "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow", "left_wrist", "right_wrist", "neck", "head",
+    ];
+    const JOINT_TO_IDX = Object.fromEntries(LAB_JOINTS.map((n, i) => [n, i]));
+    const LAB_BONES = [
+      ["pelvis", "left_hip"], ["pelvis", "right_hip"],
+      ["left_hip", "left_knee"], ["right_hip", "right_knee"],
+      ["left_knee", "left_ankle"], ["right_knee", "right_ankle"],
+      ["pelvis", "spine"], ["spine", "neck"], ["neck", "head"],
+      ["spine", "left_shoulder"], ["spine", "right_shoulder"],
+      ["left_shoulder", "left_elbow"], ["right_shoulder", "right_elbow"],
+      ["left_elbow", "left_wrist"], ["right_elbow", "right_wrist"],
+    ];
+    const MEDIAPIPE_TO_LAB = {
+      23: "left_hip", 24: "right_hip",
+      25: "left_knee", 26: "right_knee",
+      27: "left_ankle", 28: "right_ankle",
+      11: "left_shoulder", 12: "right_shoulder",
+      13: "left_elbow", 14: "right_elbow",
+      15: "left_wrist", 16: "right_wrist",
+      0: "head",
+    };
+    const TARGETS = new Set([
+      "left_shoulder", "right_shoulder",
+      "left_elbow", "right_elbow",
+      "left_wrist", "right_wrist",
+    ]);
+    const X55_FINGER_ROOTS = ["index", "middle", "pinky", "ring", "thumb"];
+    function x55FingerBones() {
+      const bones = [];
+      for (const side of ["left", "right"]) {
+        for (const finger of X55_FINGER_ROOTS) {
+          bones.push([`${side}_wrist`, `${side}_${finger}1`]);
+          bones.push([`${side}_${finger}1`, `${side}_${finger}2`]);
+          bones.push([`${side}_${finger}2`, `${side}_${finger}3`]);
+        }
+      }
+      return bones;
+    }
+    const X55_BODY_BONES = [
+      ["pelvis", "left_hip"], ["pelvis", "right_hip"],
+      ["left_hip", "left_knee"], ["right_hip", "right_knee"],
+      ["left_knee", "left_ankle"], ["right_knee", "right_ankle"],
+      ["left_ankle", "left_foot"], ["right_ankle", "right_foot"],
+      ["pelvis", "spine1"], ["spine1", "spine2"], ["spine2", "spine3"],
+      ["spine3", "neck"], ["neck", "head"], ["head", "jaw"],
+      ["head", "left_eye"], ["head", "right_eye"],
+      ["spine3", "left_collar"], ["spine3", "right_collar"],
+      ["left_collar", "left_shoulder"], ["right_collar", "right_shoulder"],
+      ["left_shoulder", "left_elbow"], ["right_shoulder", "right_elbow"],
+      ["left_elbow", "left_wrist"], ["right_elbow", "right_wrist"],
+      ...x55FingerBones(),
+    ];
+    const TRAINING_FPS = 30;
+    const CORRECTION_TIMEOUT_MS = 2000;
+    const MODEL_URL =
+      "https://storage.googleapis.com/mediapipe-models/pose_landmarker/" +
+      "pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+
+    const camVideo = document.getElementById("camVideo");
+    const btnCam = document.getElementById("btnCam");
+    const btnModeRaw = document.getElementById("btnModeRaw");
+    const btnModeCorr = document.getElementById("btnModeCorr");
+    const chkShadow = document.getElementById("chkShadow");
+    const chkGate = document.getElementById("chkGate");
+    const btnAvatar = document.getElementById("btnAvatar");
+    const chkAvatarBones = document.getElementById("chkAvatarBones");
+    const chkAvatarXray = document.getElementById("chkAvatarXray");
+    const ckptSelect = document.getElementById("ckptSelect");
+    const btnWarmup = document.getElementById("btnWarmup");
+    const statusMeta = document.getElementById("statusMeta");
+    const backendMeta = document.getElementById("backendMeta");
+    const bootOverlay = document.getElementById("nlfBootOverlay");
+    const bootText = document.getElementById("bootText");
+    const bootElapsed = document.getElementById("bootElapsed");
+    const errBox = document.getElementById("err");
+    const liveChip = document.getElementById("liveChip");
+    const liveChipText = document.getElementById("liveChipText");
+    const fpsLabel = document.getElementById("fpsLabel");
+    const deltaLabel = document.getElementById("deltaLabel");
+    const shadowLabel = document.getElementById("shadowLabel");
+    const fpsHud = document.getElementById("fpsHud");
+    const fpsHudValue = document.getElementById("fpsHudValue");
+    const fpsHudSub = document.getElementById("fpsHudSub");
+    const camNote = document.getElementById("camNote");
+    const NLF_NOTE = "NLF-S roda no servidor (TensorRT / DirectML / OpenVINO / CPU). A pessoa é recortada com YOLOv8n e warpeada pra 256px — a resolução da câmera não muda a qualidade da pose.";
+    const MP_NOTE = "MediaPipe Pose Landmarker no browser (WASM). World landmarks 3D são aproximados — a profundidade Z é a parte mais fraca.";
+    function updateFpsHud(fps, sub) {
+      if (!fpsHud || !fpsHudValue) return;
+      if (!running || fps == null || !isFinite(fps) || fps <= 0) {
+        fpsHud.hidden = true;
+        return;
+      }
+      fpsHud.hidden = false;
+      fpsHudValue.textContent = `${Math.round(fps)} fps`;
+      fpsHud.classList.toggle("good", fps >= 25);
+      fpsHud.classList.toggle("ok", fps >= 15 && fps < 25);
+      fpsHud.classList.toggle("bad", fps < 15);
+      if (fpsHudSub) fpsHudSub.textContent = sub || "";
+    }
+    const ckptLabel = document.getElementById("ckptLabel");
+
+    let poseLandmarker = null;
+    let camStream = null;
+    let running = false;
+    let lastVideoTime = -1;
+    let mode = "corrected"; // raw | corrected (MP backend only)
+    let poseBackend = "mp"; // mp | nlf
+    let nlfReady = false;
+    let lastNlfMs = 0;
+    let nlfFpsEma = 0;
+    let lastNlfTs = 0;
+    let lastNlfView = null;
+    let lastNlfAux = null;
+    let lastNlfFootDirections = null;
+    let lastNlfHeadForward = null;
+    let lastNlfRequestTs = 0;
+    let nlfAbort = null;
+    let nlfWs = null;
+    let nlfWsReady = false;
+    let nlfWsUrl = "";
+    // Pipelined NLF: up to NLF_MAX_IN_FLIGHT frames in flight at once (capture
+    // frame N+1 while N is being processed) — display follows the camera instead
+    // of waiting one round-trip per pose.
+    let nlfInFlight = 0;
+    let nlfCaptureBusy = false;
+    let cornerCaptureTimer = null;
+    let nlfLastRespTs = 0;
+    let nlfStallReported = false;
+    const nlfSentTs = new Map();
+    // WS binary — keep person pixels; server sticky-crops with YOLOv8n.
+    const NLF_MIN_INTERVAL_MS = 0;
+    const NLF_UPLOAD_MAX_SIDE = 960;
+    const NLF_JPEG_QUALITY = 0.82;
+    const NLF_MAX_IN_FLIGHT = 2;
+    // Capture the webcam at this resolution directly instead of grabbing 720p+
+    // and downscaling afterwards: cheaper sensor readout, smaller JPEG encode,
+    // less upload — the NLF person crop is warped to 256px anyway, so pose
+    // quality is unchanged. (MediaPipe also resizes internally to ~256px.)
+    const NLF_CAM_MAX_SIDE = 960;
+    let nlfCanvas = null;
+    const btnPoseMp = document.getElementById("btnPoseMp");
+    const btnPoseNlf = document.getElementById("btnPoseNlf");
+    let checkpointId = "";
+    let checkpointOptions = new Map();
+    let checkpointReadyId = "";
+    let checkpointGeneration = 0;
+    let cameraGeneration = 0;
+    let requiredWindowT = 15;
+    let correctBusy = false;
+    let lastCorrMs = 0;
+    let mpFpsEma = 0;
+    let corrFpsEma = 0;
+    let lastMpTs = 0;
+    let lastCorrTs = 0;
+    let groundY = null;
+    let poseSequence = 0;
+    let lastCorrectedCheckpoint = "";
+    let lastRawView = null;
+    let lastCorrectedView = null;
+    let lastRawHeadForward = null;
+    let lastRawFootDirections = null;
+    let lastRawAux = null;
+
+    function cloneAux(aux) {
+      if (!aux) return null;
+      const out = {};
+      for (const [k, v] of Object.entries(aux)) out[k] = v.clone();
+      return out;
+    }
+
+    /** Timestamped raw MP history; server regrids it to the training 30 Hz clock. */
+    const histJoints = [];
+    const histConf = [];
+    const hist2d = [];
+    const histTimes = [];
+
+    let jointMeshes = [];
+    let boneLines = null;
+    let nameToIndex = {};
+    let shadowMeshes = [];
+    let shadowBones = null;
+    let avatar = null;
+    let avatarMode = false;
+    let avatarLoadPromise = null;
+    let avatarRig = null;
+    const avatarMotion = createAvatarMotion();
+    const avatarSmoothing = document.getElementById("avatarSmoothing");
+    const avatarSmoothingValue = document.getElementById("avatarSmoothingValue");
+    let avatarSmoothingAmount = 50;
+    try {
+      const saved = localStorage.getItem("labAvatarSmoothing");
+      const value = saved === null ? 50 : Number(saved);
+      if (Number.isFinite(value)) avatarSmoothingAmount = Math.round(Math.max(0, Math.min(100, value)));
+    } catch (_) { /* Storage may be unavailable; keep the default. */ }
+    function applyAvatarSmoothing() {
+      avatarSmoothing.value = String(avatarSmoothingAmount);
+      avatarSmoothingValue.textContent = avatarSmoothingAmount === 0 ? "0% (off)" : `${avatarSmoothingAmount}%`;
+      if (!avatarRig) return;
+      // 50 preserves the original One Euro settings. Lower amounts raise
+      // both cutoffs' responsiveness; zero bypasses filtering entirely.
+      const response = 50 / Math.max(1, avatarSmoothingAmount);
+      setRetargetSmoothing(avatarRig, 1.5 * response, 1.5 * response);
+    }
+    avatarSmoothing.addEventListener("input", () => {
+      avatarSmoothingAmount = Number(avatarSmoothing.value);
+      applyAvatarSmoothing();
+      try { localStorage.setItem("labAvatarSmoothing", String(avatarSmoothingAmount)); } catch (_) { /* Keep the live setting. */ }
+    });
+    applyAvatarSmoothing();
+    // Which character to drive. Persisted so a reload keeps your choice.
+    let avatarId = localStorage.getItem("labAvatarId") || DEFAULT_AVATAR_ID;
+    let avatarBoneHelper = null;
+    let avatarJointGroup = null;
+    let avatarJointMarkers = [];
+    let nlfX55Meshes = [];
+    let nlfX55Lines = null;
+    let nlfX55Names = [];
+    let nlfCloud = null;
+    let nlfPalmGroup = null;
+    const nlfLegend = document.getElementById("nlfLegend");
+    const nlfLegendHint = document.getElementById("nlfLegendHint");
+    const chkNlfPoints = document.getElementById("chkNlfPoints");
+    const chkNlfCloud = document.getElementById("chkNlfCloud");
+    let avatarMeshOpacity = 1;
+    const avatarMeshMatBackup = new WeakMap();
+    const _avatarJointTmp = new THREE.Vector3();
+    // Highlight joints that matter for the current shoulder/spine/foot debug.
+    const AVATAR_JOINT_COLORS = {
+      leftShoulder: 0xffdd44,
+      rightShoulder: 0xffdd44,
+      leftArm: 0xff8c42,
+      rightArm: 0xff8c42,
+      spine: 0x6ea8fe,
+      spine1: 0x6ea8fe,
+      spine2: 0x6ea8fe,
+      hips: 0x3ddea5,
+      neck: 0xc084fc,
+      head: 0xc084fc,
+      leftFoot: 0xff6b9d,
+      rightFoot: 0xff6b9d,
+      leftHand: 0x3de0ff,
+      rightHand: 0x3de0ff,
+    };
+
+    // ---- Three.js ----
+    const viewport = document.getElementById("viewport3d");
+    const canvas = document.getElementById("canvas3d");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x222a31, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.shadowMap.enabled = true;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+    const DEFAULT_CAM_POS = new THREE.Vector3(2.2, 1.6, 2.8);
+    const DEFAULT_TARGET = new THREE.Vector3(0, 0.9, 0);
+    camera.position.copy(DEFAULT_CAM_POS);
+
+    const controls = new OrbitControls(camera, viewport);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = true;
+    controls.minDistance = 0.35;
+    controls.maxDistance = 12;
+    controls.maxPolarAngle = Math.PI * 0.95;
+    controls.target.copy(DEFAULT_TARGET);
+    controls.update();
+
+    scene.add(new THREE.HemisphereLight(0xb8e8ef, 0x27202b, 3.5));
+    scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+    const key = new THREE.DirectionalLight(0xffffff, 3.2);
+    key.position.set(2, 3, 2);
+    key.castShadow = true;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9fc8ff, 1.8);
+    fill.position.set(-3, 1.5, 2);
+    scene.add(fill);
+    const avatarSpot = new THREE.SpotLight(0xfff2dc, 240, 25, Math.PI / 5, 0.45);
+    avatarSpot.position.set(-3, 9, 5);
+    avatarSpot.castShadow = true;
+    scene.add(avatarSpot);
+    const cameraLight = new THREE.PointLight(0xffffff, 16, 8, 2);
+    scene.add(cameraLight);
+    scene.add(new THREE.GridHelper(3, 12, 0x2a3340, 0x1a222c));
+    scene.add(new THREE.AxesHelper(0.35));
+
+    function resize() {
+      const w = viewport.clientWidth, h = viewport.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", resize);
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(resize).observe(viewport);
+    }
+
+    function buildSkeleton() {
+      for (const m of jointMeshes) scene.remove(m);
+      jointMeshes = [];
+      if (boneLines) scene.remove(boneLines);
+      nameToIndex = Object.fromEntries(LAB_JOINTS.map((n, i) => [n, i]));
+      const geo = new THREE.SphereGeometry(0.028, 16, 16);
+      const mat = new THREE.MeshStandardMaterial({ color: 0x3ddea5, roughness: 0.35, metalness: 0.1 });
+      const matT = new THREE.MeshStandardMaterial({ color: 0x6ea8fe, roughness: 0.35, metalness: 0.1 });
+      for (const name of LAB_JOINTS) {
+        const mesh = new THREE.Mesh(geo, TARGETS.has(name) ? matT : mat);
+        scene.add(mesh);
+        jointMeshes.push(mesh);
+      }
+      const positions = new Float32Array(LAB_BONES.length * 2 * 3);
+      const bgeo = new THREE.BufferGeometry();
+      bgeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      boneLines = new THREE.LineSegments(
+        bgeo,
+        new THREE.LineBasicMaterial({ color: 0xc5d0de }),
+      );
+      scene.add(boneLines);
+
+      // Shadow (raw MP while showing corrected)
+      for (const m of shadowMeshes) scene.remove(m);
+      shadowMeshes = [];
+      if (shadowBones) scene.remove(shadowBones);
+      const sgeo = new THREE.SphereGeometry(0.038, 14, 14);
+      const smat = new THREE.MeshStandardMaterial({
+        color: 0xff8c42, roughness: 0.55, metalness: 0.05,
+        transparent: true, opacity: 0.9, depthWrite: false, depthTest: false,
+      });
+      for (const _ of LAB_JOINTS) {
+        const mesh = new THREE.Mesh(sgeo, smat);
+        mesh.renderOrder = 3;
+        mesh.visible = false;
+        scene.add(mesh);
+        shadowMeshes.push(mesh);
+      }
+      const spos = new Float32Array(LAB_BONES.length * 2 * 3);
+      const sbgeo = new THREE.BufferGeometry();
+      sbgeo.setAttribute("position", new THREE.BufferAttribute(spos, 3));
+      shadowBones = new THREE.LineSegments(
+        sbgeo,
+        new THREE.LineBasicMaterial({
+          color: 0xff8c42, transparent: true, opacity: 0.85,
+          depthWrite: false, depthTest: false,
+        }),
+      );
+      shadowBones.renderOrder = 3;
+      shadowBones.visible = false;
+      scene.add(shadowBones);
+    }
+
+    function setPose(meshes, lines, poseView) {
+      for (let i = 0; i < meshes.length; i++) {
+        const p = poseView[i];
+        meshes[i].position.set(p[0], p[1], p[2]);
+      }
+      const arr = lines.geometry.attributes.position.array;
+      let o = 0;
+      for (const [a, b] of LAB_BONES) {
+        const ia = JOINT_TO_IDX[a], ib = JOINT_TO_IDX[b];
+        const A = poseView[ia], B = poseView[ib];
+        arr[o++] = A[0]; arr[o++] = A[1]; arr[o++] = A[2];
+        arr[o++] = B[0]; arr[o++] = B[1]; arr[o++] = B[2];
+      }
+      lines.geometry.attributes.position.needsUpdate = true;
+    }
+
+    function x55Color(name) {
+      if (/index|pinky|thumb|middle|ring/.test(name)) return 0xff40c8;
+      if (/wrist/.test(name)) return 0xffdd44;
+      if (/elbow|shoulder|collar/.test(name)) return 0xff8c42;
+      if (/eye|jaw|head|neck/.test(name)) return 0xc084fc;
+      return 0x8b98a8;
+    }
+
+    function x55Radius(name) {
+      if (/index|pinky|thumb|middle|ring/.test(name)) return 0.016;
+      if (/wrist/.test(name)) return 0.03;
+      return 0.014;
+    }
+
+    function ensureNlfX55(names) {
+      if (nlfX55Meshes.length === names.length && nlfX55Names.join() === names.join()) return;
+      for (const m of nlfX55Meshes) scene.remove(m);
+      nlfX55Meshes = [];
+      if (nlfX55Lines) scene.remove(nlfX55Lines);
+      nlfX55Names = names.slice();
+      const nameToI = Object.fromEntries(names.map((n, i) => [n, i]));
+      for (const name of names) {
+        const geo = new THREE.SphereGeometry(x55Radius(name), 10, 10);
+        const mat = new THREE.MeshBasicMaterial({
+          color: x55Color(name),
+          depthTest: false,
+          depthWrite: false,
+          transparent: true,
+          opacity: 0.95,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.renderOrder = 12;
+        mesh.name = `nlfX55_${name}`;
+        scene.add(mesh);
+        nlfX55Meshes.push(mesh);
+      }
+      const bones = X55_BODY_BONES.filter(([a, b]) => nameToI[a] != null && nameToI[b] != null);
+      const pos = new Float32Array(bones.length * 2 * 3);
+      const bgeo = new THREE.BufferGeometry();
+      bgeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      nlfX55Lines = new THREE.LineSegments(
+        bgeo,
+        new THREE.LineBasicMaterial({
+          color: 0xe879f9,
+          transparent: true,
+          opacity: 0.85,
+          depthTest: false,
+          depthWrite: false,
+        }),
+      );
+      nlfX55Lines.userData.bones = bones;
+      nlfX55Lines.userData.nameToI = nameToI;
+      nlfX55Lines.renderOrder = 11;
+      scene.add(nlfX55Lines);
+    }
+
+    function setNlfOverlayVisible(on) {
+      for (const m of nlfX55Meshes) m.visible = on;
+      if (nlfX55Lines) nlfX55Lines.visible = on;
+      if (nlfPalmGroup) nlfPalmGroup.visible = on;
+      if (nlfLegend) nlfLegend.hidden = !on && !(chkNlfCloud?.checked);
+    }
+
+    function x55ToViewer(pts, names) {
+      const mapped = pts.map((p) => [
+        SELFIE_MIRROR ? -p[0] : p[0],
+        -p[1],
+        -p[2],
+      ]);
+      if (!SELFIE_MIRROR || !names?.length) return mapped;
+      const idx = Object.fromEntries(names.map((n, i) => [n, i]));
+      const out = mapped.map((p) => p.slice());
+      for (const name of names) {
+        if (!name.startsWith("left_")) continue;
+        const other = "right_" + name.slice(5);
+        const ia = idx[name], ib = idx[other];
+        if (ia == null || ib == null) continue;
+        const tmp = out[ia];
+        out[ia] = out[ib];
+        out[ib] = tmp;
+      }
+      return out;
+    }
+
+    function applyGroundY(pts) {
+      if (groundY == null) return pts;
+      return pts.map((p) => [p[0], p[1] - groundY, p[2]]);
+    }
+
+    function updateNlfPalmAxes(viewPts, names) {
+      if (!nlfPalmGroup) {
+        nlfPalmGroup = new THREE.Group();
+        nlfPalmGroup.name = "nlfPalmAxes";
+        scene.add(nlfPalmGroup);
+      }
+      while (nlfPalmGroup.children.length) nlfPalmGroup.remove(nlfPalmGroup.children[0]);
+      const idx = Object.fromEntries(names.map((n, i) => [n, i]));
+      const hints = [];
+      for (const side of ["left", "right"]) {
+        const iw = idx[`${side}_wrist`];
+        const ii = idx[`${side}_index1`];
+        const ip = idx[`${side}_pinky1`];
+        const ie = idx[`${side}_elbow`];
+        if (iw == null || ii == null || ip == null) {
+          hints.push(`${side}: SEM dedos`);
+          continue;
+        }
+        const w = new THREE.Vector3(...viewPts[iw]);
+        const index = new THREE.Vector3(...viewPts[ii]);
+        const pinky = new THREE.Vector3(...viewPts[ip]);
+        const fwd = index.clone().add(pinky).multiplyScalar(0.5).sub(w);
+        const across = pinky.clone().sub(index);
+        const span = across.length();
+        hints.push(`${side}: index↔pinky ${span.toFixed(3)} m`);
+        if (fwd.lengthSq() > 1e-8) {
+          nlfPalmGroup.add(new THREE.ArrowHelper(fwd.normalize(), w, 0.16, 0x3de0ff, 0.035, 0.02));
+        }
+        if (across.lengthSq() > 1e-8) {
+          nlfPalmGroup.add(new THREE.ArrowHelper(across.normalize(), w, 0.12, 0xff40c8, 0.03, 0.018));
+        }
+        if (ie != null) {
+          const elbow = new THREE.Vector3(...viewPts[ie]);
+          const forearm = w.clone().sub(elbow);
+          if (forearm.lengthSq() > 1e-8) {
+            nlfPalmGroup.add(new THREE.ArrowHelper(forearm.normalize(), w, 0.14, 0xffdd44, 0.03, 0.018));
+          }
+        }
+      }
+      if (nlfLegendHint) {
+        nlfLegendHint.textContent = hints.join(" · ") + " · cyan=palma fwd · mag=across · amarelo=antebraço";
+      }
+    }
+
+    function updateNlfX55(pts, names) {
+      const show = chkNlfPoints.checked && poseBackend === "nlf" && !avatarMode;
+      if (!show || !pts?.length || !names?.length) {
+        for (const m of nlfX55Meshes) m.visible = false;
+        if (nlfX55Lines) nlfX55Lines.visible = false;
+        if (nlfPalmGroup) nlfPalmGroup.visible = false;
+        if (nlfLegend && !chkNlfCloud.checked) nlfLegend.hidden = true;
+        return;
+      }
+      ensureNlfX55(names);
+      const view = applyGroundY(x55ToViewer(pts, names));
+      for (let i = 0; i < nlfX55Meshes.length; i++) {
+        const p = view[i];
+        if (!p) continue;
+        nlfX55Meshes[i].position.set(p[0], p[1], p[2]);
+        nlfX55Meshes[i].visible = true;
+      }
+      if (nlfX55Lines) {
+        const bones = nlfX55Lines.userData.bones;
+        const nameToI = nlfX55Lines.userData.nameToI;
+        const arr = nlfX55Lines.geometry.attributes.position.array;
+        let o = 0;
+        for (const [a, b] of bones) {
+          const A = view[nameToI[a]], B = view[nameToI[b]];
+          arr[o++] = A[0]; arr[o++] = A[1]; arr[o++] = A[2];
+          arr[o++] = B[0]; arr[o++] = B[1]; arr[o++] = B[2];
+        }
+        nlfX55Lines.geometry.attributes.position.needsUpdate = true;
+        nlfX55Lines.visible = true;
+      }
+      updateNlfPalmAxes(view, names);
+      if (nlfPalmGroup) nlfPalmGroup.visible = true;
+      if (nlfLegend) nlfLegend.hidden = false;
+    }
+
+    function updateNlfCloud(surf, names, handIdx) {
+      const show = chkNlfCloud.checked && poseBackend === "nlf" && !avatarMode;
+      if (!show) {
+        if (nlfCloud) nlfCloud.visible = false;
+        return;
+      }
+      if (!surf?.length) {
+        if (nlfLegendHint) {
+          nlfLegendHint.textContent = "nuvem 1024: aguardando o próximo frame NLF…";
+        }
+        if (nlfLegend) nlfLegend.hidden = false;
+        return;
+      }
+      const view = applyGroundY(x55ToViewer(surf, null));
+      const n = view.length;
+      const positions = new Float32Array(n * 3);
+      const colors = new Float32Array(n * 3);
+      const hand = new Set([
+        ...(handIdx?.left_hand || []),
+        ...(handIdx?.right_hand || []),
+        ...(handIdx?.left_wrist || []),
+        ...(handIdx?.right_wrist || []),
+      ]);
+      const cBody = new THREE.Color(0x9fb0c4);
+      const cHand = new THREE.Color(0xff40c8);
+      for (let i = 0; i < n; i++) {
+        positions[i * 3] = view[i][0];
+        positions[i * 3 + 1] = view[i][1];
+        positions[i * 3 + 2] = view[i][2];
+        const c = hand.has(i) ? cHand : cBody;
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
+      }
+      if (!nlfCloud) {
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+        nlfCloud = new THREE.Points(
+          geo,
+          new THREE.PointsMaterial({
+            size: 7,
+            sizeAttenuation: false,
+            vertexColors: true,
+            depthTest: false,
+            depthWrite: false,
+            transparent: true,
+            opacity: 0.95,
+          }),
+        );
+        nlfCloud.renderOrder = 10;
+        scene.add(nlfCloud);
+      } else {
+        const geo = nlfCloud.geometry;
+        if (geo.attributes.position.count !== n) {
+          geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+          geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+        } else {
+          geo.attributes.position.array.set(positions);
+          geo.attributes.color.array.set(colors);
+          geo.attributes.position.needsUpdate = true;
+          geo.attributes.color.needsUpdate = true;
+        }
+      }
+      nlfCloud.visible = true;
+      if (nlfLegend) nlfLegend.hidden = false;
+      if (nlfLegendHint) {
+        nlfLegendHint.textContent =
+          `nuvem ${n} pts · magenta = mão/punho da superfície · cinza = resto do corpo`;
+      }
+    }
+
+    function sendNlfQueryMode() {
+      if (!nlfWs || nlfWs.readyState !== WebSocket.OPEN) return;
+      try { nlfWs.send(chkNlfCloud.checked ? "dense_on" : "dense_off"); } catch (_) { /* ignore */ }
+    }
+
+    function resetAvatarMotion() {
+      resetMikapoMotion(avatar, avatarMotion);
+      if (avatarRig) resetRetargetFilters(avatarRig);
+    }
+
+    function loadHandCalib() {
+      try {
+        const raw = localStorage.getItem(HAND_CALIB_KEY);
+        if (!raw) return;
+        const cfg = JSON.parse(raw);
+        if (typeof cfg.selfieMirror === "boolean") SELFIE_MIRROR = cfg.selfieMirror;
+        setHandRetargetOpts({
+          palmEnabled: cfg.palmEnabled ?? true,
+          aimOnly: !!cfg.aimOnly,
+          swapCrossOrder: cfg.swapCrossOrder ?? true,
+          negateAcrossLeft: cfg.negateAcrossLeft ?? true,
+          negateAcrossRight: !!cfg.negateAcrossRight,
+        });
+      } catch (_) { /* ignore */ }
+    }
+
+    function syncHandCalibUi() {
+      const o = getHandRetargetOpts();
+      chkPalmOn.checked = !!o.palmEnabled;
+      chkAimOnly.checked = !!o.aimOnly;
+      chkSwapCross.checked = !!o.swapCrossOrder;
+      chkNegL.checked = !!o.negateAcrossLeft;
+      chkNegR.checked = !!o.negateAcrossRight;
+      chkSelfieMirror.checked = !!SELFIE_MIRROR;
+      handCalibDump.textContent = JSON.stringify({ selfieMirror: SELFIE_MIRROR, ...o }, null, 2);
+    }
+
+    function saveHandCalib() {
+      const o = getHandRetargetOpts();
+      localStorage.setItem(HAND_CALIB_KEY, JSON.stringify({ selfieMirror: SELFIE_MIRROR, ...o }));
+      syncHandCalibUi();
+    }
+
+    function applyHandCalibFromUi() {
+      SELFIE_MIRROR = chkSelfieMirror.checked;
+      setHandRetargetOpts({
+        palmEnabled: chkPalmOn.checked,
+        aimOnly: chkAimOnly.checked,
+        swapCrossOrder: chkSwapCross.checked,
+        negateAcrossLeft: chkNegL.checked,
+        negateAcrossRight: chkNegR.checked,
+      });
+      saveHandCalib();
+      if (avatarMode && lastNlfView) {
+        updateAvatarPose(lastNlfView, lastNlfHeadForward, lastNlfFootDirections, lastNlfAux);
+      } else if (avatarMode && lastRawView) {
+        updateAvatarPose(lastRawView, lastRawHeadForward, lastRawFootDirections, lastRawAux);
+      }
+    }
+
+    function ensureHandAxesGroup() {
+      if (handAxesGroup) return handAxesGroup;
+      handAxesGroup = new THREE.Group();
+      handAxesGroup.name = "handDebugAxes";
+      scene.add(handAxesGroup);
+      return handAxesGroup;
+    }
+
+    function updateHandDebugAxes(aux) {
+      const g = ensureHandAxesGroup();
+      while (g.children.length) {
+        const c = g.children[0];
+        g.remove(c);
+      }
+      if (!chkHandAxes.checked || !aux || !avatarMode || !avatarRig) {
+        g.visible = false;
+        return;
+      }
+      g.visible = true;
+      for (const side of ["left", "right"]) {
+        const axes = computeHandPalmAxes(aux, side);
+        const rest = avatarRig.bones.get(side === "left" ? "leftHand" : "rightHand");
+        if (!axes || !rest) continue;
+        const origin = rest.bone.getWorldPosition(new THREE.Vector3());
+        g.add(new THREE.ArrowHelper(axes.forward, origin, 0.18, 0x3de0ff, 0.04, 0.025));
+        if (axes.across) {
+          g.add(new THREE.ArrowHelper(axes.across, origin, 0.14, 0xff40c8, 0.035, 0.022));
+        }
+      }
+    }
+
+    function disposeAvatarBoneOverlay() {
+      if (avatarBoneHelper) {
+        scene.remove(avatarBoneHelper);
+        avatarBoneHelper.geometry?.dispose?.();
+        avatarBoneHelper.material?.dispose?.();
+        avatarBoneHelper = null;
+      }
+      if (avatarJointGroup) {
+        scene.remove(avatarJointGroup);
+        for (const marker of avatarJointMarkers) {
+          marker.mesh.geometry?.dispose?.();
+          marker.mesh.material?.dispose?.();
+        }
+        avatarJointGroup = null;
+        avatarJointMarkers = [];
+      }
+    }
+
+    function ensureAvatarBoneOverlay() {
+      if (!avatar || !avatarRig) return null;
+      if (avatarBoneHelper && avatarJointGroup) return avatarBoneHelper;
+      disposeAvatarBoneOverlay();
+
+      // Full Mixamo hierarchy (cyan lines) — true avatar skeleton, not NLF/lab joints.
+      avatarBoneHelper = new THREE.SkeletonHelper(avatar);
+      avatarBoneHelper.name = "avatarMixamoBones";
+      if (avatarBoneHelper.material) {
+        avatarBoneHelper.material.linewidth = 2;
+        avatarBoneHelper.material.depthTest = false;
+        avatarBoneHelper.material.depthWrite = false;
+        avatarBoneHelper.material.transparent = true;
+        avatarBoneHelper.material.opacity = 0.95;
+        if (avatarBoneHelper.material.color) avatarBoneHelper.material.color.setHex(0x7dd3fc);
+      }
+      avatarBoneHelper.renderOrder = 8;
+      avatarBoneHelper.visible = false;
+      scene.add(avatarBoneHelper);
+
+      // Mapped retarget joints as colored spheres (shoulder/spine/etc.).
+      avatarJointGroup = new THREE.Group();
+      avatarJointGroup.name = "avatarMixamoJoints";
+      avatarJointGroup.visible = false;
+      avatarJointMarkers = [];
+      const geo = new THREE.SphereGeometry(0.022, 12, 12);
+      for (const [key, rest] of avatarRig.bones) {
+        const color = AVATAR_JOINT_COLORS[key] ?? 0xe2e8f0;
+        const mat = new THREE.MeshBasicMaterial({
+          color,
+          depthTest: false,
+          depthWrite: false,
+          transparent: true,
+          opacity: 0.95,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.renderOrder = 9;
+        mesh.name = `avatarJoint_${key}`;
+        avatarJointGroup.add(mesh);
+        avatarJointMarkers.push({ key, bone: rest.bone, child: rest.child || null, mesh });
+
+        // Child tip (e.g. toe / hand middle) as a smaller marker on the same color.
+        if (rest.child) {
+          const tipMat = mat.clone();
+          tipMat.opacity = 0.7;
+          const tip = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 10), tipMat);
+          tip.renderOrder = 9;
+          tip.name = `avatarJointTip_${key}`;
+          avatarJointGroup.add(tip);
+          avatarJointMarkers.push({ key: `${key}Tip`, bone: rest.child, child: null, mesh: tip });
+        }
+      }
+      scene.add(avatarJointGroup);
+      return avatarBoneHelper;
+    }
+
+    function updateAvatarBoneOverlay() {
+      const show = avatarMode && chkAvatarBones.checked && !!avatar && !!avatarRig;
+      if (!show) {
+        if (avatarBoneHelper) avatarBoneHelper.visible = false;
+        if (avatarJointGroup) avatarJointGroup.visible = false;
+        return;
+      }
+      ensureAvatarBoneOverlay();
+      if (!avatarBoneHelper || !avatarJointGroup) return;
+      avatar.updateWorldMatrix(true, true);
+      avatarBoneHelper.visible = true;
+      avatarJointGroup.visible = true;
+      for (const marker of avatarJointMarkers) {
+        marker.bone.getWorldPosition(_avatarJointTmp);
+        marker.mesh.position.copy(_avatarJointTmp);
+      }
+    }
+
+    function applyAvatarMeshXray(enabled) {
+      if (!avatar) return;
+      avatar.traverse((node) => {
+        if (!node.isMesh || !node.material) return;
+        const mats = Array.isArray(node.material) ? node.material : [node.material];
+        for (const mat of mats) {
+          if (!mat) continue;
+          if (!avatarMeshMatBackup.has(mat)) {
+            avatarMeshMatBackup.set(mat, {
+              transparent: mat.transparent,
+              opacity: mat.opacity,
+              depthWrite: mat.depthWrite,
+            });
+          }
+          const bak = avatarMeshMatBackup.get(mat);
+          if (enabled) {
+            mat.transparent = true;
+            mat.opacity = 0.28;
+            mat.depthWrite = false;
+          } else {
+            mat.transparent = bak.transparent;
+            mat.opacity = bak.opacity;
+            mat.depthWrite = bak.depthWrite;
+          }
+          mat.needsUpdate = true;
+        }
+      });
+      avatarMeshOpacity = enabled ? 0.28 : 1;
+    }
+
+    function syncAvatarDebugUi() {
+      const on = avatarMode;
+      chkAvatarBones.disabled = !on;
+      chkAvatarXray.disabled = !on;
+      if (!on) {
+        if (avatarBoneHelper) avatarBoneHelper.visible = false;
+        if (avatarJointGroup) avatarJointGroup.visible = false;
+        if (avatarMeshOpacity < 1) applyAvatarMeshXray(false);
+        return;
+      }
+      updateAvatarBoneOverlay();
+      applyAvatarMeshXray(chkAvatarXray.checked);
+    }
+
+    /** MiKaPo-style Mixamo FK (live MediaPipe always owns feet). */
+    let cornerCameraPose = null;
+    let cornerCameraInfo = null;
+    function updateAvatarPose(poseView, headForward = null, footDirections = null, aux = null) {
+      if (new URLSearchParams(location.search).has("gameBridge") && poseView) {
+        parent.postMessage({ type: "corner-pose", pose: poseView, headForward, footDirections, aux,
+          cameraPose: poseBackend === "nlf" ? cornerCameraPose : null,
+          cameraInfo: poseBackend === "nlf" ? cornerCameraInfo : null,
+          backend: poseBackend, time: performance.now() }, location.origin);
+      }
+      if (!avatarMode || !avatar || !avatarRig || avatarRig.bones.size < 4 || !poseView) return;
+      applyMikapoAvatarPose({
+        model: avatar,
+        rig: avatarRig,
+        pose: poseView,
+        nameToIndex: JOINT_TO_IDX,
+        motion: avatarMotion,
+        allowFeet: true,
+        footMode: "yawFromDir",
+        footDirections,
+        headForward,
+        aux,
+        plantGround: true,
+        groundY: 0,
+        timestampMs: avatarSmoothingAmount === 0 ? null : performance.now(),
+        useWitness: true,
+      });
+      updateHandDebugAxes(aux);
+      updateAvatarBoneOverlay();
+    }
+
+    function setAvatarMode(enabled) {
+      avatarMode = enabled;
+      btnAvatar.classList.toggle("active", enabled);
+      btnAvatar.textContent = enabled ? "Esqueleto" : "Avatar 3D";
+      for (const mesh of jointMeshes) mesh.visible = !enabled;
+      if (boneLines) boneLines.visible = !enabled;
+      for (const mesh of shadowMeshes) mesh.visible = !enabled && chkShadow.checked;
+      if (shadowBones) shadowBones.visible = !enabled && chkShadow.checked;
+      if (avatar) avatar.visible = enabled;
+      // Debug overlays (X55 points/lines, palm arrows, surface cloud) draw ON TOP
+      // of the mesh — hide them in avatar mode so they don't ghost over the model.
+      for (const m of nlfX55Meshes) m.visible = !enabled && chkNlfPoints.checked && poseBackend === "nlf";
+      if (nlfX55Lines) nlfX55Lines.visible = !enabled && chkNlfPoints.checked && poseBackend === "nlf";
+      if (nlfPalmGroup) nlfPalmGroup.visible = !enabled && chkNlfPoints.checked && poseBackend === "nlf";
+      if (nlfCloud) nlfCloud.visible = !enabled && chkNlfCloud.checked && poseBackend === "nlf";
+      if (enabled) {
+        resetAvatarMotion();
+        controls.target.set(0, 0.9, 0);
+        camera.position.set(1.55, 1.45, 2.35);
+        controls.update();
+      } else if (avatar) {
+        avatar.position.set(0, 0, 0);
+        resetAvatarMotion();
+      }
+      syncAvatarDebugUi();
+    }
+
+    async function loadAvatar() {
+      if (avatar) return avatar;
+      if (avatarLoadPromise) return avatarLoadPromise;
+      btnAvatar.disabled = true;
+      btnAvatar.textContent = "Carregando avatar…";
+      avatarLoadPromise = loadAvatarAsset(avatarId)
+        .then(({ root: model, spec }) => {
+          // Deliberately do not create an AnimationMixer: embedded Mixamo clips stay stopped.
+          const outfitColors = {
+            Ch28_Hoody: 0x0e7490,
+            Ch28_Pants: 0x1d4ed8,
+            Ch28_Sneakers: 0xf1f5f9,
+          };
+          model.scale.setScalar(1);
+          model.updateMatrixWorld(true);
+          const bounds = new THREE.Box3().setFromObject(model);
+          const height = bounds.max.y - bounds.min.y;
+          if (height <= 1e-5) throw new Error("O FBX não possui uma altura válida");
+          const avatarScale = 1.8 / height;
+          model.scale.setScalar(avatarScale);
+          model.position.set(0, -bounds.min.y * avatarScale, 0);
+          model.traverse((node) => {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+              const outfitColor = outfitColors[node.name];
+              const materials = (Array.isArray(node.material) ? node.material : [node.material])
+                .map((material) => outfitColor ? material.clone() : material);
+              node.material = Array.isArray(node.material) ? materials : materials[0];
+              for (const material of materials) {
+                if (!material) continue;
+                if (outfitColor) {
+                  material.map = null;
+                  material.emissiveMap = null;
+                  material.color.setHex(outfitColor);
+                  material.emissive.setHex(outfitColor);
+                  material.emissiveIntensity = 0.12;
+                  material.needsUpdate = true;
+                  continue;
+                }
+                if (material.map) {
+                  material.map.colorSpace = THREE.SRGBColorSpace;
+                  material.color?.setRGB(1, 1, 1);
+                }
+                material.transparent = false;
+                material.alphaTest = 0;
+                material.depthWrite = true;
+                if (material.emissive) {
+                  material.emissiveMap = material.map || null;
+                  material.emissive.setRGB(1, 1, 1);
+                  material.emissiveIntensity = material.map ? 0.48 : 0;
+                }
+                material.needsUpdate = true;
+              }
+            }
+          });
+          avatar = model;
+          avatarRig = buildAvatarRig(model);
+          applyAvatarSmoothing();
+          if (!spec.previewOnly && avatarRig.bones.size < 4) {
+            throw new Error("O FBX não expôs ossos compatíveis com Mixamo");
+          }
+          scene.add(avatar);
+          disposeAvatarBoneOverlay();
+          return avatar;
+        })
+        .finally(() => {
+          avatarLoadPromise = null;
+          btnAvatar.disabled = false;
+        });
+      return avatarLoadPromise;
+    }
+
+    // Character swap. Hot swap rather than reload: the webcam stream and the
+    // MediaPipe/NLF session are expensive to re-acquire, and losing them would
+    // make comparing two characters on the SAME live motion impossible.
+    // buildAvatarRig caches rest poses per rig, so the old rig and its filter
+    // state are dropped, not reused.
+    const avatarSel = document.getElementById("avatarSel");
+    fillAvatarSelect(avatarSel, avatarId, { includePreview: true });
+    avatarSel.addEventListener("change", async () => {
+      const wasAvatarMode = avatarMode;
+      avatarId = avatarSel.value;
+      localStorage.setItem("labAvatarId", avatarId);
+      avatarSel.disabled = true;
+      try {
+        if (avatar) {
+          scene.remove(avatar);
+          disposeAvatarBoneOverlay();
+        }
+        avatar = null;
+        avatarRig = null;
+        avatarLoadPromise = null;
+        await loadAvatar();
+        resetAvatarMotion();
+        const previewOnly = !!getAvatarSpec(avatarId).previewOnly;
+        setAvatarMode(wasAvatarMode || previewOnly);
+        statusMeta.textContent = previewOnly
+          ? "Boxeador Prism 3.1 · visualização estática, sem rig para mocap"
+          : `${avatarSel.options[avatarSel.selectedIndex].text} · ${avatarRig.bones.size} ossos mapeados`;
+      } catch (err) {
+        statusMeta.textContent = `falha ao trocar personagem: ${err.message}`;
+      } finally {
+        avatarSel.disabled = false;
+      }
+    });
+
+    btnAvatar.addEventListener("click", async () => {
+      try {
+        if (!avatar) await loadAvatar();
+        setAvatarMode(!avatarMode);
+        statusMeta.textContent = avatarMode
+          ? (avatarRig.bones.size < 4 ? "visualização estática · modelo sem rig para mocap" : `avatar 3D seguindo sua pose · ${avatarRig.bones.size} ossos mapeados`)
+          : "exibindo esqueleto 3D";
+      } catch (error) {
+        console.error(error);
+        showError(`Não foi possível carregar o avatar: ${error.message || error}`);
+        btnAvatar.textContent = "Avatar 3D";
+      }
+    });
+
+    chkAvatarBones?.addEventListener("change", () => {
+      if (chkAvatarBones.checked && avatarMode) ensureAvatarBoneOverlay();
+      updateAvatarBoneOverlay();
+      statusMeta.textContent = chkAvatarBones.checked && avatarMode
+        ? "debug: ossos/articulações do Mixamo (cyan = hierarquia, esferas = joints mapeados)"
+        : statusMeta.textContent;
+    });
+    chkAvatarXray?.addEventListener("change", () => {
+      if (!avatarMode) {
+        chkAvatarXray.checked = false;
+        return;
+      }
+      applyAvatarMeshXray(chkAvatarXray.checked);
+    });
+    // Start disabled until avatar mode is on.
+    if (chkAvatarBones) chkAvatarBones.disabled = true;
+    if (chkAvatarXray) chkAvatarXray.disabled = true;
+
+    /**
+     * OpenCV-ish → viewer Y-up, then selfie mirror to match #camVideo { scaleX(-1) }.
+     * Negate X + swap L/R so anatomical limbs stay consistent after the flip.
+     */
+    let SELFIE_MIRROR = true;
+    const HAND_CALIB_KEY = "poseLab.handRetarget.v1";
+    let handAxesGroup = null;
+    const handCalibPanel = document.getElementById("handCalibPanel");
+    const btnHandCalib = document.getElementById("btnHandCalib");
+    const chkPalmOn = document.getElementById("chkPalmOn");
+    const chkAimOnly = document.getElementById("chkAimOnly");
+    const chkSwapCross = document.getElementById("chkSwapCross");
+    const chkNegL = document.getElementById("chkNegL");
+    const chkNegR = document.getElementById("chkNegR");
+    const chkHandAxes = document.getElementById("chkHandAxes");
+    const chkSelfieMirror = document.getElementById("chkSelfieMirror");
+    const handCalibDump = document.getElementById("handCalibDump");
+    const BILATERAL_PAIRS = [
+      ["left_hip", "right_hip"], ["left_knee", "right_knee"],
+      ["left_ankle", "right_ankle"], ["left_shoulder", "right_shoulder"],
+      ["left_elbow", "right_elbow"], ["left_wrist", "right_wrist"],
+    ];
+    const AUX_BILATERAL_PAIRS = [
+      ["left_hip", "right_hip"],
+      ["left_ankle", "right_ankle"], ["left_foot", "right_foot"],
+      ["left_shoulder", "right_shoulder"], ["left_collar", "right_collar"],
+      ["left_elbow", "right_elbow"],
+      ["left_wrist", "right_wrist"], ["left_hand", "right_hand"],
+      ["left_ear", "right_ear"], ["left_eye", "right_eye"],
+      ["left_pinky", "right_pinky"], ["left_index", "right_index"],
+      ["left_thumb", "right_thumb"], ["left_middle", "right_middle"],
+    ];
+
+    function swapBilateralPose(pose) {
+      const out = pose.map((p) => (Array.isArray(p) ? p.slice() : [p[0], p[1], p[2]]));
+      for (const [a, b] of BILATERAL_PAIRS) {
+        const ia = JOINT_TO_IDX[a], ib = JOINT_TO_IDX[b];
+        const tmp = out[ia];
+        out[ia] = out[ib];
+        out[ib] = tmp;
+      }
+      return out;
+    }
+
+    function toViewerSpace(pose) {
+      const mapped = pose.map((p) => [
+        SELFIE_MIRROR ? -p[0] : p[0],
+        -p[1],
+        -p[2],
+      ]);
+      return SELFIE_MIRROR ? swapBilateralPose(mapped) : mapped;
+    }
+
+    /** Mirror aux / dirs the same way as lab joints (after OpenCV→viewer flip). */
+    function selfieMirrorAux(aux) {
+      if (!aux || !SELFIE_MIRROR) return aux;
+      const out = { kind: aux.kind || "smpl" };
+      for (const [k, v] of Object.entries(aux)) {
+        if (k === "kind" || !v?.isVector3) continue;
+        out[k] = new THREE.Vector3(-v.x, v.y, v.z);
+      }
+      for (const [a, b] of AUX_BILATERAL_PAIRS) {
+        if (out[a] == null && out[b] == null) continue;
+        const ta = out[a];
+        out[a] = out[b];
+        out[b] = ta;
+      }
+      return out;
+    }
+
+    function selfieMirrorVec(v) {
+      if (!v || !SELFIE_MIRROR) return v;
+      return new THREE.Vector3(-v.x, v.y, v.z);
+    }
+
+    function selfieMirrorFootDirs(fd) {
+      if (!fd || !SELFIE_MIRROR) return fd;
+      return {
+        left: selfieMirrorVec(fd.right),
+        right: selfieMirrorVec(fd.left),
+      };
+    }
+
+    loadHandCalib();
+    // The game looks from behind the boxer: preserve anatomical sides and
+    // camera-space X. Selfie mirroring would reverse both punches and steps.
+    // Override only this embedded session, without changing saved lab settings.
+    if (new URLSearchParams(location.search).has("gameBridge")) SELFIE_MIRROR = false;
+    syncHandCalibUi();
+    btnHandCalib.onclick = () => {
+      handCalibPanel.hidden = !handCalibPanel.hidden;
+      btnHandCalib.classList.toggle("active", !handCalibPanel.hidden);
+      if (!handCalibPanel.hidden) syncHandCalibUi();
+    };
+    for (const el of [chkPalmOn, chkAimOnly, chkSwapCross, chkNegL, chkNegR, chkSelfieMirror, chkHandAxes]) {
+      el.addEventListener("change", applyHandCalibFromUi);
+    }
+    chkNlfPoints?.addEventListener("change", () => {
+      if (!chkNlfPoints.checked) setNlfOverlayVisible(false);
+    });
+    chkNlfCloud?.addEventListener("change", () => {
+      sendNlfQueryMode();
+      if (!chkNlfCloud.checked && nlfCloud) nlfCloud.visible = false;
+    });
+
+    function plantFeet(poseView) {
+      const la = poseView[JOINT_TO_IDX.left_ankle][1];
+      const ra = poseView[JOINT_TO_IDX.right_ankle][1];
+      const g = Math.min(la, ra);
+      if (groundY == null) groundY = g;
+      else groundY = groundY * 0.95 + g * 0.05;
+      return poseView.map((p) => [p[0], p[1] - groundY, p[2]]);
+    }
+
+    function mediapipeToLab(worldLms, imgLms) {
+      const out = Array.from({ length: LAB_JOINTS.length }, () => [0, 0, 0]);
+      const conf = new Array(LAB_JOINTS.length).fill(0);
+      const j2d = Array.from({ length: LAB_JOINTS.length }, () => [0, 0]);
+
+      for (const [mpiStr, name] of Object.entries(MEDIAPIPE_TO_LAB)) {
+        const mpi = Number(mpiStr);
+        const li = JOINT_TO_IDX[name];
+        const w = worldLms[mpi];
+        out[li] = [w.x, w.y, w.z];
+        const vis = (imgLms[mpi].visibility ?? imgLms[mpi].presence ?? 1);
+        conf[li] = Number(vis);
+        j2d[li] = [imgLms[mpi].x, imgLms[mpi].y];
+      }
+      const ls = out[JOINT_TO_IDX.left_shoulder];
+      const rs = out[JOINT_TO_IDX.right_shoulder];
+      const lh = out[JOINT_TO_IDX.left_hip];
+      const rh = out[JOINT_TO_IDX.right_hip];
+      out[JOINT_TO_IDX.pelvis] = [
+        0.5 * (lh[0] + rh[0]), 0.5 * (lh[1] + rh[1]), 0.5 * (lh[2] + rh[2]),
+      ];
+      out[JOINT_TO_IDX.neck] = [
+        0.5 * (ls[0] + rs[0]), 0.5 * (ls[1] + rs[1]), 0.5 * (ls[2] + rs[2]),
+      ];
+      const neck = out[JOINT_TO_IDX.neck];
+      const pelvis = out[JOINT_TO_IDX.pelvis];
+      out[JOINT_TO_IDX.spine] = [
+        0.5 * (neck[0] + pelvis[0]),
+        0.5 * (neck[1] + pelvis[1]),
+        0.5 * (neck[2] + pelvis[2]),
+      ];
+      conf[JOINT_TO_IDX.pelvis] = 0.5 * (conf[JOINT_TO_IDX.left_hip] + conf[JOINT_TO_IDX.right_hip]);
+      conf[JOINT_TO_IDX.neck] = 0.5 * (conf[JOINT_TO_IDX.left_shoulder] + conf[JOINT_TO_IDX.right_shoulder]);
+      conf[JOINT_TO_IDX.spine] = 0.5 * (conf[JOINT_TO_IDX.neck] + conf[JOINT_TO_IDX.pelvis]);
+      j2d[JOINT_TO_IDX.pelvis] = [
+        0.5 * (j2d[JOINT_TO_IDX.left_hip][0] + j2d[JOINT_TO_IDX.right_hip][0]),
+        0.5 * (j2d[JOINT_TO_IDX.left_hip][1] + j2d[JOINT_TO_IDX.right_hip][1]),
+      ];
+      j2d[JOINT_TO_IDX.neck] = [
+        0.5 * (j2d[JOINT_TO_IDX.left_shoulder][0] + j2d[JOINT_TO_IDX.right_shoulder][0]),
+        0.5 * (j2d[JOINT_TO_IDX.left_shoulder][1] + j2d[JOINT_TO_IDX.right_shoulder][1]),
+      ];
+      j2d[JOINT_TO_IDX.spine] = [
+        0.5 * (j2d[JOINT_TO_IDX.neck][0] + j2d[JOINT_TO_IDX.pelvis][0]),
+        0.5 * (j2d[JOINT_TO_IDX.neck][1] + j2d[JOINT_TO_IDX.pelvis][1]),
+      ];
+      const nose = worldLms[0];
+      const leftEar = worldLms[7];
+      const rightEar = worldLms[8];
+      const earCenter = {
+        x: 0.5 * (leftEar.x + rightEar.x),
+        y: 0.5 * (leftEar.y + rightEar.y),
+        z: 0.5 * (leftEar.z + rightEar.z),
+      };
+      return {
+        joints: out,
+        conf,
+        joints2d: j2d,
+        headForward: new THREE.Vector3(nose.x - earCenter.x, earCenter.y - nose.y, earCenter.z - nose.z),
+        // MiKaPo: ankle → foot_index; Y/Z flipped into viewer space like toViewerSpace.
+        footDirections: {
+          left: new THREE.Vector3(
+            worldLms[31].x - worldLms[27].x,
+            worldLms[27].y - worldLms[31].y,
+            worldLms[27].z - worldLms[31].z,
+          ),
+          right: new THREE.Vector3(
+            worldLms[32].x - worldLms[28].x,
+            worldLms[28].y - worldLms[32].y,
+            worldLms[28].z - worldLms[32].z,
+          ),
+        },
+        // Head/palm aux in viewer space (flip raw MP world).
+        aux: auxFromPose33(worldLms, true),
+      };
+    }
+
+    function showError(msg) {
+      if (!msg) {
+        errBox.hidden = true;
+        errBox.textContent = "";
+        return;
+      }
+      errBox.hidden = false;
+      errBox.textContent = msg;
+    }
+
+    function requiredHistorySeconds() {
+      return Math.max(0, requiredWindowT - 1) / TRAINING_FPS;
+    }
+
+    function hasCanonicalWindow() {
+      if (histTimes.length < 2) return false;
+      return histTimes[0] <= histTimes[histTimes.length - 1] - requiredHistorySeconds() + 1e-6;
+    }
+
+    function canonicalFramesReady() {
+      if (!histTimes.length) return 0;
+      const covered = histTimes[histTimes.length - 1] - histTimes[0];
+      return Math.min(requiredWindowT, Math.floor(covered * TRAINING_FPS + 1 + 1e-6));
+    }
+
+    function canonicalHistoryStartIndex() {
+      if (!histTimes.length) return 0;
+      const targetStart = histTimes[histTimes.length - 1] - requiredHistorySeconds();
+      let index = 0;
+      while (index + 1 < histTimes.length && histTimes[index + 1] <= targetStart) {
+        index += 1;
+      }
+      return index;
+    }
+
+    function setMode(next) {
+      if (mode !== next) cameraGeneration += 1;
+      mode = next;
+      btnModeRaw.classList.toggle("active", mode === "raw");
+      btnModeCorr.classList.toggle("active", mode === "corrected");
+      if (mode === "raw") {
+        liveChip.classList.remove("warn");
+        liveChipText.textContent = running ? "principal: Raw MP" : "idle";
+        for (const mesh of shadowMeshes) mesh.visible = false;
+        if (shadowBones) shadowBones.visible = false;
+        if (lastRawView) setPose(jointMeshes, boneLines, lastRawView);
+        return;
+      }
+      if (!checkpointId) {
+        liveChipText.textContent = "sem modelo";
+        statusMeta.textContent = "nenhum modelo corretor disponível";
+        return;
+      }
+      if (lastCorrectedView && lastCorrectedCheckpoint === checkpointId) {
+        setPose(jointMeshes, boneLines, lastCorrectedView);
+        liveChipText.textContent = "principal: corrigido";
+      } else if (running) {
+        const readyFrames = canonicalFramesReady();
+        liveChipText.textContent = !hasCanonicalWindow()
+          ? `aquecendo ${readyFrames}/${requiredWindowT}`
+          : "aguardando corretor";
+        liveChip.classList.add("warn");
+      }
+      if (checkpointReadyId !== checkpointId) warmup();
+      else if (hasCanonicalWindow()) requestCorrection();
+    }
+    btnModeRaw.onclick = () => setMode("raw");
+    btnModeCorr.onclick = () => setMode("corrected");
+
+    function defaultNlfWsUrl() {
+      const loc = window.location;
+      const host = loc.hostname || "127.0.0.1";
+      const httpPort = Number(loc.port) || 8780;
+      return `ws://${host}:${httpPort + 1}/nlf`;
+    }
+
+    function ensureNlfWs() {
+      if (nlfWs && (nlfWs.readyState === WebSocket.OPEN || nlfWs.readyState === WebSocket.CONNECTING)) {
+        return nlfWs;
+      }
+      const url = nlfWsUrl || defaultNlfWsUrl();
+      nlfWsReady = false;
+      nlfWs = new WebSocket(url);
+      nlfWs.binaryType = "arraybuffer";
+      nlfWs.onopen = () => {
+        nlfWsReady = true;
+        nlfLastRespTs = performance.now();
+        try { nlfWs.send("warmup"); } catch (_) { /* ignore */ }
+        // Sync dense after warmup; don't send dense_off here (races with the checkbox).
+        if (chkNlfCloud?.checked) sendNlfQueryMode();
+      };
+      // Persistent pose handler (pipelined): applies every pose result as it
+      // arrives; the server's worker already does latest-frame-wins, so stale
+      // frames are dropped server-side and results arrive in order.
+      nlfWs.onmessage = (ev) => {
+        let msg;
+        try {
+          msg = JSON.parse(ev.data);
+        } catch (_) {
+          return;
+        }
+        if (msg.type === "warmup" || msg.type === "query") return;
+        nlfLastRespTs = performance.now();
+        nlfStallReported = false;
+        const fid = msg.frame_id != null ? Number(msg.frame_id) : null;
+        const t0 = fid != null && nlfSentTs.has(fid) ? nlfSentTs.get(fid) : performance.now();
+        // Latest-frame-wins can skip a submitted frame. A newer result also
+        // retires all older requests; otherwise their slots remain occupied.
+        if (fid != null) {
+          for (const sentId of nlfSentTs.keys()) if (sentId <= fid) nlfSentTs.delete(sentId);
+        } else nlfSentTs.delete(nlfSentTs.keys().next().value);
+        nlfInFlight = nlfSentTs.size;
+        if (poseBackend !== "nlf" || !running) return;
+        try {
+          applyNlfResult(msg, t0, fid || 0);
+        } catch (e) {
+          liveChipText.textContent = "erro NLF";
+          liveChip.classList.add("warn");
+          statusMeta.textContent = `NLF: ${e.message || e}`;
+        }
+      };
+      nlfWs.onclose = () => { nlfWsReady = false; };
+      nlfWs.onerror = () => { nlfWsReady = false; };
+      return nlfWs;
+    }
+
+    function closeNlfWs() {
+      if (nlfWs) {
+        try { nlfWs.close(); } catch (_) { /* ignore */ }
+        nlfWs = null;
+        nlfWsReady = false;
+      }
+      nlfSentTs.clear();
+      nlfInFlight = 0;
+    }
+
+    let cornerLastNlfFrame = -1;
+    function applyNlfResult(data, t0, seq) {
+      if (new URLSearchParams(location.search).has('gameBridge') && data.joints) {
+        const fid = Number(data.frame_id ?? seq);
+        if (fid <= cornerLastNlfFrame) return;
+        cornerLastNlfFrame = fid;
+      }
+      if (!running || poseBackend !== "nlf") return;
+      if (data.frame_id != null && Number(data.frame_id) !== seq && data.type === "pose") {
+        // Stale frame — still ok to draw if newer than nothing; skip if older than last.
+      }
+      if (!data.ok) throw new Error(data.error || "NLF failed");
+      if (data.type === "query" || data.type === "warmup" || !data.joints) return;
+      const roundTrip = performance.now() - t0;
+      lastNlfMs = Number(data.ms) || roundTrip;
+      const now = performance.now();
+      if (lastNlfTs) {
+        const inst = 1000 / Math.max(1, now - lastNlfTs);
+        nlfFpsEma = nlfFpsEma ? nlfFpsEma * 0.85 + inst * 0.15 : inst;
+      }
+      lastNlfTs = now;
+      cornerCameraPose = data.camera_joints ? toViewerSpace(data.camera_joints) : null;
+      cornerCameraInfo = { size: data.image_size, fov: data.camera_fov || 55 };
+      const view = plantFeet(toViewerSpace(data.joints));
+      lastNlfView = view;
+      // SMPL24 extras — viewer flip + same selfie L/R mirror as lab joints.
+      lastNlfAux = data.aux_smpl
+        ? selfieMirrorAux(auxFromSmpl(data.aux_smpl, true))
+        : null;
+      lastNlfFootDirections = footDirectionsFromSmplAux(lastNlfAux);
+      lastNlfHeadForward = headForwardFromSmplAux(lastNlfAux);
+      setPose(jointMeshes, boneLines, view);
+      updateAvatarPose(view, lastNlfHeadForward, lastNlfFootDirections, lastNlfAux);
+      updateNlfX55(data.smplx55, data.smplx55_names);
+      updateNlfCloud(data.surface1024, data.smplx55_names, data.surface_hand_idx);
+      const showShadow = !avatarMode && chkShadow.checked && lastRawView;
+      for (const m of shadowMeshes) m.visible = showShadow;
+      if (shadowBones) shadowBones.visible = showShadow;
+      if (showShadow) setPose(shadowMeshes, shadowBones, lastRawView);
+      liveChipText.textContent = "principal: NLF-S";
+      liveChip.classList.remove("warn");
+      const det = data.detected ? ` · det ${Number(data.det_ms || 0).toFixed(0)}ms` : "";
+      deltaLabel.textContent =
+        `NLF ${lastNlfMs.toFixed(0)} ms · rtt ${roundTrip.toFixed(0)} ms · WS ≤${NLF_UPLOAD_MAX_SIDE}px${det}`;
+      fpsLabel.textContent = `NLF ${nlfFpsEma ? nlfFpsEma.toFixed(0) : "—"} fps · atualização do skeleton 3D`;
+      fpsLabel.title = `Taxa em que as poses chegam e atualizam o esqueleto 3D (medida entre frames aplicados).
+Latência por frame: ${lastNlfMs.toFixed(0)} ms no servidor · rtt ${roundTrip.toFixed(0)} ms.
+Com double-buffer, deve acompanhar a câmera (~30 fps).`;
+      updateFpsHud(
+        nlfFpsEma,
+        `servidor ${lastNlfMs.toFixed(0)} ms · rtt ${roundTrip.toFixed(0)} ms · ${data.device || ""}`
+      );
+      statusMeta.textContent = `NLF-S · ${data.device || "?"} · ${data.nlf_query || "smplx55"} · ${data.crop || "yolov8n_sticky"}`;
+    }
+
+    let bootTimer = null;
+    let bootStartTs = 0;
+    function showBootOverlay() {
+      bootOverlay.hidden = false;
+      bootStartTs = performance.now();
+      bootElapsed.textContent = "0s";
+      clearInterval(bootTimer);
+      bootTimer = setInterval(() => {
+        bootElapsed.textContent = `${Math.round((performance.now() - bootStartTs) / 1000)}s`;
+      }, 250);
+    }
+    function hideBootOverlay() {
+      bootOverlay.hidden = true;
+      clearInterval(bootTimer);
+      bootTimer = null;
+    }
+
+    const BACKEND_NAMES = { trt: "TensorRT", dml: "DirectML", ov: "OpenVINO", ort: "ONNX CPU", torch: "torch (ref)" };
+    function fmtBackendChip(data, calibMs) {
+      const bk = (data.backend || "torch").toUpperCase();
+      const p50 = data.backend_baseline && data.backend_baseline.p50;
+      const cands = data.backend_candidates || {};
+      const rows = Object.entries(cands)
+        .sort((a, b) => (a[1].p50 || 1e9) - (b[1].p50 || 1e9))
+        .map(([k, v]) => `${BACKEND_NAMES[k] || k}: ${(v.p50 || NaN).toFixed(1)} ms`);
+      const how = data.backend_calibrated
+        ? `Benchmark real no seu hardware (${calibMs ? (Math.round(calibMs / 100) / 10) + "s" : "cache"}):\n${rows.join("\n")}\n\nEscolhido: ${bk}${p50 ? ` (p50 ${p50.toFixed(1)} ms)` : ""} · rebalances: ${data.backend_rebalanced ?? 0}`
+        : `${bk} (caminho de referência) — nenhum acelerador carregado`;
+      backendMeta.textContent = `Engine: ${bk}${p50 ? ` · ${p50.toFixed(1)} ms` : ""}`;
+      backendMeta.title = how;
+      backendMeta.hidden = false;
+      backendMeta.classList.toggle("rebalanced", (data.backend_rebalanced || 0) > 0);
+    }
+    async function refreshBackendMeta() {
+      if (!nlfReady) return;
+      try {
+        const res = await fetch("/api/nlf_status");
+        if (!res.ok) return;
+        fmtBackendChip(await res.json(), 0);
+      } catch (_) {
+        /* keep last known */
+      }
+    }
+    // Light poll: catches a runtime rebalance (backend swapped while playing).
+    setInterval(refreshBackendMeta, 15000);
+
+    async function warmupNlf() {
+      statusMeta.textContent = "medindo backends NLF… (1ª vez ~5-10s)";
+      liveChipText.textContent = "calibrando NLF";
+      showBootOverlay();
+      const t0 = performance.now();
+      try {
+        const res = await fetch("/api/nlf_warmup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        nlfReady = true;
+        nlfWsUrl = data.ws_url || defaultNlfWsUrl();
+        ensureNlfWs();
+        hideBootOverlay();
+        fmtBackendChip(data, performance.now() - t0);
+        const p50 = data.backend_baseline && data.backend_baseline.p50;
+        statusMeta.textContent =
+          `NLF-S pronto · ${data.device} · ${data.backend || "torch"}${p50 ? ` ${p50.toFixed(1)}ms` : ""} · WS`;
+        liveChipText.textContent = "NLF pronto";
+        return data;
+      } catch (e) {
+        hideBootOverlay();
+        backendMeta.hidden = true;
+        throw e;
+      }
+    }
+
+    function setPoseBackend(next) {
+      if (poseBackend === next) return;
+      poseBackend = next;
+      btnPoseMp.classList.toggle("active", poseBackend === "mp");
+      btnPoseNlf.classList.toggle("active", poseBackend === "nlf");
+      btnModeCorr.disabled = poseBackend === "nlf";
+      btnModeRaw.disabled = poseBackend === "nlf";
+      camNote.textContent = poseBackend === "nlf" ? NLF_NOTE : MP_NOTE;
+      if (poseBackend === "nlf") {
+        mode = "raw";
+        btnModeRaw.classList.add("active");
+        btnModeCorr.classList.remove("active");
+        // Shadow MP costs WASM every frame — off by default for snappier NLF live.
+        chkShadow.checked = false;
+        liveChipText.textContent = nlfReady ? "principal: NLF-S" : "NLF não carregado";
+        statusMeta.textContent = nlfReady
+          ? "NLF-S · WS binário ≤960px · YOLOv8n sticky crop"
+          : "NLF-S · clique Iniciar (carrega o modelo)";
+        if (nlfReady) ensureNlfWs();
+      } else {
+        closeNlfWs();
+        setNlfOverlayVisible(false);
+        btnModeCorr.disabled = false;
+        btnModeRaw.disabled = false;
+        setMode(mode === "raw" ? "raw" : "corrected");
+      }
+    }
+    btnPoseMp.onclick = () => setPoseBackend("mp");
+    btnPoseNlf.onclick = () => setPoseBackend("nlf");
+
+    function grabJpegBlob() {
+      const vw = camVideo.videoWidth || 0;
+      const vh = camVideo.videoHeight || 0;
+      if (!vw || !vh) return Promise.resolve(null);
+      const scale = Math.min(1, NLF_UPLOAD_MAX_SIDE / Math.max(vw, vh));
+      const w = Math.max(64, Math.round(vw * scale));
+      const h = Math.max(64, Math.round(vh * scale));
+      if (!nlfCanvas) nlfCanvas = document.createElement("canvas");
+      if (nlfCanvas.width !== w || nlfCanvas.height !== h) {
+        nlfCanvas.width = w;
+        nlfCanvas.height = h;
+      }
+      const ctx = nlfCanvas.getContext("2d", { alpha: false });
+      ctx.drawImage(camVideo, 0, 0, w, h);
+      return new Promise((resolve) => {
+        nlfCanvas.toBlob((blob) => resolve(blob), "image/jpeg", NLF_JPEG_QUALITY);
+      });
+    }
+
+    function packNlfWsFrame(frameId, jpegBuf) {
+      const out = new Uint8Array(8 + jpegBuf.byteLength);
+      out[0] = 0x4e; out[1] = 0x4c; out[2] = 0x46; out[3] = 0x31; // NLF1
+      const view = new DataView(out.buffer);
+      view.setUint32(4, frameId >>> 0, true);
+      out.set(new Uint8Array(jpegBuf), 8);
+      return out.buffer;
+    }
+
+    async function requestNlfPose() {
+      if (!running || poseBackend !== "nlf") return;
+      // Prune send-timestamps whose frame was dropped server-side (latest-
+      // frame-wins never responds to stale frames) so the map stays bounded.
+      if (nlfSentTs.size > 64) {
+        const cutoff = performance.now() - 5000;
+        for (const [fid, ts] of nlfSentTs) if (ts < cutoff) nlfSentTs.delete(fid);
+      }
+      // Watchdog: if the server stalls (no response), drop the in-flight
+      // budget so capture resumes and the error surfaces once.
+      if (nlfInFlight > 0 && performance.now() - nlfLastRespTs > 4000) {
+        nlfInFlight = 0;
+        nlfSentTs.clear();
+        if (!nlfStallReported) {
+          nlfStallReported = true;
+          liveChipText.textContent = "erro NLF";
+          liveChip.classList.add("warn");
+          statusMeta.textContent = "NLF: sem resposta do servidor (WS)";
+        }
+      }
+      if (nlfCaptureBusy || nlfInFlight >= NLF_MAX_IN_FLIGHT) return;
+      const now0 = performance.now();
+      if (NLF_MIN_INTERVAL_MS > 0 && now0 - lastNlfRequestTs < NLF_MIN_INTERVAL_MS) return;
+      lastNlfRequestTs = now0;
+      const seq = ++poseSequence;
+      const captureGeneration = cameraGeneration;
+      nlfCaptureBusy = true;
+      try {
+        if (!nlfReady) await warmupNlf();
+        const blob = await grabJpegBlob();
+        if (!blob) return;
+        const jpegBuf = await blob.arrayBuffer();
+        if (!running || captureGeneration !== cameraGeneration) return;
+        const ws = ensureNlfWs();
+        if (ws.readyState !== WebSocket.OPEN) {
+          // Wait briefly for WS; fallback HTTP once if still down.
+          await new Promise((r) => setTimeout(r, 80));
+        }
+        if (ws.readyState === WebSocket.OPEN) {
+          if (!running || captureGeneration !== cameraGeneration) return;
+          // Pipelined: increment before send; the persistent onmessage handler
+          // applies the result and decrements. Capture N+1 happens on the next
+          // camera frame while this one is in flight.
+          nlfInFlight += 1;
+          nlfSentTs.set(seq, performance.now());
+          try {
+            ws.send(packNlfWsFrame(seq, jpegBuf));
+          } catch (e) {
+            nlfInFlight = Math.max(0, nlfInFlight - 1);
+            nlfSentTs.delete(seq);
+            throw e;
+          }
+        } else {
+          // HTTP fallback (same crop path on server) — single-flight.
+          const res = await fetch("/api/nlf_pose", {
+            method: "POST",
+            headers: { "Content-Type": "image/jpeg", "X-Frame-Id": String(seq) },
+            body: blob,
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || res.statusText);
+          applyNlfResult(data, performance.now(), seq);
+        }
+      } catch (e) {
+        if (e?.name === "AbortError") return;
+        liveChipText.textContent = "erro NLF";
+        liveChip.classList.add("warn");
+        statusMeta.textContent = `NLF: ${e.message || e}`;
+      } finally {
+        nlfCaptureBusy = false;
+      }
+    }
+    chkShadow.addEventListener("change", () => {
+      const show = mode === "corrected" && chkShadow.checked && lastRawView;
+      for (const mesh of shadowMeshes) mesh.visible = !!show;
+      if (shadowBones) shadowBones.visible = !!show;
+      if (show) setPose(shadowMeshes, shadowBones, lastRawView);
+      shadowLabel.textContent = chkShadow.checked
+        ? (lastRawView ? `Sombra Raw ligada · frame ${poseSequence}` : "Sombra Raw aguardando pose")
+        : "Sombra Raw desligada";
+    });
+    chkGate.addEventListener("change", () => {
+      cameraGeneration += 1;
+      if (running && mode === "corrected") requestCorrection();
+    });
+    ckptSelect.addEventListener("change", () => {
+      checkpointId = ckptSelect.value;
+      requiredWindowT = Number(checkpointOptions.get(checkpointId)?.T) || 15;
+      checkpointReadyId = "";
+      checkpointGeneration += 1;
+      lastCorrectedView = null;
+      lastCorrectedCheckpoint = "";
+      btnWarmup.textContent = "Carregar modelo";
+      btnWarmup.disabled = false;
+      liveChipText.textContent = "modelo não carregado";
+      liveChip.classList.add("warn");
+      ckptLabel.textContent = `ckpt ${checkpointId.split("/").slice(-2).join("/")}`;
+      statusMeta.textContent = "modelo selecionado · clique Carregar modelo";
+      histJoints.length = 0;
+      histConf.length = 0;
+      hist2d.length = 0;
+      histTimes.length = 0;
+      if (running && mode === "corrected") warmup();
+    });
+
+    async function warmup() {
+      if (!checkpointId) return false;
+      const requestedCheckpoint = checkpointId;
+      const generation = checkpointGeneration;
+      statusMeta.textContent = "carregando modelo corretor…";
+      liveChipText.textContent = "carregando modelo";
+      liveChip.classList.add("warn");
+      btnWarmup.disabled = true;
+      try {
+        const res = await fetch("/api/warmup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ checkpoint: requestedCheckpoint }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        if (generation !== checkpointGeneration || requestedCheckpoint !== checkpointId) return false;
+        checkpointReadyId = requestedCheckpoint;
+        requiredWindowT = Number(data.T) || requiredWindowT;
+        btnWarmup.textContent = "Modelo carregado";
+        statusMeta.textContent = `modelo pronto · janela ${requiredWindowT} frames · ${data.device}`;
+        const readyFrames = canonicalFramesReady();
+        liveChipText.textContent = running
+          ? `aquecendo ${readyFrames}/${requiredWindowT}`
+          : "modelo pronto";
+        showError(null);
+        return true;
+      } catch (e) {
+        if (generation !== checkpointGeneration) return false;
+        checkpointReadyId = "";
+        btnWarmup.textContent = "Tentar novamente";
+        statusMeta.textContent = "falha ao carregar ckpt";
+        liveChipText.textContent = "erro no modelo";
+        showError(String(e.message || e));
+        return false;
+      } finally {
+        if (generation === checkpointGeneration) {
+          btnWarmup.disabled = checkpointReadyId === checkpointId;
+        }
+      }
+    }
+    btnWarmup.onclick = warmup;
+
+    async function ensureLandmarker() {
+      if (poseLandmarker) return poseLandmarker;
+      statusMeta.textContent = "baixando MediaPipe WASM…";
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm",
+      );
+      poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: MODEL_URL,
+          delegate: "GPU",
+        },
+        runningMode: "VIDEO",
+        numPoses: 1,
+      });
+      return poseLandmarker;
+    }
+
+    async function startCamera() {
+      cornerLastNlfFrame = -1;
+      showError(null);
+      try {
+        if (poseBackend === "nlf") {
+          try {
+            await warmupNlf();
+          } catch (e) {
+            showError(`NLF-S: ${e.message || e}`);
+            return;
+          }
+        } else if (mode === "corrected" && checkpointReadyId !== checkpointId) {
+          const ready = await warmup();
+          if (!ready) return;
+        }
+        if (poseBackend !== "nlf" || chkShadow.checked) await ensureLandmarker();
+        camStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: NLF_CAM_MAX_SIDE },
+            height: { ideal: Math.round((NLF_CAM_MAX_SIDE * 9) / 16) },
+          },
+          audio: false,
+        });
+        camVideo.srcObject = camStream;
+        await camVideo.play();
+        cameraGeneration += 1;
+        running = true;
+        btnCam.textContent = "Parar webcam";
+        btnCam.classList.add("danger", "on");
+        statusMeta.textContent = "live";
+        liveChip.classList.add("live");
+        liveChipText.textContent = "live";
+        histJoints.length = 0;
+        histConf.length = 0;
+        hist2d.length = 0;
+        histTimes.length = 0;
+        poseSequence = 0;
+        lastRawView = null;
+        lastCorrectedView = null;
+        lastCorrectedCheckpoint = "";
+        groundY = null;
+        lastVideoTime = -1;
+        scheduleCameraLoop();
+      } catch (e) {
+        showError(`Webcam / MediaPipe: ${e.message || e}`);
+        statusMeta.textContent = "erro";
+      }
+    }
+
+    function stopCamera() {
+      cameraGeneration += 1;
+      running = false;
+      clearTimeout(cornerCaptureTimer);
+      cornerCaptureTimer = null;
+      closeNlfWs();
+      if (camStream) {
+        for (const t of camStream.getTracks()) t.stop();
+        camStream = null;
+      }
+      camVideo.srcObject = null;
+      btnCam.textContent = "Iniciar webcam";
+      btnCam.classList.remove("danger", "on");
+      liveChip.classList.remove("live");
+      liveChipText.textContent = "idle";
+      statusMeta.textContent = "parado";
+      updateFpsHud(null, "");
+    }
+
+    btnCam.onclick = () => {
+      if (running) stopCamera();
+      else startCamera();
+    };
+
+    document.getElementById("btnResetCam").onclick = () => {
+      camera.position.copy(DEFAULT_CAM_POS);
+      controls.target.copy(DEFAULT_TARGET);
+      controls.update();
+      groundY = null;
+    };
+
+    async function requestCorrection() {
+      if (
+        correctBusy || !hasCanonicalWindow() || !checkpointId
+        || checkpointReadyId !== checkpointId
+      ) return;
+      correctBusy = true;
+      const requestedCheckpoint = checkpointId;
+      const generation = checkpointGeneration;
+      const requestedCameraGeneration = cameraGeneration;
+      const requestedSequence = poseSequence;
+      const requestedHeadForward = lastRawHeadForward?.clone() || null;
+      const requestedFootDirections = lastRawFootDirections
+        ? { left: lastRawFootDirections.left.clone(), right: lastRawFootDirections.right.clone() }
+        : null;
+      const requestedAux = cloneAux(lastRawAux);
+      const historyStart = canonicalHistoryStartIndex();
+      const requestedJoints = histJoints.slice(historyStart);
+      const requestedConf = histConf.slice(historyStart);
+      const requested2d = hist2d.slice(historyStart);
+      const sampleTimes = histTimes.slice(historyStart);
+      const elapsed = sampleTimes[sampleTimes.length - 1] - sampleTimes[0];
+      const measuredFps = elapsed > 0
+        ? (sampleTimes.length - 1) / elapsed
+        : (mpFpsEma || TRAINING_FPS);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CORRECTION_TIMEOUT_MS);
+      const t0 = performance.now();
+      liveChipText.textContent = "corrigindo…";
+      try {
+        const res = await fetch("/api/correct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            checkpoint: requestedCheckpoint,
+            frame_id: requestedSequence,
+            timestamps: sampleTimes,
+            joints: requestedJoints,
+            conf: requestedConf,
+            joints_2d: requested2d,
+            fps: measuredFps,
+            apply_gate: chkGate.checked,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        if (
+          generation !== checkpointGeneration || requestedCheckpoint !== checkpointId
+          || requestedCameraGeneration !== cameraGeneration || !running
+          || data.checkpoint !== requestedCheckpoint || data.frame_id !== requestedSequence
+        ) return;
+
+        const roundTripMs = performance.now() - t0;
+        lastCorrMs = roundTripMs;
+        const lagFrames = Math.max(0, poseSequence - requestedSequence);
+        const now = performance.now();
+        if (lastCorrTs) {
+          const inst = 1000 / Math.max(1, now - lastCorrTs);
+          corrFpsEma = corrFpsEma ? corrFpsEma * 0.85 + inst * 0.15 : inst;
+        }
+        lastCorrTs = now;
+
+        const corrJoints = data.joints;
+        if (!Array.isArray(corrJoints) || corrJoints.length !== LAB_JOINTS.length) {
+          throw new Error(`joints inválidos (${corrJoints?.length ?? 0})`);
+        }
+        const corrView = plantFeet(toViewerSpace(corrJoints));
+        lastCorrectedView = corrView;
+        lastCorrectedCheckpoint = requestedCheckpoint;
+
+        if (mode === "corrected") {
+          setPose(jointMeshes, boneLines, corrView);
+          updateAvatarPose(corrView, requestedHeadForward, requestedFootDirections, requestedAux);
+          const showShadow = !avatarMode && chkShadow.checked;
+          for (const m of shadowMeshes) m.visible = showShadow;
+          if (shadowBones) shadowBones.visible = showShadow;
+        }
+
+        const displacementMm = 1000 * Number(data.mean_displacement || 0);
+        deltaLabel.textContent = data.gated
+          ? `pass-through · Δ ${displacementMm.toFixed(0)} mm · atraso ${lagFrames}f`
+          : `correção ${displacementMm.toFixed(0)} mm · ${roundTripMs.toFixed(0)}ms · atraso ${lagFrames}f`;
+        liveChipText.textContent = data.gated
+          ? "principal: pass-through"
+          : "principal: corrigido";
+        liveChip.classList.toggle("warn", !!data.gated);
+        statusMeta.textContent = `modelo em uso · ${requestedCheckpoint.split("/").slice(-2).join("/")}`;
+        showError(null);
+      } catch (e) {
+        deltaLabel.textContent = "corr erro";
+        statusMeta.textContent = e.name === "AbortError"
+          ? `corretor excedeu ${CORRECTION_TIMEOUT_MS} ms`
+          : `corr: ${e.message || e}`;
+        liveChipText.textContent = "erro no corretor";
+        liveChip.classList.add("warn");
+      } finally {
+        clearTimeout(timeoutId);
+        correctBusy = false;
+      }
+    }
+
+    function onPoseFrame(joints, conf, joints2d, headForward, footDirections, videoTime, aux = null) {
+      poseSequence += 1;
+      histJoints.push(joints);
+      histConf.push(conf);
+      hist2d.push(joints2d);
+      histTimes.push(videoTime);
+      const keepSeconds = Math.max(1, requiredHistorySeconds() + 0.25);
+      const cutoff = videoTime - keepSeconds;
+      while (histTimes.length > 2 && histTimes[1] < cutoff) {
+        histJoints.shift();
+        histConf.shift();
+        hist2d.shift();
+        histTimes.shift();
+      }
+
+      const view = plantFeet(toViewerSpace(joints));
+      lastRawView = view;
+      lastRawHeadForward = selfieMirrorVec(headForward);
+      lastRawFootDirections = selfieMirrorFootDirs(footDirections);
+      lastRawAux = selfieMirrorAux(aux);
+      if (poseBackend !== "nlf") {
+        updateAvatarPose(
+          mode === "corrected" && lastCorrectedView ? lastCorrectedView : view,
+          lastRawHeadForward, lastRawFootDirections, lastRawAux,
+        );
+      }
+      const showLiveShadow = !avatarMode && mode === "corrected" && chkShadow.checked;
+      setPose(shadowMeshes, shadowBones, view);
+      for (const mesh of shadowMeshes) mesh.visible = showLiveShadow;
+      if (shadowBones) shadowBones.visible = showLiveShadow;
+      shadowLabel.textContent = chkShadow.checked
+        ? `Sombra Raw ligada · frame ${poseSequence}`
+        : "Sombra Raw desligada";
+      if (poseBackend === "nlf") {
+        // MP path only when Sombra is on — avatar always from NLF + SMPL aux.
+        const showShadow = !avatarMode && chkShadow.checked;
+        setPose(shadowMeshes, shadowBones, view);
+        for (const m of shadowMeshes) m.visible = showShadow;
+        if (shadowBones) shadowBones.visible = showShadow;
+        if (lastNlfView) {
+          setPose(jointMeshes, boneLines, lastNlfView);
+          updateAvatarPose(
+            lastNlfView, lastNlfHeadForward, lastNlfFootDirections, lastNlfAux,
+          );
+        }
+      } else if (mode === "raw") {
+        setPose(jointMeshes, boneLines, view);
+        for (const m of shadowMeshes) m.visible = false;
+        if (shadowBones) shadowBones.visible = false;
+        liveChipText.textContent = "principal: Raw MP";
+        liveChip.classList.remove("warn");
+      } else {
+        if (!lastCorrectedView || lastCorrectedCheckpoint !== checkpointId) {
+          setPose(jointMeshes, boneLines, view);
+          const readyFrames = canonicalFramesReady();
+          liveChipText.textContent = correctBusy
+            ? "corrigindo…"
+            : (!hasCanonicalWindow()
+              ? `aquecendo ${readyFrames}/${requiredWindowT}`
+              : "aguardando corretor");
+          liveChip.classList.add("warn");
+        }
+        requestCorrection();
+      }
+
+      const now = performance.now();
+      if (lastMpTs) {
+        const inst = 1000 / Math.max(1, now - lastMpTs);
+        mpFpsEma = mpFpsEma ? mpFpsEma * 0.85 + inst * 0.15 : inst;
+      }
+      lastMpTs = now;
+      if (poseBackend !== "nlf") {
+        const fpsState = mpFpsEma >= 20 ? "reamostrado" : "amostragem baixa";
+        fpsLabel.textContent =
+          `MP ${mpFpsEma.toFixed(0)} fps (${fpsState} → ${TRAINING_FPS} Hz) · `
+          + `Corr ${corrFpsEma ? corrFpsEma.toFixed(0) : "—"} fps`;
+        updateFpsHud(mpFpsEma, `MediaPipe no browser · Corr ${corrFpsEma ? corrFpsEma.toFixed(0) : "—"} fps`);
+      }
+    }
+
+    function scheduleCameraLoop() {
+      if (new URLSearchParams(location.search).has("gameBridge")) {
+        // Hidden iframes may suspend animation frames. Camera inference must
+        // keep running independently of whether this iframe gets painted.
+        clearTimeout(cornerCaptureTimer);
+        cornerCaptureTimer = setTimeout(loop, 16);
+      } else requestAnimationFrame(loop);
+    }
+    function loop() {
+      if (!running) return;
+      const lm = poseLandmarker;
+      // NLF mode: skip MediaPipe entirely unless Sombra Raw is on (optional overlay).
+      const needMp = poseBackend !== "nlf" || chkShadow.checked;
+      if (poseBackend === "nlf" && !chkShadow.checked && camVideo.readyState >= 2) {
+        if (camVideo.currentTime !== lastVideoTime) {
+          lastVideoTime = camVideo.currentTime;
+          void requestNlfPose();
+        }
+      } else if (lm && needMp && camVideo.readyState >= 2) {
+        if (camVideo.currentTime !== lastVideoTime) {
+          lastVideoTime = camVideo.currentTime;
+          const ts = performance.now();
+          const result = lm.detectForVideo(camVideo, ts);
+          if (result.worldLandmarks?.[0] && result.landmarks?.[0]) {
+            const mapped = mediapipeToLab(result.worldLandmarks[0], result.landmarks[0]);
+            onPoseFrame(
+              mapped.joints, mapped.conf, mapped.joints2d,
+              mapped.headForward, mapped.footDirections, ts / 1000,
+              mapped.aux,
+            );
+          }
+          if (poseBackend === "nlf") void requestNlfPose();
+        }
+      }
+      if (!new URLSearchParams(location.search).has('gameBridge')) {
+        controls.update();
+        cameraLight.position.copy(camera.position);
+        updateAvatarBoneOverlay();
+        renderer.render(scene, camera);
+      }
+      scheduleCameraLoop();
+    }
+
+    // Also render when idle (orbit).
+    function idleRender() {
+      if (new URLSearchParams(location.search).has('gameBridge')) return;
+      if (!running) {
+        controls.update();
+        cameraLight.position.copy(camera.position);
+        updateAvatarBoneOverlay();
+        if (!new URLSearchParams(location.search).has('gameBridge')) renderer.render(scene, camera);
+      }
+      requestAnimationFrame(idleRender);
+    }
+
+    buildSkeleton();
+    const ckptData = await (await fetch("/api/checkpoints")).json();
+    checkpointOptions = new Map(
+      (ckptData.checkpoints || []).map((checkpoint) => [checkpoint.id, checkpoint]),
+    );
+    ckptSelect.innerHTML = "";
+    for (const c of ckptData.checkpoints || []) {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.label + (c.preferred ? " ★" : "");
+      ckptSelect.appendChild(opt);
+    }
+    checkpointId = ckptData.default || (ckptData.checkpoints?.[0]?.id) || "";
+    if (checkpointId) {
+      ckptSelect.value = checkpointId;
+      requiredWindowT = Number(checkpointOptions.get(checkpointId)?.T) || 15;
+    }
+    ckptLabel.textContent = checkpointId
+      ? `ckpt ${checkpointId.split("/").slice(-2).join("/")}`
+      : "ckpt —";
+    const nCkpt = (ckptData.checkpoints || []).length;
+    statusMeta.textContent = nCkpt
+      ? `modelo selecionado · será carregado ao iniciar webcam`
+      : "sem checkpoints em runs/";
+    liveChipText.textContent = nCkpt ? "modelo não carregado" : "sem modelo";
+    globalThis.poseLabDebug = () => {
+      const jointSample = {};
+      if (avatarMode && avatarRig && chkAvatarBones.checked) {
+        for (const key of ["leftShoulder", "rightShoulder", "leftArm", "rightArm", "hips", "spine", "neck", "head"]) {
+          const rest = avatarRig.bones.get(key);
+          if (!rest) continue;
+          const p = rest.bone.getWorldPosition(new THREE.Vector3());
+          jointSample[key] = [Number(p.x.toFixed(3)), Number(p.y.toFixed(3)), Number(p.z.toFixed(3))];
+        }
+      }
+      return {
+        running,
+        mode,
+        poseSequence,
+        correctBusy,
+        checkpointId,
+        checkpointReadyId,
+        hasCanonicalWindow: hasCanonicalWindow(),
+        rawAvailable: !!lastRawView,
+        correctedAvailable: !!lastCorrectedView,
+        shadowChecked: chkShadow.checked,
+        shadowVisible: shadowMeshes.some((mesh) => mesh.visible),
+        shadowPosition: shadowMeshes[0]
+          ? shadowMeshes[0].position.toArray()
+          : null,
+        mainPosition: jointMeshes[0]
+          ? jointMeshes[0].position.toArray()
+          : null,
+        avatarMode,
+        avatarBonesChecked: chkAvatarBones.checked,
+        avatarXrayChecked: chkAvatarXray.checked,
+        avatarMappedBones: avatarRig ? avatarRig.bones.size : 0,
+        avatarJointSample: jointSample,
+        status: statusMeta.textContent,
+        chip: liveChipText.textContent,
+      };
+    };
+    if (new URLSearchParams(location.search).has("gameBridge")) {
+      globalThis.cornerTracking = {
+        start: async () => {
+          setPoseBackend("nlf");
+          await startCamera();
+          if (!running) throw new Error(errBox.textContent || "Não foi possível iniciar o rastreamento");
+          return true;
+        },
+        stop: stopCamera,
+        video: camVideo,
+        status: () => ({ running, backend: poseBackend, text: statusMeta.textContent }),
+      };
+      parent.postMessage({ type: "corner-ready" }, location.origin);
+    }
+    resize();
+    idleRender();
+  </script>
+</body>
+</html>

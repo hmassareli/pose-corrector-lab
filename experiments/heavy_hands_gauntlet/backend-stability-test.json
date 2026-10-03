@@ -1,0 +1,16 @@
+{
+  "result": "PASS",
+  "checks": [
+    "cold outlier and queue drops cannot trigger backend replacement",
+    "sustained median+p95 degradation triggers once",
+    "rolling latency median ignores one cold50s sample",
+    "provider dispatch never overlaps",
+    "80 real concurrent TRT outputs after GC match single-call reference",
+    "two runtimes use same process-lifetime logger",
+    "new runtime after disposal still infers"
+  ],
+  "dispatchMaximumConcurrent": 1,
+  "TRTCalls": 80,
+  "maxFeatureDifference": 0.0,
+  "seconds": 0.4044186999963131
+}

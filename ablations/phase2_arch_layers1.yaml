@@ -1,0 +1,10 @@
+# One-factor architecture ablation: one recurrent layer.
+team: phase2_arch
+notes: "GRU hidden=256; layers=1; T=15; otherwise baseline"
+
+model:
+  hidden: 256
+  layers: 1
+
+logging:
+  run_name: abl2_arch_layers1

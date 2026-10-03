@@ -1,0 +1,126 @@
+{
+  "result": "PASS",
+  "transport": "relay",
+  "checks": [
+    "pause without webcam",
+    "two browsers over public WSS signaling",
+    "same authoritative timer after pose pause",
+    "0% smoothing",
+    "three original avatars load",
+    "peer disconnect pauses",
+    "camera translation and depth replicated",
+    "foot visibility/contact replicated",
+    "guest prediction agrees with host after acknowledgement"
+  ],
+  "errors": [],
+  "states": [
+    {
+      "active": true,
+      "online": true,
+      "self": 0,
+      "ready": true,
+      "clock": 87.96666666666678,
+      "round": 1,
+      "smooth": 50,
+      "cameraOn": true,
+      "loaded": true,
+      "renderCalls": 102
+    },
+    {
+      "active": true,
+      "online": true,
+      "self": 1,
+      "ready": true,
+      "clock": 87.96666666666678,
+      "round": 1,
+      "smooth": 50,
+      "cameraOn": true,
+      "loaded": true,
+      "renderCalls": 102
+    }
+  ],
+  "activeSequentialSamples": [
+    {
+      "active": true,
+      "online": true,
+      "self": 0,
+      "ready": true,
+      "clock": 88.51666666666675,
+      "round": 1,
+      "smooth": 50,
+      "cameraOn": true,
+      "loaded": true,
+      "renderCalls": 102
+    },
+    {
+      "active": true,
+      "online": true,
+      "self": 1,
+      "ready": true,
+      "clock": 88.63333333333341,
+      "round": 1,
+      "smooth": 50,
+      "cameraOn": true,
+      "loaded": true,
+      "renderCalls": 102
+    }
+  ],
+  "movement": [
+    [
+      {
+        "x": 0.11407585038092986,
+        "z": -0.5718189782424375,
+        "radialApplied": 0.102994011976048,
+        "footContacts": [
+          true,
+          true
+        ],
+        "footVisible": [
+          true,
+          true
+        ]
+      },
+      {
+        "x": -0.10296318300013953,
+        "z": 0.5615996111811702,
+        "radialApplied": 0.102994011976048,
+        "footContacts": [
+          true,
+          true
+        ],
+        "footVisible": [
+          true,
+          true
+        ]
+      }
+    ],
+    [
+      {
+        "x": 0.11407585038092986,
+        "z": -0.5718189782424375,
+        "radialApplied": 0.102994011976048,
+        "footContacts": [
+          true,
+          true
+        ],
+        "footVisible": [
+          true,
+          true
+        ]
+      },
+      {
+        "x": -0.10296318300013953,
+        "z": 0.5615996111811702,
+        "radialApplied": 0.102994011976048,
+        "footContacts": [
+          true,
+          true
+        ],
+        "footVisible": [
+          true,
+          true
+        ]
+      }
+    ]
+  ]
+}

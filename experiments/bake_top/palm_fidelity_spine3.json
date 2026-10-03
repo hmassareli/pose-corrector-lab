@@ -1,0 +1,40 @@
+{
+ "tag": "spine3",
+ "frames_sampled": 264,
+ "sides": {
+  "left": {
+   "usable_frames": 264,
+   "rest_offset_deg": 14.1,
+   "tracking_resid_deg": {
+    "p50": 90.4,
+    "p95": 92.0,
+    "max": 95.0
+   },
+   "palm_down_corr": -0.899,
+   "punch_window_palm_normal_y": {
+    "fit_mean": 0.25,
+    "avatar_mean": 0.25,
+    "fit_min": -0.18,
+    "avatar_min": -0.48,
+    "mean_abs_diff": 0.47
+   }
+  },
+  "right": {
+   "usable_frames": 264,
+   "rest_offset_deg": 5.3,
+   "tracking_resid_deg": {
+    "p50": 90.1,
+    "p95": 91.3,
+    "max": 95.3
+   },
+   "palm_down_corr": 0.952,
+   "punch_window_palm_normal_y": {
+    "fit_mean": -0.47,
+    "avatar_mean": 0.09,
+    "fit_min": -0.98,
+    "avatar_min": -0.7,
+    "mean_abs_diff": 0.57
+   }
+  }
+ }
+}

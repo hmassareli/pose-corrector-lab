@@ -1,0 +1,113 @@
+{
+  "result": "PASS",
+  "input": "Same stationary human frame at5sec,30consecutive observations per fresh WS, no frame sent before measurement",
+  "checks": [
+    "two independent session first frames agree within3cm",
+    "height\u00b13cm from first observation",
+    "median jitter<4cm",
+    "first-frame crop from same person, no stale session"
+  ],
+  "runs": [
+    {
+      "heightMedian": 1.523347795009613,
+      "firstHeight": 1.523347795009613,
+      "heightDeviationMax": 0.0,
+      "rootJitterMedian": 0.0,
+      "serverMsMedian": 27.155,
+      "elapsed": 22.7685868999979,
+      "warm": {
+        "ok": true,
+        "type": "warmup",
+        "ready": true,
+        "device": "cuda",
+        "model": "data/models/nlf/nlf_s_multi_0.2.2.torchscript",
+        "error": null,
+        "ws_url": "ws://127.0.0.1:8781/nlf",
+        "crop": "yolov8n_sticky",
+        "nlf_query": "smplx55",
+        "dense": false,
+        "backend": "dml",
+        "backend_calibrated": true,
+        "backend_baseline": {
+          "p50": 13.196899992180988,
+          "mean": 13.150979997590184,
+          "p95": 14.166839997051284
+        },
+        "backend_candidates": {
+          "trt": {
+            "p50": 9.698699926957488,
+            "mean": 9.72347502829507,
+            "p95": 9.837560029700398
+          },
+          "dml": {
+            "p50": 8.634199853986502,
+            "mean": 8.606775023508817,
+            "p95": 8.994055050425231
+          },
+          "ov": {
+            "p50": 30.028900131583214,
+            "mean": 29.372600217660267,
+            "p95": 31.2907001003623
+          },
+          "ort": {
+            "p50": 36.837299820035696,
+            "mean": 36.43243325253328,
+            "p95": 36.85493995435536
+          }
+        },
+        "backend_rebalanced": 1
+      }
+    },
+    {
+      "heightMedian": 1.5231760740280151,
+      "firstHeight": 1.5231760740280151,
+      "heightDeviationMax": 0.0,
+      "rootJitterMedian": 0.0,
+      "serverMsMedian": 25.36,
+      "elapsed": 45.60600739999791,
+      "warm": {
+        "ok": true,
+        "type": "warmup",
+        "ready": true,
+        "device": "cuda",
+        "model": "data/models/nlf/nlf_s_multi_0.2.2.torchscript",
+        "error": null,
+        "ws_url": "ws://127.0.0.1:8781/nlf",
+        "crop": "yolov8n_sticky",
+        "nlf_query": "smplx55",
+        "dense": false,
+        "backend": "dml",
+        "backend_calibrated": true,
+        "backend_baseline": {
+          "p50": 13.196899992180988,
+          "mean": 13.150979997590184,
+          "p95": 14.166839997051284
+        },
+        "backend_candidates": {
+          "trt": {
+            "p50": 9.698699926957488,
+            "mean": 9.72347502829507,
+            "p95": 9.837560029700398
+          },
+          "dml": {
+            "p50": 8.634199853986502,
+            "mean": 8.606775023508817,
+            "p95": 8.994055050425231
+          },
+          "ov": {
+            "p50": 30.028900131583214,
+            "mean": 29.372600217660267,
+            "p95": 31.2907001003623
+          },
+          "ort": {
+            "p50": 36.837299820035696,
+            "mean": 36.43243325253328,
+            "p95": 36.85493995435536
+          }
+        },
+        "backend_rebalanced": 1
+      }
+    }
+  ],
+  "limitation": "Controlled stationary startup check; moving first-second frames naturally change stance/height."
+}

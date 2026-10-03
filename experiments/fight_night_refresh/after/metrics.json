@@ -1,0 +1,101 @@
+{
+  "medianMs": 16.69999999999709,
+  "p95Ms": 16.799999999999272,
+  "calls": 65,
+  "triangles": 1868085,
+  "geometries": 86,
+  "textures": 9,
+  "meshes": [
+    {
+      "name": "tripo_node_ace5219b-f6da-487d-ad88-1ae3f812da3b",
+      "triangles": 1494256,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "geometry_0",
+      "triangles": 294525,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 208,
+      "instances": 204,
+      "shadow": false,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 140,
+      "instances": 204,
+      "shadow": false,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 960,
+      "instances": 1,
+      "shadow": false,
+      "material": "ShaderMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 408,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 408,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 408,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 408,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 384,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 384,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    },
+    {
+      "name": "",
+      "triangles": 384,
+      "instances": 1,
+      "shadow": true,
+      "material": "MeshStandardMaterial"
+    }
+  ],
+  "particles": {
+    "sparks": 36,
+    "mist": 7,
+    "drops": 14,
+    "words": 0
+  },
+  "errors": []
+}

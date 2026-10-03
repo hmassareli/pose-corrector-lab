@@ -1,0 +1,35 @@
+{
+  "result": "PASS",
+  "clips": [
+    {
+      "id": "hook_right",
+      "duration": 0.8990801862828111,
+      "launch": 0.2748768557719449
+    },
+    {
+      "id": "jab_left",
+      "duration": 0.599386790855208,
+      "launch": 0.20617665819926514
+    },
+    {
+      "id": "straight_right",
+      "duration": 0.6326860570138297,
+      "launch": 0.1348192209991518
+    },
+    {
+      "id": "hook_left",
+      "duration": 0.6992845893310751,
+      "launch": 0.2386740615297748
+    }
+  ],
+  "samples": 591,
+  "errors": [],
+  "checks": [
+    "library loaded by actual page",
+    "all four recorded attacks animate and launch",
+    "all four return to idle",
+    "blocked recording retracts",
+    "no browser errors"
+  ],
+  "limitation": "Automated local playback; subjective naturalness needs human review."
+}

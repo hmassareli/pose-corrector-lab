@@ -1,0 +1,341 @@
+{
+ "source": "ElevenLabs_2026-10-02T17_56_44_Victor - Deep, Malevolent and Ancient_pvc_sp100_s50_sb75_v4.mp3",
+ "thr_db": -40.0,
+ "gap_s": 0.2,
+ "clips": [
+  {
+   "file": "pressure_guard_up.wav",
+   "start": 0.03,
+   "end": 1.07,
+   "dur": 1.04,
+   "name": "pressure_guard_up",
+   "category": "pressure",
+   "text": "GUARD UP"
+  },
+  {
+   "file": "pressure_move.wav",
+   "start": 1.37,
+   "end": 2.25,
+   "dur": 0.88,
+   "name": "pressure_move",
+   "category": "pressure",
+   "text": "MOVE"
+  },
+  {
+   "file": "pressure_get_out.wav",
+   "start": 2.49,
+   "end": 3.44,
+   "dur": 0.95,
+   "name": "pressure_get_out",
+   "category": "pressure",
+   "text": "GET OUT"
+  },
+  {
+   "file": "pressure_stay_up.wav",
+   "start": 3.68,
+   "end": 4.72,
+   "dur": 1.04,
+   "name": "pressure_stay_up",
+   "category": "pressure",
+   "text": "STAY UP"
+  },
+  {
+   "file": "pressure_hold_it.wav",
+   "start": 4.98,
+   "end": 5.83,
+   "dur": 0.85,
+   "name": "pressure_hold_it",
+   "category": "pressure",
+   "text": "HOLD IT"
+  },
+  {
+   "file": "pressure_you_re_hurt.wav",
+   "start": 6.11,
+   "end": 7.2,
+   "dur": 1.09,
+   "name": "pressure_you_re_hurt",
+   "category": "pressure",
+   "text": "YOU'RE HURT"
+  },
+  {
+   "file": "pressure_he_s_got_you.wav",
+   "start": 7.45,
+   "end": 8.6,
+   "dur": 1.15,
+   "name": "pressure_he_s_got_you",
+   "category": "pressure",
+   "text": "HE'S GOT YOU"
+  },
+  {
+   "file": "pressure_too_slow.wav",
+   "start": 8.87,
+   "end": 10.17,
+   "dur": 1.3,
+   "name": "pressure_too_slow",
+   "category": "pressure",
+   "text": "TOO SLOW"
+  },
+  {
+   "file": "hit_heavy.wav",
+   "start": 10.43,
+   "end": 11.3,
+   "dur": 0.87,
+   "name": "hit_heavy",
+   "category": "hit",
+   "text": "HEAVY"
+  },
+  {
+   "file": "hit_brutal.wav",
+   "start": 11.54,
+   "end": 12.62,
+   "dur": 1.08,
+   "name": "hit_brutal",
+   "category": "hit",
+   "text": "BRUTAL"
+  },
+  {
+   "file": "hit_clean.wav",
+   "start": 12.88,
+   "end": 13.82,
+   "dur": 0.94,
+   "name": "hit_clean",
+   "category": "hit",
+   "text": "CLEAN"
+  },
+  {
+   "file": "hit_good.wav",
+   "start": 14.06,
+   "end": 14.91,
+   "dur": 0.85,
+   "name": "hit_good",
+   "category": "hit",
+   "text": "GOOD"
+  },
+  {
+   "file": "hit_that_hurt.wav",
+   "start": 15.17,
+   "end": 16.45,
+   "dur": 1.28,
+   "name": "hit_that_hurt",
+   "category": "hit",
+   "text": "THAT HURT"
+  },
+  {
+   "file": "hit_he_s_hurt.wav",
+   "start": 16.68,
+   "end": 17.78,
+   "dur": 1.1,
+   "name": "hit_he_s_hurt",
+   "category": "hit",
+   "text": "HE'S HURT"
+  },
+  {
+   "file": "hit_he_s_rocked.wav",
+   "start": 18.02,
+   "end": 19.42,
+   "dur": 1.4,
+   "name": "hit_he_s_rocked",
+   "category": "hit",
+   "text": "HE'S ROCKED"
+  },
+  {
+   "file": "hit_go_for_it.wav",
+   "start": 19.64,
+   "end": 20.7,
+   "dur": 1.06,
+   "name": "hit_go_for_it",
+   "category": "hit",
+   "text": "GO FOR IT"
+  },
+  {
+   "file": "hit_finish_it.wav",
+   "start": 20.92,
+   "end": 21.92,
+   "dur": 1.0,
+   "name": "hit_finish_it",
+   "category": "hit",
+   "text": "FINISH IT"
+  },
+  {
+   "file": "miss_missed.wav",
+   "start": 22.14,
+   "end": 23.04,
+   "dur": 0.9,
+   "name": "miss_missed",
+   "category": "miss",
+   "text": "MISSED"
+  },
+  {
+   "file": "miss_not_even_close.wav",
+   "start": 23.25,
+   "end": 24.83,
+   "dur": 1.58,
+   "name": "miss_not_even_close",
+   "category": "miss",
+   "text": "NOT EVEN CLOSE"
+  },
+  {
+   "file": "miss_too_slow.wav",
+   "start": 25.06,
+   "end": 26.32,
+   "dur": 1.26,
+   "name": "miss_too_slow",
+   "category": "miss",
+   "text": "TOO SLOW"
+  },
+  {
+   "file": "miss_good_dodge.wav",
+   "start": 26.54,
+   "end": 27.74,
+   "dur": 1.2,
+   "name": "miss_good_dodge",
+   "category": "miss",
+   "text": "GOOD DODGE"
+  },
+  {
+   "file": "counter_counter.wav",
+   "start": 27.97,
+   "end": 28.73,
+   "dur": 0.76,
+   "name": "counter_counter",
+   "category": "counter",
+   "text": "COUNTER"
+  },
+  {
+   "file": "counter_perfect_counter.wav",
+   "start": 28.95,
+   "end": 30.22,
+   "dur": 1.27,
+   "name": "counter_perfect_counter",
+   "category": "counter",
+   "text": "PERFECT COUNTER"
+  },
+  {
+   "file": "counter_caught_him.wav",
+   "start": 30.43,
+   "end": 31.21,
+   "dur": 0.78,
+   "name": "counter_caught_him",
+   "category": "counter",
+   "text": "CAUGHT HIM"
+  },
+  {
+   "file": "counter_big_mistake.wav",
+   "start": 31.42,
+   "end": 32.79,
+   "dur": 1.37,
+   "name": "counter_big_mistake",
+   "category": "counter",
+   "text": "BIG MISTAKE"
+  },
+  {
+   "file": "combo_combo.wav",
+   "start": 33.03,
+   "end": 33.98,
+   "dur": 0.95,
+   "name": "combo_combo",
+   "category": "combo",
+   "text": "COMBO"
+  },
+  {
+   "file": "combo_heavy_combo.wav",
+   "start": 34.16,
+   "end": 35.54,
+   "dur": 1.38,
+   "name": "combo_heavy_combo",
+   "category": "combo",
+   "text": "HEAVY COMBO"
+  },
+  {
+   "file": "combo_brutal_combo.wav",
+   "start": 35.72,
+   "end": 37.3,
+   "dur": 1.58,
+   "name": "combo_brutal_combo",
+   "category": "combo",
+   "text": "BRUTAL COMBO"
+  },
+  {
+   "file": "combo_unstoppable.wav",
+   "start": 37.5,
+   "end": 38.94,
+   "dur": 1.44,
+   "name": "combo_unstoppable",
+   "category": "combo",
+   "text": "UNSTOPPABLE"
+  },
+  {
+   "file": "combo_keep_it_going.wav",
+   "start": 39.17,
+   "end": 40.22,
+   "dur": 1.05,
+   "name": "combo_keep_it_going",
+   "category": "combo",
+   "text": "KEEP IT GOING"
+  },
+  {
+   "file": "ko_down.wav",
+   "start": 40.45,
+   "end": 41.24,
+   "dur": 0.79,
+   "name": "ko_down",
+   "category": "ko",
+   "text": "DOWN"
+  },
+  {
+   "file": "ko_he_s_down.wav",
+   "start": 41.44,
+   "end": 42.52,
+   "dur": 1.08,
+   "name": "ko_he_s_down",
+   "category": "ko",
+   "text": "HE'S DOWN"
+  },
+  {
+   "file": "ko_stay_down.wav",
+   "start": 42.7,
+   "end": 43.96,
+   "dur": 1.26,
+   "name": "ko_stay_down",
+   "category": "ko",
+   "text": "STAY DOWN"
+  },
+  {
+   "file": "ko_good_night.wav",
+   "start": 44.17,
+   "end": 45.26,
+   "dur": 1.09,
+   "name": "ko_good_night",
+   "category": "ko",
+   "text": "GOOD NIGHT"
+  },
+  {
+   "file": "ko_k_o.wav",
+   "start": 45.49,
+   "end": 46.78,
+   "dur": 1.29,
+   "name": "ko_k_o",
+   "category": "ko",
+   "text": "K.O!"
+  },
+  {
+   "file": "ko_it_s_over.wav",
+   "start": 46.99,
+   "end": 48.08,
+   "dur": 1.09,
+   "name": "ko_it_s_over",
+   "category": "ko",
+   "text": "IT'S OVER"
+  },
+  {
+   "file": "ko_finished.wav",
+   "start": 48.32,
+   "end": 49.2,
+   "dur": 0.88,
+   "name": "ko_finished",
+   "category": "ko",
+   "text": "FINISHED"
+  }
+ ],
+ "note": "Named by order against the ElevenLabs script (37 lines = 37 clips); verify by ear."
+}
