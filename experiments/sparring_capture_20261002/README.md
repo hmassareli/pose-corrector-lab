@@ -20,8 +20,8 @@ Rebuild from the lab directory:
 
 ```powershell
 python scripts/build_sparring_library.py --refine --video 'C:/Users/Henrique/Pictures/Camera Roll/WIN_20261002_10_07_06_Pro.mp4'
-node scripts/test_sparring_mocap.mjs
-python scripts/test_sparring_mocap_browser.py
+node tests/test_sparring_mocap.mjs
+python tests/test_sparring_mocap_browser.py
 ```
 
 The existing local lab server must be running on port 8780 for browser validation.

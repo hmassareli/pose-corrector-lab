@@ -10,7 +10,7 @@
 
 ## Evidência local
 
-`scripts/test_boxing_fight_night.py` valida lobby, settings, arena, primeira pessoa, venue alternativo, resultado, responsividade, gates de velocidade/atordoamento, expiração de partículas, largura do rastro e ausência de crescimento de recursos GPU. O resultado atual está em `experiments/fight_night_refresh/after/validation.json`.
+`tests/test_boxing_fight_night.py` valida lobby, settings, arena, primeira pessoa, venue alternativo, resultado, responsividade, gates de velocidade/atordoamento, expiração de partículas, largura do rastro e ausência de crescimento de recursos GPU. O resultado atual está em `experiments/fight_night_refresh/after/validation.json`.
 
 Na captura de revisão, o renderizador ficou em 62–67 chamadas e aproximadamente 16,7 ms por quadro neste PC. Isso é uma medição deste hardware e desta cena, não uma promessa para máquinas fracas. O maior custo observado é o avatar Prism: aproximadamente 1,49 milhão de triângulos e um GLB de 73,6 MB; o segundo avatar tem aproximadamente 295 mil triângulos e 49,3 MB.
 

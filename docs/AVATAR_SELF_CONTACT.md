@@ -23,7 +23,7 @@ Essas medidas são contra um volume convexo conservador derivado da malha nativa
 
 ## Validação
 
-`scripts/test_avatar_self_contact.py`: **39 verificações aprovadas**, 13 por modelo. Verifica escala nativa, contato sem penetração, cabeça intacta, orientação da palma, comprimentos, continuidade da aproximação, guarda parada sem deriva, retirada imediata, travessia rápida e casos adversos dentro do crânio. Os 30 casos de guarda por avatar passam com margem mínima aproximada de 4 mm no volume físico. As palmas preservam sua orientação com diferença numérica abaixo de 0,00001°.
+`tests/test_avatar_self_contact.py`: **39 verificações aprovadas**, 13 por modelo. Verifica escala nativa, contato sem penetração, cabeça intacta, orientação da palma, comprimentos, continuidade da aproximação, guarda parada sem deriva, retirada imediata, travessia rápida e casos adversos dentro do crânio. Os 30 casos de guarda por avatar passam com margem mínima aproximada de 4 mm no volume físico. As palmas preservam sua orientação com diferença numérica abaixo de 0,00001°.
 
 A restrição custou aproximadamente 0,05–0,25 ms por chamada no cenário isolado, com 100 chamadas sobre uma postura de contato. Isso não é FPS do jogo nem ganho da inferência. Testes de combate e integração de cabeça/primeira/terceira pessoa também foram executados; a integração verifica a aplicação real do contato e seu reset pelo botão Calibrar.
 

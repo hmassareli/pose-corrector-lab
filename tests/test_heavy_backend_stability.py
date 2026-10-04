@@ -5,6 +5,10 @@ from pathlib import Path
 from unittest.mock import patch
 import numpy as np
 import torch
+
+# nlf_engine/serve_lab vivem em scripts/; este teste roda a partir de tests/.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from nlf_engine import ENGINE,AsyncPoseWorker,NlfFeatureEngine,_TrtRunner
 from serve_lab import NlfRuntime
 

@@ -158,7 +158,7 @@ torso.body.applyImpulse(cv(torsoImpulse), cv(torso.body.position));
 
 **Configuração atual lida:** `1500 + power * 0.33`, com 90% adicional no torso. O usuário ajustou a potência ao gosto dele. Isso é preferência estética atual, não um erro a atribuir ao usuário. A responsabilidade do assistente é preservar essa referência e manter testes/documentação coerentes com ela.
 
-**Testes:** `scripts/test_boxing_ragdoll_push.py` ainda espera intervalos antigos 0,50–0,84 e 0,08–0,16. `scripts/test_boxing_knockout.py` consulta campos de juntas da implementação anterior. Não foram executados nesta coleta; leitura suficiente para identificar desatualização, insuficiente para inventar resultado de execução.
+**Testes:** `tests/test_boxing_ragdoll_push.py` ainda espera intervalos antigos 0,50–0,84 e 0,08–0,16. `tests/test_boxing_knockout.py` consulta campos de juntas da implementação anterior. Não foram executados nesta coleta; leitura suficiente para identificar desatualização, insuficiente para inventar resultado de execução.
 
 ### E11 — Prometer limite de twist com segurança maior que a evidência
 

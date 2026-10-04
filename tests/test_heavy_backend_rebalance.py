@@ -9,6 +9,10 @@ from pathlib import Path
 from unittest.mock import patch
 import numpy as np
 import torch
+
+# serve_lab vive em scripts/; este teste roda a partir de tests/.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from serve_lab import NlfRuntime
 
 runtime=NlfRuntime();runtime.load(backend='trt')

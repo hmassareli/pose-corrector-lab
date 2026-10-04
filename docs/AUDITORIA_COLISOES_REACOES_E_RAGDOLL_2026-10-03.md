@@ -166,10 +166,10 @@ Ainda não registra o estado completo do ragdoll a cada substep: vetores de velo
 
 Limitações dos testes:
 
-- [scripts/test_boxing_ragdoll_push.py](../scripts/test_boxing_ragdoll_push.py) espera a potência antiga. A configuração atual não atende a esses asserts por inspeção.
+- [tests/test_boxing_ragdoll_push.py](../tests/test_boxing_ragdoll_push.py) espera a potência antiga. A configuração atual não atende a esses asserts por inspeção.
 - Medir velocidade total do quadril/torso após alguns passos não isola transferência do soco: a gravidade também produz velocidade. Usar controle sem impulso, mesma pose, mesmos passos, e comparar a componente na direção do golpe.
 - Erro de âncora mede separação dos pontos das juntas; não certifica twist correto nem naturalidade. O script admite 0,03 m no estado final, portanto não é uma garantia geral de erro abaixo de 1 mm.
-- [scripts/test_boxing_knockout.py](../scripts/test_boxing_knockout.py) ainda consulta `j.bone`, `j.base` e `j.limit` da implementação anterior. Não valida diretamente as atuais constraints Cannon.
+- [tests/test_boxing_knockout.py](../tests/test_boxing_knockout.py) ainda consulta `j.bone`, `j.base` e `j.limit` da implementação anterior. Não valida diretamente as atuais constraints Cannon.
 - Prints e resultados históricos não validam automaticamente a potência atual nem todos os avatares, direções ou posições.
 
 ## 7. Plano de investigação e critérios de comparação

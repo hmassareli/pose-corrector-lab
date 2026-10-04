@@ -664,9 +664,9 @@ Comandos:
 ```
 python scripts/analyze_punch_power.py ../debug_luta/corner-debug-2026-10-02T15-07-23-920Z 80
 python scripts/benchmark_punch_power.py benchmarks/punch_cadence_20261002.mp4 80
-node scripts/test_boxing_core.mjs
-python scripts/test_boxing_combat_e2e.py
-python scripts/test_boxing_footwork.py
+node tests/test_boxing_core.mjs
+python tests/test_boxing_combat_e2e.py
+python tests/test_boxing_footwork.py
 ```
 
 ---

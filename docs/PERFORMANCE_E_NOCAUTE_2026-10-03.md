@@ -235,9 +235,9 @@ Os tempos usam o relógio visual do jogo: hit-stop e câmera lenta alteram sua d
 
 ### Validação do nocaute
 
-O teste `scripts/test_boxing_knockout.py` usa os três assets reais, diferentes direções, passos de apresentação de 30/60/144 Hz e os dois lados como vítima. Verifica transformações finitas, preservação de posições locais/comprimentos, limites de articulação, translação, elevação, estabilização e reinício. A pose de entrada continua sendo alterada após o KO para exercitar a tomada de controle.
+O teste `tests/test_boxing_knockout.py` usa os três assets reais, diferentes direções, passos de apresentação de 30/60/144 Hz e os dois lados como vítima. Verifica transformações finitas, preservação de posições locais/comprimentos, limites de articulação, translação, elevação, estabilização e reinício. A pose de entrada continua sendo alterada após o KO para exercitar a tomada de controle.
 
-O teste focado `scripts/test_boxing_ragdoll_push.py` verifica que o impulso nasce na cabeça, que a velocidade chega ao quadril pelas restrições, que a direção horizontal é preservada, que as âncoras permanecem estáveis e que o conjunto entra em sleep. Uma varredura independente de **todos os vértices na pose final** verifica o contato, em vez de testar somente as mesmas amostras do algoritmo. Ela não certifica toda pose intermediária nem todas as posições possíveis de webcam.
+O teste focado `tests/test_boxing_ragdoll_push.py` verifica que o impulso nasce na cabeça, que a velocidade chega ao quadril pelas restrições, que a direção horizontal é preservada, que as âncoras permanecem estáveis e que o conjunto entra em sleep. Uma varredura independente de **todos os vértices na pose final** verifica o contato, em vez de testar somente as mesmas amostras do algoritmo. Ela não certifica toda pose intermediária nem todas as posições possíveis de webcam.
 
 Resultados completos, números finais e screenshots históricos: `experiments/performance_audit_20261003/knockout-validation.json` e `ko-*.png`. A avaliação subjetiva em movimento com webcam continua necessária para ajustar sensação e rigidez ao gosto do jogo.
 
@@ -281,14 +281,14 @@ Não recomendo como primeiros passos: diminuir a taxa de combate; adicionar mais
 - `experiments/performance_audit_20261003/nlf-status.json`: status/calibração observados, sem tratar como benchmark novo.
 - `viewer/boxing_knockout.js`: preparo de contatos, relaxamento, chão e estabilização da queda.
 - `viewer/boxing.js`: integração da tomada de controle no KO e restauração no reinício.
-- `scripts/test_boxing_knockout.py`: regressões específicas do KO.
+- `tests/test_boxing_knockout.py`: regressões específicas do KO.
 
 Com o servidor do jogo já ativo em `http://127.0.0.1:8780`, executar na pasta `pose_corrector_lab`:
 
 ```powershell
 python scripts/audit_boxing_performance.py
-python scripts/test_boxing_knockout.py
-node scripts/test_boxing_core.mjs
+python tests/test_boxing_knockout.py
+node tests/test_boxing_core.mjs
 ```
 
 O benchmark usa uma página de teste isolada, não conecta uma sala pública e não precisa ativar a webcam. Não representa a sessão completa de captura. Os arquivos de saída são regenerados ao executar os scripts.

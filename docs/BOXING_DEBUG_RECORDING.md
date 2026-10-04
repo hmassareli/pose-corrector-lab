@@ -67,7 +67,7 @@ jogo; não são medidas completas do custo do codificador ou da escrita em disco
 
 Implementação: `viewer/boxing_debug_recording.js`, instrumentação opt-in em
 `viewer/boxing.js` e metadados opt-in em `viewer/live.html`. Validação:
-`python scripts/test_boxing_debug_recording.py` exercita codificadores reais,
+`python tests/test_boxing_debug_recording.py` exercita codificadores reais,
 integridade ZIP, reprodução dos dois vídeos, dados de entrada/estágios/ossos,
 cancelamento, gravações repetidas e continuidade da webcam após parar.
 

@@ -1,7 +1,7 @@
 import ast,json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-s=ast.parse(Path('scripts/test_boxing_combat_e2e.py').read_text()); c={n.targets[0].id:ast.literal_eval(n.value) for n in s.body if isinstance(n,ast.Assign) and isinstance(n.value,ast.Constant) and n.targets[0].id in ('SETUP','PUNCH')}
+s=ast.parse(Path('tests/test_boxing_combat_e2e.py').read_text()); c={n.targets[0].id:ast.literal_eval(n.value) for n in s.body if isinstance(n,ast.Assign) and isinstance(n.value,ast.Constant) and n.targets[0].id in ('SETUP','PUNCH')}
 with sync_playwright() as p:
  b=p.chromium.launch(args=['--use-angle=d3d11','--ignore-gpu-blocklist']); pg=b.new_page();pg.goto('http://127.0.0.1:8780/static/boxing.html');pg.wait_for_function('window.cornerDebug?.state().loaded',timeout=90000);pg.evaluate(c['SETUP']);pg.wait_for_timeout(1500);rows=[]
  for x in [-.3,0,.15,.3]:
