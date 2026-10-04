@@ -61,6 +61,13 @@ external/**/*.npz
 Thumbs.db
 .idea/
 .vscode/
+
+# Logos de execucao (raiz e viewer)
 _viewer_*.err
 _viewer_*.out
+run_*.log
 *.log
+
+# Saidas de benchmark/autoresearch (antes escondidas em .git/info/exclude)
+results.tsv
+experiments/autoresearch/
