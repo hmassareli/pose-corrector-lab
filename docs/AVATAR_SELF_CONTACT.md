@@ -1,5 +1,7 @@
 # Guarda e contato com o próprio rosto — 2 de outubro de 2026
 
+> **Revisão posterior — 03/10/2026:** este documento descreve a primeira intervenção. O usuário depois rejeitou a faixa de aproximação suave; foram relatados punhos dobrados e separação da guarda. O assistente reconheceu a inadequação de preservar a mão no mundo após reposicionar o antebraço. Os testes abaixo não certificam fidelidade de todos os gestos. Consulte E3 na [coletânea](COLETANEA_PEDIDOS_ENTREGAS_E_ERROS_2026-10-03.md) e o código atual para a versão vigente.
+
 Correção solicitada após perceber luvas atravessando o rosto ao fechar a guarda. A orientação da cabeça/pescoço foi preservada. Não foi aplicado um deslocamento global da profundidade dos punhos.
 
 ## Evidência

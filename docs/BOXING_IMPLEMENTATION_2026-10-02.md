@@ -1,5 +1,7 @@
 # HEAVY HANDS — implementação e gauntlet, 02/10/2026
 
+> **Nota de revisão — 03/10/2026:** este relatório preserva evidência histórica. A nota 9,18 e os testes desta rodada não certificam versões posteriores nem excluem o conflito de chão/pivô depois admitido pelo assistente. A avaliação das solas não detectou offsets internos que se cancelavam. Consulte a [coletânea de pedidos e erros](COLETANEA_PEDIDOS_ENTREGAS_E_ERROS_2026-10-03.md), especialmente E4/E5, antes de reutilizar esta aprovação.
+
 **Parecer independente: 9,18/10.** A sequência de avaliações foi 0,9 → 8,25 → 9,15 → 9,18. O avaliador encontrou falhas concretas, corrigidas antes da aprovação. O [parecer completo](BOXING_GAUNTLET_REVIEW_2026-10-02.md) conserva os pesos e os descontos por evidência parcial.
 
 ## Jogar

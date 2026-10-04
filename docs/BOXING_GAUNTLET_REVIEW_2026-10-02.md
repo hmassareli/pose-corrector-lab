@@ -1,5 +1,7 @@
 # HEAVY HANDS — independent gauntlet review (2026-10-02)
 
+> **Revisão posterior — 03/10/2026:** parecer histórico de uma rodada específica. A aprovação não deve ser citada como certificação do código atual. O assistente posteriormente reconheceu uma regressão de chão/pivô e um critério geométrico insuficiente para detectá-la. Registro e alcance na [coletânea](COLETANEA_PEDIDOS_ENTREGAS_E_ERROS_2026-10-03.md), E4/E5.
+
 Evaluator scope: implementation and evidence against **every requirement** in BOXING_FIX_PLAN_2026-10-02.md. The baseline below describes files before the implementation round; it is not a verdict on the final game. No gameplay sources were modified by the evaluator.
 
 ## Scoring rules
