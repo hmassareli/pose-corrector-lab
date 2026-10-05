@@ -71,3 +71,16 @@ run_*.log
 # Saidas de benchmark/autoresearch (antes escondidas em .git/info/exclude)
 results.tsv
 experiments/autoresearch/
+
+# Artefatos pesados que travavam o push (o GitHub limita cada arquivo a 100 MB).
+# Continuam no disco local - apenas deixam de ser versionados, entao nenhum
+# teste deixa de achar o arquivo nesta maquina. Nao e asset em tempo de execucao:
+# o viewer carrega boxer_prism31_rig.glb, Ch28_nonPBR.fbx, fighter-web.fbx e
+# boxeador_mixamo_trellis.glb, nenhum dos quais esta nesta lista.
+experiments/boxing_redesign/guard_video/*.y4m
+experiments/nlf_fit_webcam1/render/
+benchmarks/*.mp4
+assets/boxer_mixamo/
+assets/boxer_mixamo@*.fbx
+experiments/knockout_ragdoll_20261003/review.json
+experiments/heavy_hands_gauntlet/*.y4m
