@@ -47,19 +47,35 @@ Ter várias etapas é normal em animação procedural. Não há evidência sufic
 
 ### 3.1 Tremida programada
 
-Arquivo: [viewer/boxing.js](../viewer/boxing.js), `renderActor()`, linha 1821.
+Arquivo: [viewer/boxing.js](../viewer/boxing.js), `renderActor()` (linha 2919) e `applyStunSway()` (linha 2372).
+
+Código medido em 03/10/2026:
 
 ```js
 f.stun > 0 ? Math.sin(tsec * 26) * 0.025 : 0
 ```
 
-Esse termo gira o grupo inteiro em Z, com amplitude de aproximadamente 1,43° e frequência de 4,14 Hz, quando o ramo de stun é usado. O ramo de dizzy tem outras oscilações. Portanto, parte da tremida pode ser intencional, não ruído do tracker. Comparar a mesma sequência com esse termo isoladamente desativado.
+Esse termo girava o grupo inteiro em Z, com amplitude de aproximadamente 1,43° e frequência de 4,14 Hz quando o ramo de stun é usado. Como girava o *grupo*, os pés acompanhavam: era um zumbido do corpo inteiro e não um lutador a reagir a um golpe. O ramo de dizzy tem outras oscilações e **não** foi alterado.
+
+**A/B pedido nesta secção, executado a 04/10/2026.** O termo foi removido e o mesmo efeito passou a viver na coluna, em `applyStunSway()`, com `f.stun` como envelope próprio (aplicado a `spine`/`spine1`/`spine2`, com os pés fixos e a cabeça sob o controlo da secção 3.2):
+
+| | antes | depois |
+|---|---|---|
+| `group.rotation.z` do atordoado | 1,43° a 4,14 Hz | **0,0000°** |
+| Onde o movimento acontece | grupo inteiro, pés incluídos | coluna |
+| Amplitude no tronco | — | 0,07948 rad (4,55°) pico-a-pico |
+| Frequência | 4,14 Hz | ~1 Hz (termos a 7,5 e 5,3 rad/s) |
+| Envelope | `f.stun > 0` (degrau) | `min(1, f.stun * 3)`, decai com a contagem |
+
+Medido pela linha `stun` de `_probe_head_reaction.py` (90 quadros a 60 fps), removido no fim da sessão; os números ficam em `experiments/performance_audit_20261003/head-reaction-probe.json`.
+
+Conclusão: a tremida não era ruído de tracker nem intencional e aceitável — era um zumbido de 4 Hz sem relação com o golpe. Agora o tronco cambaleia devagar enquanto o atordoamento corre.
 
 ### 3.2 Cabeça e tronco ao receber golpes normais
 
-Arquivo: [viewer/boxing.js](../viewer/boxing.js), `applyImpactReaction()` (linha 1640) e `impact()` (linha 1229).
+Arquivo: [viewer/boxing.js](../viewer/boxing.js), `applyImpactReaction()` (linha 2309), `driveHead()` (linha 2606) e `resolveOpponentContact()` (linha 2668).
 
-O algoritmo calcula uma envoltória exponencial de ataque/decaimento e um eixo pelo produto vetorial entre vertical e direção do golpe. Converte o eixo para o referencial do pai e aplica rotações adicionais nos ossos. Golpes na cabeça usam `spine2`, `neck` e `head`; golpes no corpo usam outra cadeia da coluna.
+O algoritmo calcula uma envoltória exponencial de ataque/decaimento e um eixo pelo produto vetorial entre vertical e direção do golpe. Converte o eixo para o referencial do pai e aplica rotações adicionais nos ossos. Golpes no corpo usam `spine`, `spine1`, `spine2` e `head`; golpes bloqueados usam `spine2`, `neck` e `head`. **Golpes limpos na cabeça já não usam esta cadeia de forma nenhuma** (ver ponto 1 abaixo).
 
 Essa reação parte da pose de tracking atual a cada frame, sem uma base capturada exclusiva para o impacto. `impact()` substitui `fighter.reaction` quando recebe novo impacto com direção válida, reiniciando a envoltória. São candidatos a descontinuidade, sobretudo com golpes próximos; não são uma causa comprovada de todos os sintomas.
 
@@ -68,7 +84,25 @@ Retarget relacionado:
 - [viewer/mikapo_mixamo_solver.js](../viewer/mikapo_mixamo_solver.js): `updateAvatarPose()` (linha 1319), `headForwardFromSmplAux()` (linha 1104).
 - [viewer/avatar_head.js](../viewer/avatar_head.js): `resolveHeadPose()` (linha 56), calibração, recuperação de referências faciais e interpolação das orientações.
 
-A proposta de capturar uma base de reação ou controlar temporariamente cabeça/pescoço é uma possibilidade futura. Não foi implementada nem validada.
+**Problema relatado a 04/10/2026:** o golpe na cabeça ou no pescoço mexia no tronco todo, o lutador ficava "igual uma vara duro" e "treme pros lados"; e, no instante em que a luva deixava de tocar, a cabeça saltava de volta para o tracking porque a reação era uma cadeia temporária já sem relação com o contacto.
+
+**O que foi implementado e medido a 04/10/2026:**
+
+1. **Golpe limpo na cabeça já não corre a cadeia temporária.** `applyImpactReaction()` faz `return` cedo quando `reaction.head && !reaction.blocked`. Golpes no corpo mantêm a dobragem do tronco; golpes bloqueados mantêm o *recoil* — a luva pára no antebraço, portanto nunca chega à cabeça.
+2. **A reação da cabeça passou a ser dirigida pelo contacto.** `driveHead()` é chamada por `resolveOpponentContact()` *antes* da luva ser travada, e gira `neck` (`0,14`) e `head` (`0,19`) sobre `up × (−dir)` com `strength = min(1, depth / 0,05)` — 5 cm de penetração é um golpe comittido, ao toque puro é praticamente nada — mais um yaw sobre `up` (`−0,16 * strength * sign(side·dirXZ)`, zero em golpes frontais), repartido 45/55 entre pescoço e cabeça. Nada disto é temporizado: a rotação existe exactamente enquanto o contacto existir.
+3. **O crânio gira sobre o próprio centro.** Só dobrar o pescoço carrega a cabeça consigo — medido, **2,9 cm** nesta cadeia. Esse valor é grande demais para aqui: empurrava a luva para fora do alcance do braço e os golpes deixaram de ser registados a 0,85 e 1,00 m (`headDist` 0,261 / 0,255 contra `headR` 0,212). Por isso os ossos são rodados e o osso da cabeça é depois transladado de volta até o volume que o detector lê ficar onde o tracking o pôs. Resíduo medido da correção: **0,0 m** nas três distâncias.
+4. **A reação do tronco ficou só para corpo e bloqueio**, e o zumbido do grupo inteiro passou para `applyStunSway()` (secção 3.1).
+
+Resultados medidos (`_probe_head_reaction.py`, linhas `baseline` / `held` / `release` / `stun`, 60 fps, apagado no fim da sessão; números em `experiments/performance_audit_20261003/head-reaction-probe.json`):
+
+| | antes | depois |
+|---|---|---|
+| Contacto em que a cabeça vira | sem controlo, reação temporizada | **37/40 quadros com a luva na pele**, desvio máximo **0,27098 rad (15,53°)** |
+| Cabeça sem contacto | — | linha `baseline` = linha `release` ao milésimo de radiano (−0,26738) |
+| Volta ao tracking depois de soltar | fim da envoltória de 0,55 s | **1 quadro** |
+| Tronco durante golpe na cabeça | cadeia temporizada em `spine2` | `lean` varia 11,5 mm contra 15,53° de cabeça |
+
+Verificação cruzada da luva na pele (`_probe_punch_contact.py`, 24 células, apagado no fim da sessão; números em `experiments/performance_audit_20261003/punch-contact-probe.json`): penetração máxima **0,0056 m** com o clamp ligado, contra **0,152 m** sem ele; no realismo (attack ≤ 2) fica em **0,0025 m**; e os acertos continuam a ser registados a 0,72 / 0,85 / 1,00 m (`landed=True` nas três, `headDist` 0,2119 / 0,212 / 0,212 contra `headR` 0,212).
 
 ### 3.3 Braços, guarda e relógios
 

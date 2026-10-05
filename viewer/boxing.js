@@ -2325,20 +2325,27 @@ function applyImpactReaction(actor, reaction, t) {
         ? 1 + power * 0.35
         : 0.65 + power * 0.4
       : 0.6 + power * 0.6;
-  // Head shots snap the head back; body shots fold the trunk toward the punch.
-  const chain =
-    reaction.head || reaction.blocked
-      ? [
-          ["spine2", 0.045],
-          ["neck", 0.17],
-          ["head", 0.23],
-        ]
-      : [
-          ["spine", -0.1],
-          ["spine1", -0.09],
-          ["spine2", -0.08],
-          ["head", 0.08],
-        ];
+  // A clean head shot no longer runs a timed chain. The head is driven by
+  // glove contact in resolveOpponentContact() instead: it is held turned for
+  // as long as the glove rests on it and released the instant the glove
+  // leaves, so it snaps back to what the tracker is actually saying. A 0.55 s
+  // decay here would keep the head moving after the punch let go, which is the
+  // opposite of that. Guarded punches keep their own recoil - the glove stops
+  // on the forearm, so contact never reaches the head at all.
+  if (reaction.head && !reaction.blocked) return;
+  // Blocked shots rebound off the guard; body shots fold the trunk.
+  const chain = reaction.blocked
+    ? [
+        ["spine2", 0.045],
+        ["neck", 0.17],
+        ["head", 0.23],
+      ]
+    : [
+        ["spine", -0.1],
+        ["spine1", -0.09],
+        ["spine2", -0.08],
+        ["head", 0.08],
+      ];
   for (const [name, angle] of chain) {
     const bone = actor.rig.bones.get(name)?.bone;
     if (!bone?.parent) continue;
@@ -2353,6 +2360,44 @@ function applyImpactReaction(actor, reaction, t) {
         angle * strength * envelope,
       ),
     );
+    bone.updateWorldMatrix(false, true);
+  }
+}
+// A stunned fighter sways from the trunk and settles. What this replaces spun
+// the WHOLE group - feet included - at 4.14 Hz for as long as stun lasted,
+// which read as a buzzing vibration rather than as someone who had just been
+// hit (audit 3.1). The stun countdown doubles as the envelope, so the sway
+// fades out on its own with no extra state, and it stays in the spine so the
+// soles keep their grip and the head stays under the contact controller.
+function applyStunSway(actor, f, tsec) {
+  if (f.stun <= 0) return;
+  const env = Math.min(1, f.stun * 3);
+  // 1.19 Hz, not 4.14: a stagger, not a rattle.
+  const sway = Math.sin(tsec * 7.5) * 0.05 * env;
+  const lurch = Math.sin(tsec * 5.3 + 0.9) * 0.03 * env;
+  const forward = actor.group.getWorldDirection(new THREE.Vector3()).negate();
+  const up = new THREE.Vector3(0, 1, 0);
+  const right = new THREE.Vector3().crossVectors(up, forward);
+  for (const [name, roll, pitch] of [
+    ["spine", sway * 0.5, lurch * 0.7],
+    ["spine1", sway, lurch],
+    ["spine2", sway * 0.6, lurch * 0.5],
+  ]) {
+    const bone = actor.rig.bones.get(name)?.bone;
+    if (!bone?.parent) continue;
+    const inv = bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
+    for (const [worldAxis, angle] of [
+      [forward, roll],
+      [right, pitch],
+    ]) {
+      if (!angle) continue;
+      bone.quaternion.premultiply(
+        new THREE.Quaternion().setFromAxisAngle(
+          worldAxis.clone().applyQuaternion(inv),
+          angle,
+        ),
+      );
+    }
     bone.updateWorldMatrix(false, true);
   }
 }
@@ -2494,6 +2539,286 @@ function alignHandsToBody(a, pose) {
   });
   alignWrists(a);
 }
+// A punch has to stop at the opponent's skin instead of passing through it.
+//
+// Detection already fires on the skin: resolvePunchBox() inflates every volume
+// by GLOVE_RADIUS, so "contact" literally means the glove SURFACE is touching.
+// Nothing constrained the pose afterwards, though - the tracked hand kept
+// driving the arm through the body. Measured on the shipped build at 60 fps
+// with the glove held at full extension: 7.7 cm into the skull and 15.2 cm into
+// the forearm, in 72 of 72 frames
+// (experiments/performance_audit_20261003/punch-contact-probe.json).
+//
+// This is the same kinematic contact NativeGuardContact already applies
+// between glove and own face: project the tracked wrist back onto the surface
+// and re-solve the arm, so motion tracking is bounded at collision instead of
+// sliding through. Everything is measured against the SAME inflated volumes
+// the detector uses - depth is exactly box.r - distance - so the resting pose
+// sits CONTACT_EPS inside the boundary and the hit still registers.
+const CONTACT_EPS = 1e-4;
+// World-space correction lifting the glove centre out of the opponent, or null
+// when it is already clear. Picks the deepest volume, matching resolvePunchBox()'s
+// head-before-chest-before-arms priority for detection.
+function skinPush(box, center) {
+  const g = center.toArray();
+  let depth = -Infinity,
+    normal = null;
+  const consider = (d, n) => {
+    if (d > depth && n.lengthSq() > 1e-12) (depth = d), (normal = n);
+  };
+  const headC = new THREE.Vector3(...box.head.c);
+  const away = center.clone().sub(headC);
+  const dHead = away.length();
+  if (dHead > 1e-6) consider(box.head.r - dHead, away.divideScalar(dHead));
+  const segment = (a, b, r) => {
+    const hit = capsulePenetration(
+      { a, b, r: r - GLOVE_RADIUS },
+      { a: g, b: g, r: GLOVE_RADIUS },
+    );
+    consider(hit.depth, new THREE.Vector3(...hit.normal));
+  };
+  segment(box.body.a, box.body.b, box.body.r);
+  for (const arm of box.arms) segment(arm.a, arm.b, arm.r);
+  // Already clear, or the correction is smaller than the contact margin.
+  // depth is positive inside, so the outward correction is depth - EPS, which
+  // lands the glove exactly CONTACT_EPS inside the boundary: deep enough that
+  // the skin counts as touched (resolvePunchBox sees start-inside, C <= 0) and
+  // shallow enough to be invisible through the glove.
+  if (!normal || depth <= CONTACT_EPS) return null;
+  return normal.multiplyScalar(depth - CONTACT_EPS);
+}
+// A glove resting on the skull drives the defender's neck and head away from
+// it, proportionally to how far the tracked hand is still driving past the
+// skin. Nothing here is timed: the turn exists only while contact does, so the
+// frame after the glove leaves, renderActor re-poses the rig from tracking and
+// the head is simply back where the wearer is holding it - the snap back.
+// Only neck and head move; a punch to the head must not take the trunk with it
+// (audit 3.2), the trunk reaction stays timed and only fires for body shots
+// and guarded punches.
+//
+// The skull is turned ABOUT ITS OWN CENTRE. Bending the neck carries the head
+// with it - 2.9 cm for this chain, which is not a small number here: it is
+// exactly what pushed the glove outside the arm's reach, and hits stopped
+// registering at dist 0.85 and 1.00 while it was uncorrected. So the bones are
+// rotated first, then the head bone is translated back until the volume the
+// detector reads sits where the tracker put it. The turn survives, the
+// relocation does not, and the glove never loses the skin it is touching.
+function driveHead(defender, defIdx, contact) {
+  const neck = defender.rig.bones.get("neck")?.bone,
+    head = defender.rig.bones.get("head")?.bone;
+  if (!neck?.parent || !head?.parent) return;
+  const box = hitboxes[defIdx];
+  const before = box?.head?.c ? box.head.c.slice() : null;
+  const UP = new THREE.Vector3(0, 1, 0);
+  // Punch travel is from the glove toward the head centre.
+  const direction = contact.dir.clone().negate();
+  let axis = UP.clone().cross(direction);
+  if (axis.lengthSq() < 1e-6) axis.set(1, 0, 0);
+  axis.normalize();
+  // A hand still driving 5 cm past the skin is a fully committed punch; at
+  // plain touch the turn is essentially nothing.
+  const strength = Math.min(1, contact.depth / 0.05);
+  const twist = (bone, worldAxis, angle) => {
+    if (!angle) return;
+    const local = worldAxis
+      .clone()
+      .applyQuaternion(
+        bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert(),
+      );
+    bone.quaternion.premultiply(
+      new THREE.Quaternion().setFromAxisAngle(local, angle),
+    );
+    bone.updateWorldMatrix(false, true);
+  };
+  twist(neck, axis, 0.14 * strength);
+  twist(head, axis, 0.19 * strength);
+  // Side of the head: turn the face away from the glove so the wearer can
+  // still find the camera. Straight on the chin there is nothing to turn away
+  // from - the horizontal component of the glove direction is then parallel to
+  // the facing, the dot below is zero, and this contributes nothing.
+  const fwd = defender.group.getWorldDirection(new THREE.Vector3()).negate();
+  const side = new THREE.Vector3().crossVectors(UP, fwd);
+  const horiz = contact.dir.clone().setY(0);
+  const sign = Math.sign(side.dot(horiz));
+  const yaw = -0.16 * strength * sign;
+  twist(neck, UP, yaw * 0.45);
+  twist(head, UP, yaw * 0.55);
+  if (!before) return;
+  const after = meshHitBox(defIdx);
+  if (!after?.head) return;
+  const fix = new THREE.Vector3(
+    before[0] - after.head.c[0],
+    before[1] - after.head.c[1],
+    before[2] - after.head.c[2],
+  );
+  if (fix.lengthSq() < 1e-12) return;
+  // The rig carries a scale through the mixamorig chain (the head bone sits at
+  // y = 5.5 in bind units), so inverting only the parent's quaternion is not
+  // enough: measured, it moved the skull 0.5 mm instead of the 3.1 cm it owed,
+  // leaving the glove outside the skin and un-registering every hit past
+  // dist 0.72. The parent's full inverse linear part covers rotation and scale
+  // together, which is what turns a world-space correction back into the local
+  // translation the bone actually wants.
+  const invLinear = new THREE.Matrix3().setFromMatrix4(
+    head.parent.matrixWorld.clone().invert(),
+  );
+  head.position.add(fix.clone().applyMatrix3(invLinear));
+  head.updateWorldMatrix(false, true);
+}
+function resolveOpponentContact() {
+  for (let i = 0; i < 2; i++) {
+    const a = actors[i];
+    // During the knockout the ragdoll owns the skeleton; a kinematic clamp
+    // would fight it for the pose.
+    if (!a || (ko?.victim === i && a.knockout)) continue;
+    const box = hitboxes[1 - i];
+    if (!box) continue;
+    const victim = actors[1 - i];
+    // Head first, using the glove positions renderActor produced this frame -
+    // before the clamp below moves them - so the turn tracks how hard the
+    // punch is driving, not how much the clamp already took back out.
+    if (
+      victim &&
+      box.head &&
+      hitboxes[i]?.gloves &&
+      !(ko?.victim === 1 - i && victim.knockout)
+    ) {
+      const centre = new THREE.Vector3(...box.head.c);
+      let best = null;
+      for (const g of hitboxes[i].gloves) {
+        if (!g) continue;
+        const away = new THREE.Vector3(...g).sub(centre);
+        const d = away.length();
+        if (d < 1e-6) continue;
+        const depth = box.head.r - d;
+        if (depth > CONTACT_EPS && (!best || depth > best.depth))
+          best = { depth, dir: away.divideScalar(d) };
+      }
+      if (best) {
+        driveHead(victim, 1 - i, best);
+        // The glove has to chase the head it just pushed, so the volumes it is
+        // clamped against must be the ones the deflection actually produced.
+        const moved = meshHitBox(1 - i);
+        if (moved) hitboxes[1 - i] = moved;
+      }
+    }
+    const forward = a.group.getWorldDirection(new THREE.Vector3());
+    for (let h = 0; h < 2; h++) {
+      const side = ["left", "right"][h];
+      const arm = a.rig.bones.get(side + "Arm")?.bone,
+        fore = a.rig.bones.get(side + "ForeArm")?.bone,
+        hand = a.rig.bones.get(side + "Hand")?.bone;
+      if (!arm || !fore || !hand) continue;
+      hand.updateWorldMatrix(false, true);
+      // solveTwoBone() moves the wrist and re-aims the forearm; pin the palm
+      // so the glove keeps the orientation the tracked pose asked for.
+      const palm = hand.getWorldQuaternion(new THREE.Quaternion());
+      const sphere = a.guardContact?.hands[h]?.sphere;
+      // Glove centre in world space, recomputed from the bones on demand - the
+      // exact expression meshHitBox() uses, so what this clamps and what the
+      // punch detector later reads can never disagree.
+      const centreNow = () => {
+        const w = hand.getWorldPosition(new THREE.Vector3());
+        return sphere
+          ? sphere.center
+              .clone()
+              .applyQuaternion(hand.getWorldQuaternion(new THREE.Quaternion()))
+              .add(w)
+          : w;
+      };
+      const solveTo = (target) => {
+        solveTwoBone(arm, fore, hand, target, forward);
+        hand.quaternion
+          .copy(hand.parent.getWorldQuaternion(new THREE.Quaternion()).invert())
+          .multiply(palm);
+        hand.updateWorldMatrix(false, true);
+      };
+      // How far in one frame the tracked pose can drive the glove: measured at
+      // 2.9, 5.6 and 9.6 cm on three consecutive frames, because retarget +
+      // alignHandsToBody re-solve the arm from raw tracking that has no idea
+      // the glove is inside somebody. Each pass projects it back out, but a
+      // projection under-delivers when the arm is at full extension, so the
+      // shallowest configuration reached is remembered and restored if the
+      // loop ends up somewhere worse. Without that guard the LAST pass alone
+      // decided the frame - raising the iteration budget turned a 0.4 cm worst
+      // case into 8.4 cm, because the retract fallback could run away.
+      let shallowest = null,
+        shallowDepth = Infinity,
+        prevDepth = Infinity,
+        retracts = 0;
+      for (let pass = 0; pass < 24; pass++) {
+        hand.updateWorldMatrix(false, true);
+        const wrist = hand.getWorldPosition(new THREE.Vector3());
+        const centre = sphere
+          ? sphere.center
+              .clone()
+              .applyQuaternion(hand.getWorldQuaternion(new THREE.Quaternion()))
+              .add(wrist)
+          : wrist;
+        const push = skinPush(box, centre);
+        if (!push) {
+          // Clear of every volume: converged, nothing left to restore.
+          shallowest = null;
+          break;
+        }
+        const depth = push.length() + CONTACT_EPS;
+        const shoulder = arm.getWorldPosition(new THREE.Vector3());
+        const elbow = fore.getWorldPosition(new THREE.Vector3());
+        const reach = shoulder.distanceTo(elbow) + elbow.distanceTo(wrist) - 0.001;
+        const failed = prevDepth !== Infinity && depth >= prevDepth - 1e-4;
+        prevDepth = depth;
+        let target;
+        if (failed) {
+          // The radial escape needs more reach than the arm has. At full
+          // extension the glove has already crossed past the head centre, so
+          // "outward" points AWAY from the shoulder and sliding around the
+          // reach sphere lands straight back inside - that is exactly the
+          // 4.2 cm residual this fallback exists for. Retract along the arm
+          // instead: the shoulder sits behind the glove, so pulling back always
+          // leaves the body, and the result is inside the reach envelope by
+          // construction. Proportional, not a fixed step - a fixed 10 mm pull
+          // overshot past the skin and dropped the glove out of contact at
+          // dist 1.00. Re-measured next pass, this converges on the surface.
+          if (++retracts > 6) break;
+          const back = shoulder.clone().sub(wrist);
+          if (back.lengthSq() < 1e-8) break;
+          target = wrist.clone().addScaledVector(back.normalize(), depth * 0.9);
+        } else {
+          target = wrist.clone().add(push);
+          const rel = target.clone().sub(shoulder);
+          if (rel.length() > reach)
+            target.copy(shoulder).add(rel.setLength(reach));
+        }
+        solveTo(target);
+        // Record what this pass actually achieved, not what was asked for.
+        const after = centreNow();
+        const left = skinPush(box, after);
+        const leftDepth = left ? left.length() + CONTACT_EPS : 0;
+        if (leftDepth < shallowDepth) {
+          shallowDepth = leftDepth;
+          shallowest = after;
+        }
+      }
+      // The loop may have run out of budget mid-correction; put the glove back
+      // on the best configuration it passed through rather than leaving
+      // whatever the final, possibly divergent, pass produced.
+      if (shallowest && shallowDepth > CONTACT_EPS) {
+        const cur = centreNow();
+        const now = skinPush(box, cur);
+        if (now && now.length() + CONTACT_EPS > shallowDepth + 1e-5) {
+          solveTo(hand.getWorldPosition(new THREE.Vector3()).add(shallowest.clone().sub(cur)));
+        }
+      }
+    }
+    // Keep the volumes the punch detector reads consistent with the pose that
+    // is about to be drawn, instead of the pre-clamp one renderActor wrote.
+    // meshHitBox can return null on an incomplete rig; a stale box still
+    // detects, a null one would silently mute the sweep, so only overwrite
+    // with something usable.
+    const clamped = meshHitBox(i);
+    if (clamped) hitboxes[i] = clamped;
+  }
+}
 function renderActor(i, now, dt = 0, fxDt = 0) {
   const a = actors[i],
     f = fighters[i];
@@ -2585,12 +2910,13 @@ function renderActor(i, now, dt = 0, fxDt = 0) {
     a.knockout.update(Math.max(0, (vclock - ko.vstart) / 1000), fxDt);
   } else {
     a.group.rotation.x = f.dizzy > 0 ? Math.sin(tsec * 8.4) * 0.018 : 0;
-    a.group.rotation.z =
-      f.dizzy > 0
-        ? Math.sin(tsec * 4.2) * 0.05
-        : f.stun > 0
-          ? Math.sin(tsec * 26) * 0.025
-          : 0;
+    // Only dizzy fighters still swing the whole group. Stunned ones used to
+    // spin it in Z at 4.14 Hz for the whole stun window - 1.43 deg, feet
+    // included - which read as buzzing, not as a fighter who had been hit
+    // (audit 3.1). That motion now lives in the spine, where it settles with
+    // the stun countdown.
+    a.group.rotation.z = f.dizzy > 0 ? Math.sin(tsec * 4.2) * 0.05 : 0;
+    applyStunSway(a, f, tsec);
     groundSoles(a, dt);
   }
   debugRecorder.stage(i, "feetAndReaction", a);
@@ -2757,6 +3083,13 @@ function frame(now) {
     for (let i = 0; i < 2; i++) renderActor(i, now, dt, fxDt);
     if (active) for (let pass = 0; pass < 3; pass++) separateBodies();
   }
+  // Hit-stop freezes the POSE but not stepImpactPush, so for ~2 frames the
+  // roots keep moving relative to each other while renderActor does not run.
+  // Measured without this outside the guard: the glove sank 0.26 cm then
+  // 1.29 cm on exactly the impact frames and nowhere else. The clamp is purely
+  // kinematic on whatever pose is current, so it is safe either way - and on
+  // the next live frame renderActor re-poses from scratch anyway.
+  resolveOpponentContact();
   fx.update(frozen ? dt * 0.5 : fxDt);
   flashes.update(dt, 0.35 + sound.excitement * 4);
   arena.update(vclock / 1000, sound.excitement);
