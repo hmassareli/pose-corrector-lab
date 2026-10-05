@@ -23,6 +23,14 @@ Three things were stale here:
    wedged mid-air and never settled. Both ``Math.random`` and the clock are now
    pinned, and the horizon went from 6 s to 15 s because a launched ragdoll
    lands at 2.0-6.3 s instead of under 3 s.
+
+4. ``MIN_LAUNCH_RISE = 0.30`` was itself stale. It was recorded BEFORE the
+   ``applyImpulse`` lever-arm fix (world coordinate -> point relative to the
+   centre of mass), so it captured what the bug produced rather than what the
+   KO should do: 1.28 m of head rise and 40086 rad/s of spin came from a ~1.9 m
+   lever, and both vanish once the lever is the real 0.108 m offset. The A/B
+   table by ``MIN_THROW`` holds both rows; the launch is now asserted as the
+   distance thrown plus the spin ceiling the fix guarantees.
 """
 import json
 from pathlib import Path
@@ -36,15 +44,36 @@ OUT.mkdir(parents=True, exist_ok=True)
 HORIZON_S = 15
 # Straight-back punch: the one direction where the launch must be visible.
 LAUNCH_DIRECTION = [0, 0, -1]
-MIN_LAUNCH_RISE = 0.30  # measured 0.74-1.12 m across the three rigs
+# Re-derived on the FIXED build from an A/B that runs this very RUN against
+# both interpretations of applyImpulse's second argument (same contact, same
+# seeded clock, only the world/relative reading differs):
+#
+#   variant  maxHeadRise  rootRise  |headAng|@t0  maxSlide  peakTwist
+#   base           1.280     1.365         40086     1.993     11.071
+#   fix            0.000     0.000           798     1.839      1.508
+#
+# The old `MIN_LAUNCH_RISE = 0.30  # measured 0.74-1.12 m` was recorded while
+# applyImpulse still received WORLD coordinates. A ~1.9 m lever spun the head
+# to -40086 rad/s and the joint reaction threw the whole body 1.37 m into the
+# air; that vertical rise was an artefact of the bug, not the launch. What
+# survives the fix is a horizontal throw, so that is what the guard measures.
+MIN_THROW = 1.50  # measured 1.75-2.23 m (10 runs) + 1.94 m translated
+# The bug is a spin bug, so guard it where it actually shows: at t0.
+MAX_HEAD_SPIN = 5000  # measured 266-783 rad/s fixed; 40086 rad/s before the fix
 
-RUN = r'''async ({fps,direction,victim,horizon})=>{
-  const T=await import('three'),c=await import('/static/boxing_core.mjs'),d=cornerDebug;
+RUN = r'''async ({fps,direction,victim,horizon,translate,contactMode})=>{
+  const T=await import('three'),c=await import('/static/boxing_core.mjs'),
+        koMod=await import('/static/boxing_knockout.js'),d=cornerDebug;
   const realRandom=Math.random;
   let seed=20261004>>>0;
   Math.random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
   d.paused=true;await new Promise(r=>requestAnimationFrame(r));
   d.reviewPose(c.neutralPose());d.enter();d.fighters.forEach(f=>f.tracking=false);
+  // Translation-invariance probe: slide the WHOLE match sideways. A KO whose
+  // spin depends on where in the ring the fighters stood cannot be correct,
+  // because cannon's applyImpulse takes a point relative to the body center.
+  if(translate&&translate.length===2)
+    d.fighters.forEach(f=>{f.x+=translate[0];f.z+=translate[1];});
   const real=performance.now.bind(performance);let clock=1000000;
   Object.defineProperty(performance,'now',{value:()=>clock,configurable:true});
   const render=d.renderer.render;d.renderer.render=()=>{};
@@ -52,9 +81,39 @@ RUN = r'''async ({fps,direction,victim,horizon})=>{
   const a=d.actors[victim],f=d.fighters[victim];
   const head=a.rig.bones.get('head').bone;
   const startHead=head.getWorldPosition(new T.Vector3());
-  f.reaction={kind:'finisher',power:1,dir:direction,start:d.presentation().vclock};
+  // impact() always hands the ragdoll the glove contact point
+  // (boxing.js:1686, fighters[victim].reaction.pos). Reaching the constructor
+  // without it means "shove through the center of mass": with the lever arm
+  // corrected the head would get a perfectly centred impulse and never spin -
+  // a scenario the game cannot produce. Anchor the contact on the head BODY,
+  // not the head bone: the body is centred on the skull's mesh bounds
+  // (boxing_knockout.js:258) and sits well above the bone, so anchoring on the
+  // bone put the contact BELOW the centre, which pitched the face down instead
+  // of snapping it back and removed the launch entirely. A throwaway
+  // construction reads this avatar's exact centre; the constructor only reads
+  // the actor and builds its own isolated world, so it has no side effects.
+  const awayArr=[f.x-d.fighters[1-victim].x,0,f.z-d.fighters[1-victim].z];
+  const hc=new koMod.KnockoutRagdoll(a,f,awayArr).parts.get('head').body.position;
+  const dirN=new T.Vector3(...direction);
+  if(dirN.lengthSq()<1e-8)dirN.set(0,0,1);
+  dirN.normalize();
+  // Where a glove lands: on the face, 10 cm off centre on the side the push
+  // comes from, 4 cm above the centre (brow height).
+  const contact=[hc.x-dirN.x*.10,hc.y+.04,hc.z-dirN.z*.10];
+  f.reaction={kind:'finisher',power:1,dir:direction,
+              pos:contactMode==='none'?undefined:contact,
+              start:d.presentation().vclock};
   d.finish({winner:1-victim,ko:true,reason:'knockout'});d.presentation().ko.delay=1e9;
   const K=a.knockout;
+  // Snapshot of the initial conditions the lever-arm fix governs. Read before
+  // any step so this is exactly what applyImpulse handed the solver.
+  const _hb=K.parts.get('head').body;
+  const _tb=(K.parts.get('spine2')||K.parts.get('spine1')).body;
+  const r3=v=>v.toArray().map(n=>+n.toFixed(4));
+  const t0={headLin:r3(_hb.velocity),headAng:r3(_hb.angularVelocity),
+            torsoLin:r3(_tb.velocity),torsoAng:r3(_tb.angularVelocity),
+            hitOffset:r3(K.pushPoint.clone().sub(_hb.position)),
+            hitOffsetLen:+K.pushPoint.distanceTo(_hb.position).toFixed(4)};
   const start=d.presentation().vclock;
   let maxSlide=0,maxHeadY=startHead.y,minFloor=Infinity,maxJoint=0,maxRootStep=0;
   let maxRadius=0,previous=a.group.position.clone();
@@ -142,6 +201,7 @@ RUN = r'''async ({fps,direction,victim,horizon})=>{
     worstCone,worstTwist,
     endConeRatio:+end.cone.toFixed(3),endTwistRatio:+end.tw.toFixed(3),
     endConeJoint:end.wc,endTwistJoint:end.wt,
+    t0,
     sleeping:!!K.settled,
     cpuFrameMs:{p50:cpuMs[Math.floor(cpuMs.length*.5)],p95:cpuMs[Math.floor(cpuMs.length*.95)]},
     rows};
@@ -187,16 +247,48 @@ with sync_playwright() as p:
         for fps, direction in [(60, [0, 0, -1]), (30, [1, 0, 0]), (144, [-.7, 0, -.7])]:
             result = page.evaluate(
                 RUN, {'fps': fps, 'direction': direction, 'victim': 0,
-                      'horizon': HORIZON_S})
+                      'horizon': HORIZON_S, 'translate': [0, 0]})
             results.append(result)
             page.screenshot(path=str(OUT / f'ko-{avatar}-{fps}.png'))
             print(json.dumps({k: v for k, v in result.items() if k != 'rows'}), flush=True)
             page.evaluate('''()=>{cornerDebug.exit();
               if(cornerDebug.actors.some(a=>a.knockout))throw Error('KO not reset');}''')
     result = page.evaluate(
-        RUN, {'fps': 60, 'direction': [0, 0, 1], 'victim': 1, 'horizon': HORIZON_S})
+        RUN, {'fps': 60, 'direction': [0, 0, 1], 'victim': 1, 'horizon': HORIZON_S,
+              'translate': [0, 0]})
     results.append(result)
-    report = {'results': results, 'errors': errors}
+    # Same KO with the whole match slid 2.5 m across the ring. cannon's
+    # applyImpulse takes a point RELATIVE TO THE BODY CENTER; the KO used to
+    # pass world coordinates, so the spin was a function of where the fighters
+    # happened to stand and the torso received a lever arm of its own altitude.
+    #
+    # Run base and slid copy BACK TO BACK on ONE rig. The matrix leaves
+    # `fighter-web` selected while results[0] is boxer-prism31, and two
+    # different avatars read exactly like a translation bug: for the identical
+    # punch boxer-prism31 answers headAng [-334.3, 0.008, 0.013] while
+    # fighter-web answers [-474.4, 13.9, -17.4]. Pairing them here makes
+    # `translate` the only variable, and the avatar check below keeps that
+    # substitution from coming back.
+    rig = results[0]['avatar']
+    page.evaluate('cornerDebug.exit()')
+    page.select_option('#avatarSelect', rig, force=True)
+    page.wait_for_function('(id)=>cornerDebug.actors[0]?.avatarId===id',
+                           arg=rig, timeout=120000)
+    # Same reason as the warmup above: the first KO after a rig rebuild races
+    # async init, so spend one before measuring the pair.
+    page.evaluate(RUN, {'fps': 60, 'direction': [0, 0, -1], 'victim': 0,
+                        'horizon': HORIZON_S, 'translate': [0, 0]})
+    page.evaluate('cornerDebug.exit()')
+    base_result = page.evaluate(
+        RUN, {'fps': 60, 'direction': [0, 0, -1], 'victim': 0,
+              'horizon': HORIZON_S, 'translate': [0, 0]})
+    page.evaluate('cornerDebug.exit()')
+    translated = page.evaluate(
+        RUN, {'fps': 60, 'direction': [0, 0, -1], 'victim': 0,
+              'horizon': HORIZON_S, 'translate': [2.5, 1.1]})
+    page.evaluate('cornerDebug.exit()')
+    report = {'results': results, 'base': base_result,
+              'translated': translated, 'errors': errors}
     (OUT / 'knockout-validation.json').write_text(
         json.dumps(report, indent=2), encoding='utf-8')
     browser.close()
@@ -217,12 +309,34 @@ with sync_playwright() as p:
         assert r['maxRadius'] <= 3.6, r
         assert r['endConeRatio'] <= 1.35, r
         assert r['endTwistRatio'] <= 1.50, r
-        # Launch guard: a straight-back punch must throw the head visibly.
-        # The old `maxHeadRise < 0.15` asserted the launch did NOT happen.
+        # Launch guard: a straight-back punch must THROW the body, not tip it
+        # over where it stood. Two earlier bounds both encoded the bug: the
+        # original `maxHeadRise < 0.15` asserted the launch did NOT happen, and
+        # its successor `>= 0.30` asserted the vertical artefact the lever-arm
+        # fix removed. The throw that remains is measured along the floor it
+        # covers, and the spin the fix eliminated is checked at its source.
         if r['direction'] == LAUNCH_DIRECTION:
-            assert r['maxHeadRise'] >= MIN_LAUNCH_RISE, r
+            assert r['maxSlide'] >= MIN_THROW, r
+            assert max(abs(v) for v in r['t0']['headAng']) < MAX_HEAD_SPIN, r
         # It must launch, but not blow up out of the arena.
         assert r['maxHeadRise'] < 3.0, r
+    # Same KO with the ring slid 2.5 m sideways: identical initial conditions.
+    # cannon's applyImpulse wants a point relative to the body center, so world
+    # coordinates make this fail on the first digit.
+    # Both halves must be the same rig: two avatars differ here even with no
+    # translation at all, which is how this comparison was quietly broken.
+    assert translated['avatar'] == base_result['avatar'], (
+        base_result['avatar'], translated['avatar'])
+    base, other = base_result['t0'], translated['t0']
+    for key in ('headLin', 'headAng', 'torsoLin', 'torsoAng', 'hitOffset',
+                'hitOffsetLen'):
+        assert other[key] == base[key], (key, other[key], base[key])
+    # The contact must sit off-center - otherwise there is no spin here at all -
+    # and stay inside the constructor's 0.16 m clamp.
+    assert .02 <= base['hitOffsetLen'] <= .16, base
+    assert max(abs(v) for v in base['headAng']) > 1.0, base
+    print(f"t0: headAng={base['headAng']} torsoAng={base['torsoAng']} "
+          f"hitOffset={base['hitOffset']} ({base['hitOffsetLen']} m)", flush=True)
     peakCone = max(r['peakConeRatio'] for r in results)
     peakTwist = max(r['peakTwistRatio'] for r in results)
     settle = [r['settleTime'] for r in results if r['settleTime'] is not None]
@@ -231,4 +345,5 @@ with sync_playwright() as p:
     print(f'settled in {min(settle)}-{max(settle)} s '
           f'({len(settle)}/{len(results)} runs)')
     print('PASS: all rigs, 30/60/144 FPS, both victims, seeded clock, bounded '
-          'joints/root, floor, in-ring, settles and stays settled, launch intact')
+          'joints/root, floor, in-ring, settles and stays settled, launch '
+          'intact, translation-invariant impulse')

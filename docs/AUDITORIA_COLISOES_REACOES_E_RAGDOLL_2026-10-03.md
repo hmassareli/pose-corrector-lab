@@ -24,7 +24,7 @@ O impulso escolhido é uma decisão estética; não deve ser reduzido automatica
 | Correções sucessivas nos braços | IK, retenção, compressão, punhos e contato na mesma apresentação | Confirmado; conflito entre elas é hipótese |
 | Relógios diferentes nas reações | `vclock` versus `performance.now()` | Confirmado; efeito visual precisa de reprodução |
 | Ponto incorreto no impulso do KO | Posição mundial passada onde Cannon espera deslocamento relativo | Erro confirmado |
-| Torções excessivas no KO | Relato do usuário e configuração atual | Causas relativas entre torque, juntas e potência ainda não medidas |
+| Torções excessivas no KO | A/B da alavanca e `experiments/performance_audit_20261003/knockout-validation.json` | **Semi-resolvido** em 04/10/2026 (ver §5.4): twist de pico 11,07x → 1,51x e giro 40086 → 798 rad/s. Ainda aberto: cone 4,93x e twist 6,90x no pico do lançamento |
 | Testes insuficientes/desatualizados | Asserts de potência antiga e velocidade sem controle de gravidade | Confirmado por leitura; não reexecutados nesta auditoria |
 
 ## 3. Caminho atual da pose durante a luta
@@ -155,6 +155,27 @@ Limites configurados, em radianos:
 Esses valores não certificam limites anatômicos absolutos: é necessário verificar os referenciais e a pose capturada. A adaptação de twist precisa de testes que separem swing de twist. Aumentar a rigidez numérica da restrição também não equivale a criar tônus muscular ou sustentação de pose.
 
 Limites menores e juntas mais firmes foram discutidos, mas não implementados nesta documentação. Primeiro corrigir o torque indevido; depois medir torção relativa e ajustar as juntas preservando o efeito de lançamento desejado.
+
+### 5.4 Estado em 04/10/2026 — torções no KO semi-resolvidas
+
+A correção da alavanca (§5.1) foi aplicada: `cv(hitPoint)` → `cv(hitPoint - head.body.position)` na cabeça e `cv(torso.body.position)` → sem ponto no tronco. A potência (`1500 + power * 0,33`, tronco `* 0,9`) não foi alterada.
+
+O efeito foi medido com um A/B que executa o mesmo `RUN` do teste contra as duas interpretações do segundo argumento de `applyImpulse`, variando **apenas** esse ponto:
+
+| Variante | Subida da cabeça | Subida da raiz | Giro da cabeça em t0 | `maxSlide` | Twist de pico | Assentamento |
+|---|---:|---:|---:|---:|---:|---:|
+| mundo (com bug) | 1,280 m | 1,365 m | 40086 rad/s | 1,993 m | **11,07x** | 5,19 s |
+| relativo (atual) | 0,000 m | 0,000 m | 798 rad/s | 1,839 m | **1,51x** | 3,09 s |
+
+Com um impulso horizontal, só a componente **Y** do ponto de aplicação produz torque no eixo X. No código com o bug essa componente era a posição mundial da cabeça (cerca de 2 m de altura); depois da correção ela é o deslocamento real entre o centro da cabeça e o ponto de contato — `hitOffset = [0, 0,04, 0,1]`, medido, ou seja 0,040 m. O giro em t0 caiu de 40086 para 798 rad/s, **fator 50x**, consistente com essa mesma razão. A subida vertical de 1,28 m era **artefato do bug**: era o corpo recebendo um braço de alavanca igual à própria altitude. O arremesso horizontal foi preservado (−8% de distância) e o ragdoll passou a assentar 2 s mais rápido.
+
+**Declaração do usuário (04/10/2026):** "agora tá bacana e não tá rodando mais tanto, tô sentindo que tá realista até". Por isso este item está marcado como **semi-resolvido** e não como resolvido.
+
+**O que continua aberto:** a matriz completa (`experiments/performance_audit_20261003/knockout-validation.json`, 3 rigs × 30/60/144 fps, 10 execuções) ainda mede sobreextensão transitória durante o lançamento — cone até **4,93x** (`neck 155/32`) e twist até **6,90x** (`neck 158/23`). No estado final tudo volta ao limite (`endConeRatio` ≤ 1,016, `endTwistRatio` ≤ 1,048), o ragdoll dorme em 10/10 execuções e `drift` fica entre 0,0002 e 0,003, mas o pescoço ainda abre além do limite enquanto o corpo voa.
+
+O pico de twist vinha da alavanca e caiu com a correção. O pico de cone vem do impulso linear de 300 m/s, que é justamente a potência escolhida pelo usuário e **não deve ser reduzida** (§1). As alavancas restantes são mecânicas: juntas mais firmes (`setSpookParams`), limites de twist mais estritos e substeps mais finos nos primeiros frames — nesta ordem, medindo cada uma isoladamente.
+
+Os asserts do teste foram rederivados dessa medição, não relaxados: o antigo `maxHeadRise >= 0,30  # measured 0,74-1,12 m` foi gravado **antes** da correção e media o artefato do bug. O lançamento agora é verificado por `maxSlide >= 1,50` (medido 1,75–2,23 m nas 10 execuções) e pelo teto de giro `|headAng| < 5000` (medido 266–783 rad/s contra 40086 antes da correção) — que é justamente a assinatura do bug corrigido.
 
 ## 6. Gravador e validação
 

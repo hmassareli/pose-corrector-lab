@@ -381,17 +381,24 @@ export class KnockoutRagdoll {
       hitPoint
         .copy(head.body.position)
         .add(hitOffset.normalize().multiplyScalar(0.16));
+    // After the clamp above, hitOffset === hitPoint - head center. cannon's
+    // second argument is RELATIVE TO THE BODY CENTER (see Body.applyImpulse:
+    // "Compute point position relative to the body center"), so passing the
+    // world hitPoint fed the solver a lever arm of ~2 m instead of ~0.1 m and
+    // made the KO spin depend on WHERE in the ring the fighter stood. Same
+    // trap on the torso: its own world position was used as the lever arm of
+    // an impulse meant to go through the center of mass.
     // Cannon uses N*s for impulses. This is a small increase over the
     // previous head-only shove; the torso share improves weight transfer
     // without launching the whole ragdoll.
     const impulseMagnitude = KO_IMPULSE_BASE + power * KO_IMPULSE_PER_POWER;
     const impulse = punch.clone().multiplyScalar(impulseMagnitude);
-    head.body.applyImpulse(cv(impulse), cv(hitPoint));
+    head.body.applyImpulse(cv(impulse), cv(hitOffset));
     head.body.wakeUp();
     const torso = this.parts.get("spine2") || this.parts.get("spine1");
     const torsoImpulseMagnitude = impulseMagnitude * KO_IMPULSE_TORSO_RATIO;
     const torsoImpulse = punch.clone().multiplyScalar(torsoImpulseMagnitude);
-    torso.body.applyImpulse(cv(torsoImpulse), cv(torso.body.position));
+    torso.body.applyImpulse(cv(torsoImpulse));
     torso.body.wakeUp();
     this.pushDirection = punch.clone();
     this.pushImpulse = impulseMagnitude;
