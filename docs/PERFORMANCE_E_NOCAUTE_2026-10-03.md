@@ -215,7 +215,7 @@ O snapshot rendering do Babylon reaproveita comandos em condições específicas
 
 ## 7. Nocaute: registro histórico, substituído pela auditoria
 
-> **Retificação de 03/10/2026:** esta seção preserva descrições e resultados anteriores e não representa a configuração nem a validação atual. Consulte a [Auditoria de colisões, reações e ragdoll](AUDITORIA_COLISOES_REACOES_E_RAGDOLL_2026-10-03.md) para o estado inspecionado no commit `848242e`. Foram identificados pontos absolutos passados incorretamente a `applyImpulse()`, potência atual de `1500 + power * 0.33` com parcela adicional de 90% no torso, testes desatualizados e evidência insuficiente de transferência física. As afirmações abaixo de impulso correto, transferência comprovada e testes atuais passando estão retiradas. Esta retificação é documental; o código do jogo não foi alterado.
+> **Retificação de 03/10/2026:** esta seção preserva descrições e resultados anteriores e não representa a configuração nem a validação atual. Consulte a [Auditoria de colisões, reações e ragdoll](AUDITORIA_COLISOES_REACOES_E_RAGDOLL_2026-10-03.md) para o estado inspecionado no commit `751308f`. Foram identificados pontos absolutos passados incorretamente a `applyImpulse()`, potência atual de `1500 + power * 0.33` com parcela adicional de 90% no torso, testes desatualizados e evidência insuficiente de transferência física. As afirmações abaixo de impulso correto, transferência comprovada e testes atuais passando estão retiradas. Esta retificação é documental; o código do jogo não foi alterado.
 
 O comportamento anterior continuava aplicando retarget, alinhamento das mãos e guarda enquanto girava o grupo inteiro até aproximadamente 85°. Resultado: o corpo tombava, mas preservava a postura de luta.
 

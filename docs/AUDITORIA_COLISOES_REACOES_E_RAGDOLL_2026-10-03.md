@@ -1,6 +1,8 @@
 # Auditoria de colisões, reações de impacto e ragdoll
 
-Data: 03/10/2026. Referência: commit `848242e` (`Snapshot playable boxing game state`).
+Data: 03/10/2026. Referência: commit `751308f` (`Snapshot playable boxing game state`).
+
+> **Nota de 05/10/2026:** o hash original deste snapshot era `848242e` e mudou para `751308f`. O GitHub recusa qualquer arquivo acima de 100 MB (`GH001`), e quatro desses arquivos entraram nesse commit — `guard.y4m` (388,6 MB), `boxer_mixamo.obj` (146,4 MB), `punch_cadence_20261002.mp4` (144,2 MB) e `verts.bin` (126,6 MB) — o que bloqueava o envio de `main`. Como nenhum desses commits ainda estava no origin (só `54438e4` estava, na `origin/dev`, e preservou o hash), o histórico foi reescrito com `git filter-repo` para removê-los. Todos os arquivos continuam no disco local e agora constam do `.gitignore`, então nenhum teste deixou de encontrá-los. Outras referências ao hash antigo em `docs/evidencias/` foram mantidas: são transcrições literais de conversas passadas.
 
 Este documento registra a análise do código e os sintomas relatados pelo usuário. Nenhuma correção de gameplay foi feita nesta etapa de documentação. As linhas abaixo correspondem ao estado inspecionado; os nomes das funções são a referência principal caso a numeração mude.
 

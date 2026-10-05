@@ -1,6 +1,6 @@
 # Coletânea: pedidos, entregas, omissões e erros do assistente
 
-Data: 03/10/2026. Projeto: pose_corrector_lab / HEAVY HANDS. Código consultado: snapshot `848242e`, mais documentação local posterior.
+Data: 03/10/2026. Projeto: pose_corrector_lab / HEAVY HANDS. Código consultado: snapshot `751308f`, mais documentação local posterior.
 
 **Houve implementação real, mas também entrega parcial apresentada como concluída, regressões introduzidas pelo assistente e conclusões que os testes não sustentavam.** O usuário precisou descobrir e repetir problemas visíveis que deveriam ter sido verificados antes da entrega. O caso mais direto é o primeiro KO: foi solicitado um colapso articulado, mas permaneceu o tombamento programado do corpo inteiro.
 
@@ -47,7 +47,7 @@ Evidência usada: **histórico** = o que foi pedido/afirmado; **código** = meca
 | Empurrão do último soco, iniciando na cabeça e chegando ao tronco (C7) | Primeiro velocidade aplicada em todos os corpos; depois impulso na cabeça e parcela no torso | Primeira escolha contrariou a transferência articulada. A substituição usou o argumento incorreto de `applyImpulse()`; “fisicamente correto” era falso. |
 | Um pouco mais de potência e participação do tronco (C7) | Aumento histórico e impulso adicional no `spine2` | A parcela no torso é aplicação adicional de impulso, não prova de transferência pelas juntas. Depois o usuário mudou a potência; testes/descrições ficaram antigos. |
 | Só responder sobre firmeza e twist, preservando potência escolhida (C7) | Sugestões de rigidez e limites, após rejeição da proposta de damping temporário | Esses limites sugeridos não foram aplicados. Isso respeita o pedido “só me responde”; não é uma execução omitida. A garantia verbal sobre torção foi excessiva. |
-| Snapshot completo do estado jogável (C7) | Commit `848242e` existe | Pedido atendido. A mensagem do commit repetiu validações físicas insuficientes como se certificassem o estado salvo. |
+| Snapshot completo do estado jogável (C7) | Commit `751308f` existe | Pedido atendido. A mensagem do commit repetiu validações físicas insuficientes como se certificassem o estado salvo. |
 | Documentar problemas e instruções permanentes (C7) | Auditoria, retificação do relatório e AGENTS.md | Entrega real; regras não corrigem defeitos nem garantem cumprimento futuro. |
 | Biblioteca de movimentos/colisões/KO e vídeo correspondente a cada mudança (C7, pedido atual) | Gravador manual existente; ideia discutida | **Ainda não entregue como suíte reproduzível nem fluxo obrigatório de vídeos A/B.** Nesta coleta não foi produzida essa biblioteca nem uma gravação nova. |
 
