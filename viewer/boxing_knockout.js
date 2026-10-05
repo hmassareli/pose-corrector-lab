@@ -4,6 +4,12 @@ import * as C from "/static/vendor/cannon-es/cannon-es.js";
 
 const FLOOR = 0.026,
   STEP = 1 / 120;
+
+// Potência do soco que derruba. Exportada para que testes e documentos
+// leiam a MESMA fonte versionada em vez de duplicar o número (A06/C02).
+export const KO_IMPULSE_BASE = 1500;
+export const KO_IMPULSE_PER_POWER = 0.33;
+export const KO_IMPULSE_TORSO_RATIO = 0.9;
 const cv = (v) => new C.Vec3(v.x, v.y, v.z);
 const tv = (v) => new THREE.Vector3(v.x, v.y, v.z);
 const tq = (q) => new THREE.Quaternion(q.x, q.y, q.z, q.w);
@@ -378,12 +384,12 @@ export class KnockoutRagdoll {
     // Cannon uses N*s for impulses. This is a small increase over the
     // previous head-only shove; the torso share improves weight transfer
     // without launching the whole ragdoll.
-    const impulseMagnitude = 1500 + power * 0.33;
+    const impulseMagnitude = KO_IMPULSE_BASE + power * KO_IMPULSE_PER_POWER;
     const impulse = punch.clone().multiplyScalar(impulseMagnitude);
     head.body.applyImpulse(cv(impulse), cv(hitPoint));
     head.body.wakeUp();
     const torso = this.parts.get("spine2") || this.parts.get("spine1");
-    const torsoImpulseMagnitude = impulseMagnitude * 0.9;
+    const torsoImpulseMagnitude = impulseMagnitude * KO_IMPULSE_TORSO_RATIO;
     const torsoImpulse = punch.clone().multiplyScalar(torsoImpulseMagnitude);
     torso.body.applyImpulse(cv(torsoImpulse), cv(torso.body.position));
     torso.body.wakeUp();
